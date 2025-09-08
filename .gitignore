@@ -1,0 +1,19 @@
+# Ignore Production
+config.php
+/vendor
+/storage/cache
+/storage/plugins
+
+# Ignore Files Types
+*.psd
+*.db
+*.log
+*.zip
+._*
+
+# Ignore Dev Environment
+/.dist
+/.vscode
+/public/content/*[.png,.jpg,.jpeg,.svg]
+workspace.code-workspace
+/key

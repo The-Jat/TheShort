@@ -1,0 +1,15 @@
+{
+    "name": "The23",
+    "version": "1.0",
+    "author": "GemPixel",
+    "link": "https://gempixel.com",
+    "date": "01/06/2023",
+    "settings": true,
+    "child": false,
+    "thumbnail": "screenshot.png",
+    "include":[
+        "class/themeSettings.php",
+        "functions.php"
+    ],
+    "assets":[]
+}
