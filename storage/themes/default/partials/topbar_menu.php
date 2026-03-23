@@ -51,6 +51,11 @@
                             </div>
                         <?php endforeach ?>
                     </div>
+                    <div class="dropdown-menu-footer">
+                        <a href="<?php echo route('user.notifications') ?>" class="dropdown-item text-center py-2">
+                            <?php ee('View All Notifications') ?>
+                        </a>
+                    </div>
                 </div>
             </li>
         <?php endif ?>

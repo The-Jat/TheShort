@@ -64,6 +64,15 @@
                     </div>
                     <div class="form-group d-flex border rounded p-2 mb-3 align-items-center">
                         <div>
+                            <label for="verification" class="mb-0 form-label fw-bold"><?php ee('Email 2FA') ?></label>
+                            <p class="my-0 form-text"><?php ee('Choose whether to force email 2FA for all users. A code will be sent to the user\'s email after login.') ?></p>
+                        </div>
+                        <div class="form-check form-switch ms-auto">
+                            <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="email2fa" name="email2fa" value="1" <?php echo config("email2fa") ? 'checked':'' ?>>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex border rounded p-2 mb-3 align-items-center">
+                        <div>
                             <label for="gravatar" class="mb-0 form-label fw-bold"><?php ee('Use Gravatar') ?></label>
                             <p class="my-0 form-text"><?php ee('Use Gravatars as default user Avatar.') ?></p>
                         </div>

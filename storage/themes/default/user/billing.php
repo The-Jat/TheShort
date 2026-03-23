@@ -59,7 +59,7 @@
             <div class="card-body">
                 <div class="text-center">
                     <h5 class="mb-3 fw-bold"><?php echo $plan['name'] ?></h5>
-                    <?php if(\Helpers\App::possible() && $subscription = \Core\DB::subscription()->where('userid', user()->id)->where('status', 'Active')->first()):?>
+                    <?php if($subscription = \Core\DB::subscription()->where('userid', user()->id)->where('status', 'Active')->first()):?>
                         <?php if($subscription->plan != 'lifetime'): ?>
                         <h5 class="mb-3"><?php ee('Expiration') ?>: <?php echo date('d F, Y', strtotime($user->expiration)) ?></h5>
                         <?php endif ?>
@@ -91,43 +91,41 @@
             </div>
         </div>
         <?php endif ?>
-        <?php if(\Helpers\App::possible()): ?>
-            <div class="card shadow-sm rounded-4">
+        <div class="card shadow-sm rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3"><?php ee('Redeem Voucher') ?></h5>
+                    <form action="<?php echo route('checkout.redeem') ?>" method="post">
+                        <?php echo csrf() ?>
+                        <div class="form-group mb-3">
+                            <input type="text" class="form-control p-2" id="input-voucher" name="code" placeholder="e.g. A1A1-A1A1">
+                        </div>
+                        <button type="submit" class="btn btn-primary px-5 py-2 rounded-3 shadow-sm w-100"><?php ee('Redeem') ?></button>
+                    </form>
+                </div>
+            </div>
+        <?php if($user->pro): ?>
+            <?php if(user()->hasPortal()): ?>
+                <div class="card shadow-sm rounded-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title fw-bold"><?php ee("Manage Membership") ?></h5>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title fw-bold mb-3"><?php ee('Redeem Voucher') ?></h5>
-                        <form action="<?php echo route('checkout.redeem') ?>" method="post">
-                            <?php echo csrf() ?>
-                            <div class="form-group mb-3">
-                                <input type="text" class="form-control p-2" id="input-voucher" name="code" placeholder="e.g. A1A1-A1A1">
-                            </div>
-                            <button type="submit" class="btn btn-primary px-5 py-2 rounded-3 shadow-sm w-100"><?php ee('Redeem') ?></button>
-                        </form>
+                        <p><?php ee("You can manage your membership on directly on the payment processor where you can update your credit card and view your invoices.") ?></p>
+                        <p><a href="<?php echo route('billing.manage') ?>" class="btn btn-success px-5 py-2 rounded-3 shadow-sm" target="_blank"><?php ee("Manage Membership") ?></a></p>
                     </div>
                 </div>
-            <?php if($user->pro): ?>
-                <?php if(user()->hasPortal()): ?>
+            <?php endif ?>
+            <?php if($subscription = \Core\DB::subscription()->where('userid', user()->id)->where('status', 'Active')->first()):?>
+                <?php if($subscription->plan != 'lifetime'): ?>
                     <div class="card shadow-sm rounded-4">
                         <div class="card-header bg-transparent">
-                            <h5 class="card-title fw-bold"><?php ee("Manage Membership") ?></h5>
+                            <h5 class="card-title fw-bold"><?php ee("Cancel Membership") ?></h5>
                         </div>
                         <div class="card-body">
-                            <p><?php ee("You can manage your membership on directly on the payment processor where you can update your credit card and view your invoices.") ?></p>
-                            <p><a href="<?php echo route('billing.manage') ?>" class="btn btn-success px-5 py-2 rounded-3 shadow-sm" target="_blank"><?php ee("Manage Membership") ?></a></p>
+                            <p><?php ee("You can cancel your membership whenever you want. Upon request, your membership will be canceled right before your next payment period. This means you can still enjoy premium features until the end of your membership.") ?></p>
+                            <p><a href="#" data-bs-toggle="modal" data-bs-target="#cancelModal" class="btn btn-danger px-5 py-2 rounded-3 shadow-sm"><?php ee("Cancel membership") ?></a></p>
                         </div>
                     </div>
-                <?php endif ?>
-                <?php if(\Helpers\App::possible() && $subscription = \Core\DB::subscription()->where('userid', user()->id)->where('status', 'Active')->first()):?>
-                    <?php if($subscription->plan != 'lifetime'): ?>
-                        <div class="card shadow-sm rounded-4">
-                            <div class="card-header bg-transparent">
-                                <h5 class="card-title fw-bold"><?php ee("Cancel Membership") ?></h5>
-                            </div>
-                            <div class="card-body">
-                                <p><?php ee("You can cancel your membership whenever you want. Upon request, your membership will be canceled right before your next payment period. This means you can still enjoy premium features until the end of your membership.") ?></p>
-                                <p><a href="#" data-bs-toggle="modal" data-bs-target="#cancelModal" class="btn btn-danger px-5 py-2 rounded-3 shadow-sm"><?php ee("Cancel membership") ?></a></p>
-                            </div>
-                        </div>
-                    <?php endif ?>
                 <?php endif ?>
             <?php endif ?>
         <?php endif ?>

@@ -239,7 +239,7 @@ final class Request {
 	 * @version 1.0
 	 * @return  object File object
 	 */
-	public function file($input = NULL){
+	public function file(?string $input = null){
 		
 		if(!is_null($input)) {
 			
@@ -413,7 +413,7 @@ final class Request {
 	 * @param [type] $query
 	 * @return void
 	 */
-	public function query($query = null){
+	public function query(?string $query = null){
 		$path = explode('?', $this->path(true));
 		
 		if(!is_array($path) || !isset($path[1])) return null;
@@ -429,7 +429,7 @@ final class Request {
 	 * @param   int    $segment [description]
 	 * @return  [type]          [description]
 	 */
-	public function segment(int $segment = null){
+	public function segment(?int $segment = null){
 
 		$uri = explode("/", $this->path());
 

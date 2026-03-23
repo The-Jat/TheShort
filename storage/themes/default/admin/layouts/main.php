@@ -8,7 +8,7 @@
         <link href="<?php echo assets('backend/css/app.css') ?>?v=1.0" rel="stylesheet">
         <link href="<?php echo assets('frontend/libs/select2/dist/css/select2.min.css') ?>" rel="stylesheet">
         <link rel="stylesheet" href="<?php echo assets('frontend/libs/fontawesome/all.min.css') ?>">
-        <link href="<?php echo assets('backend/css/style.min.css') ?>?v=1.0" rel="stylesheet">
+        <link href="<?php echo assets('backend/css/style.min.css') ?>?v=1.1" rel="stylesheet">
         <?php if(config('font')): ?>
             <link href="https://fonts.googleapis.com/css2?family=<?php echo str_replace(' ', '+', ucwords(config('font'))) ?>&display=swap" rel="stylesheet">
         <?php endif ?>
@@ -108,12 +108,12 @@
                     "content" => e("Note that this action is permanent. Once you click proceed, you <strong>may not undo</strong> this. Click anywhere outside this modal or click <a href='#close' class='close-modal'>close</a> to close this.")
                 ]]) ?>
         </script> 
-        <script src="<?php echo assets('backend/js/app.js') ?>?v=1.0"></script>
+        <script src="<?php echo assets('backend/js/app.js') ?>?v=1.1"></script>
         <script src="<?php echo assets('frontend/libs/jquery/dist/jquery.min.js') ?>"></script>
         <script src="<?php echo assets('frontend/libs/select2/dist/js/select2.min.js') ?>"></script> 
         <script src="<?php echo assets('frontend/libs/bootstrap-notify/bootstrap-notify.min.js') ?>"></script>    
         <script src="<?php echo assets('frontend/libs/clipboard/dist/clipboard.min.js') ?>"></script>               
         <?php block('footer') ?>
-        <script src="<?php echo assets('custom.min.js') ?>"></script>
+        <script src="<?php echo assets('custom.min.js') ?>?v=1.1"></script>
     </body>
 </html>

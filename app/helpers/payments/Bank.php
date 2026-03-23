@@ -96,12 +96,12 @@ class Bank{
     public static function payment($request, $id, $type){
         
         if(!config('bank') || !config('bank')->enabled){
-            return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+            return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
         }
         
 
         if(!$plan = DB::plans()->first($id)){
-			return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+			return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
 	  	}			
 		
 		$term = e($plan->name);

@@ -1,6 +1,6 @@
 <header class="py-3" id="<?php echo themeSettings::config('menutype', 'top') ? 'menu-top' : 'main-header' ?>">
     <div class="<?php echo isset($menu) && $menu == 'full' ? 'container-fluid' : 'container' ?>">
-        <div class="navbar navbar-expand-lg py-3">
+        <div class="navbar navbar-expand-lg liquid-blur py-3 zindex-100">
             <a href="<?php echo route('home') ?>" class="d-flex align-items-center col-md-3 text-dark text-decoration-none navbar-logo">
             <?php if(config('logo')): ?>
                 <img alt="<?php echo config('title') ?>" src="<?php echo uploads(config('logo')) ?>" id="navbar-logo">
@@ -26,6 +26,17 @@
                             <?php ee('Solutions') ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-lg-end border-0 shadow-lg end-0 rounded-3 p-3">
+                            <li class="mb-2 me-0">
+                                <a class="dropdown-item rounded d-flex align-items-center p-2 border-0" href="<?php echo route('page.link') ?>">
+                                    <div class="justify-content-center icon-md bg-primary align-items-center d-flex rounded-3">
+                                        <i class="fa fa-link gradient-primary clip-text h4 fa-fw mb-0"></i>
+                                    </div>
+                                    <div class="ms-3 flex-fill">
+                                        <strong class="d-block"><?php ee('Link Shortener') ?></strong>
+                                        <small class="opacity-50 text-wrap"><?php ee('Smart trackable short links') ?></small>
+                                    </div>
+                                </a>
+                            </li>
                             <li class="mb-2 me-0">
                                 <a class="dropdown-item rounded d-flex align-items-center p-2 border-0" href="<?php echo route('page.bio') ?>">
                                     <div class="justify-content-center icon-md bg-primary align-items-center d-flex rounded-3">

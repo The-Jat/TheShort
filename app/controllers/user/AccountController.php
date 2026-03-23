@@ -52,18 +52,17 @@ class Account {
         $plan["permission"] = json_decode($plan['permission']);
         
         $subscriptions = [];
-        if(\Helpers\App::possible()){
-            $pending = false;
-            foreach(DB::subscription()->where('userid', $user->id)->orderByDesc('date')->findMany() as $sub){
-                if($sub->status == 'Pending'){
-                    if(!$pending) {
-                        $pending = true;
-                    }else{
-                        continue;
-                    }
+
+        $pending = false;
+        foreach(DB::subscription()->where('userid', $user->id)->orderByDesc('date')->findMany() as $sub){
+            if($sub->status == 'Pending'){
+                if(!$pending) {
+                    $pending = true;
+                }else{
+                    continue;
                 }
-                $subscriptions[] = $sub;
             }
+            $subscriptions[] = $sub;
         }
 
         $payments = [];
@@ -115,20 +114,19 @@ class Account {
         }
         
         $response = null;
-        if(\Helpers\App::possible()){
-            if($subscription = DB::subscription()->where('userid', $user->id)->orderByDesc('id')->first()){
-                foreach($this->processor() as $name => $processor){
-                    if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
-                    $response = call_user_func_array($processor['cancel'], [$user, $subscription]);
-                }    
-                $subscription->status = 'Canceled';
-                $subscription->reason = clean($request->reason);
-                if($subscription->plan != 'monthly') {
-                    $subscription->expiry = Helper::dtime();
-                    $user->expiration = Helper::dtime();
-                }
-                $subscription->save();
+
+        if($subscription = DB::subscription()->where('userid', $user->id)->orderByDesc('id')->first()){
+            foreach($this->processor() as $name => $processor){
+                if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
+                $response = call_user_func_array($processor['cancel'], [$user, $subscription]);
+            }    
+            $subscription->status = 'Canceled';
+            $subscription->reason = clean($request->reason);
+            if($subscription->plan != 'monthly') {
+                $subscription->expiry = Helper::dtime();
+                $user->expiration = Helper::dtime();
             }
+            $subscription->save();
         }
 
         $payment = DB::payment()->create();
@@ -260,18 +258,16 @@ class Account {
         }
 
         if($user->pro()){
-            if(\Helpers\App::possible()){
-               if($subscription = DB::subscription()->where('userid', $user->id)->first()){
-                    foreach($this->processor() as $name => $processor){
-                        if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
-                        call_user_func_array($processor['cancel'], [$user, $subscription]);
-                    }
-            
-                    $subscription->expiry = Helper::dtime();
-                    $subscription->status = 'Canceled';
-                    $subscription->reason = clean($request->reason);
-                    $subscription->save();
-               }
+            if($subscription = DB::subscription()->where('userid', $user->id)->first()){
+                foreach($this->processor() as $name => $processor){
+                    if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
+                    call_user_func_array($processor['cancel'], [$user, $subscription]);
+                }
+        
+                $subscription->expiry = Helper::dtime();
+                $subscription->status = 'Canceled';
+                $subscription->reason = clean($request->reason);
+                $subscription->save();
             }
     
             $user->pro = 0;
@@ -362,6 +358,9 @@ class Account {
         View::push(assets('frontend/libs/clipboard/dist/clipboard.min.js'), 'js')->toFooter();
 
         CDN::load('cropper');
+
+        $user->extra = is_string($user->extra ?? '') ? json_decode($user->extra, true) : ($user->extra ?? []);
+        if (!is_array($user->extra)) $user->extra = [];
         
         View::set('title', e('Settings'));
 
@@ -484,6 +483,13 @@ class Account {
             "country" 	=>	Helper::RequestClean($request->country)
         ]);
 
+        if ($user->admin) {
+            $extra = is_string($user->extra ?? '') ? json_decode($user->extra, true) : ($user->extra ?? []);
+            if (!is_array($extra)) $extra = [];
+            $extra['bio'] = $request->bio ? Helper::RequestClean($request->bio) : '';
+            $user->extra = json_encode($extra);
+        }
+
         if($user->active == 0){
             
             $user->uniquetoken = Helper::rand(32);
@@ -589,7 +595,7 @@ class Account {
      */
     public function confirmation(Request $request){
 
-        if(!\Helpers\App::possible() || !$request->id || !is_numeric($request->id)) return Helper::redirect()->to(route('billing'));
+        if(!$request->id || !is_numeric($request->id)) return Helper::redirect()->to(route('billing'));
 
         $user = Auth::user();
 
@@ -624,15 +630,14 @@ class Account {
         
         $user = user();
 
-        if(\Helpers\App::possible()){
-            if($subscription = DB::subscription()->where('userid', $user->id)->orderByDesc('date')->first()){
-                foreach($this->processor() as $name => $processor){
-                    if(!config($name) || !config($name)->enabled || !$processor['manage']) continue;
-                    call_user_func_array($processor['manage'], [$user, $subscription]);
-                    exit;
-                }    
-            }
+        if($subscription = DB::subscription()->where('userid', $user->id)->orderByDesc('date')->first()){
+            foreach($this->processor() as $name => $processor){
+                if(!config($name) || !config($name)->enabled || !$processor['manage']) continue;
+                call_user_func_array($processor['manage'], [$user, $subscription]);
+                exit;
+            }    
         }
+
         return Helper::redirect()->back()->with('danger', e('An unexpected error occurred. Please try again.'));
     }
     /**
@@ -700,10 +705,9 @@ class Account {
 
         $events = [];
         
-        $query = DB::appevents()->where('userid', $user->id)->whereRaw("(type='login' OR type='2fa' OR type='password')");
+        $query = DB::appevents()->where('userid', $user->id)->whereRaw("(type='login' OR type='2fa' OR type='password' OR type='email2fa' OR type='email2fa.error' OR type='email2fa.success')");
 
-        foreach($query->orderByDesc('id')->paginate(15) as $event){
-            $event->type = ucfirst($event->type);
+        foreach($query->orderByDesc('id')->paginate(15) as $event){;
             $event->data = json_decode($event->data);
             $events[] = $event;
         }

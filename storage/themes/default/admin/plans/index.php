@@ -9,10 +9,8 @@
     <h1 class="h3 mb-0 fw-bold"><?php ee('Plans') ?></h1>
     <div class="ms-auto">
         <a href="<?php echo route('admin.plans.new') ?>" class="btn btn-primary rounded-3 px-5 py-2 rounded-3 shadow-sm"> <?php ee('Add Plan') ?></a>
-        <?php if (\Helpers\App::possible()): ?>
-            <a href="<?php echo route("admin.plans.sync") ?>" class="btn btn-dark rounded-3 px-3 py-2" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php ee('Sync Plans') ?>"><i data-feather="repeat"></i></a> 
-            <a href="<?php echo route("admin.settings.config",['payments']) ?>" class="btn btn-dark rounded-3 px-3 py-2" data-bs-toggle="tooltip" data-bs-placement="top" title=" <?php ee('Settings') ?>"><i data-feather="settings"></i></a> 
-        <?php endif ?>
+        <a href="<?php echo route("admin.plans.sync") ?>" class="btn btn-dark rounded-3 px-3 py-2" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php ee('Sync Plans') ?>"><i data-feather="repeat"></i></a> 
+        <a href="<?php echo route("admin.settings.config",['payments']) ?>" class="btn btn-dark rounded-3 px-3 py-2" data-bs-toggle="tooltip" data-bs-placement="top" title=" <?php ee('Settings') ?>"><i data-feather="settings"></i></a> 
     </div>
 </div>
 <div class="card rounded-4 flex-fill shadow-sm">    

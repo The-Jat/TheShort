@@ -31,28 +31,82 @@ class Blog {
      *
      * @author GemPixel <https://gempixel.com>
      * @version 6.0
+     * @param Request $request
      * @return void
      */
-    public function index(){
+    public function index(Request $request){
         if(!user()->hasRolePermission('blog.view')) {
             return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to view blog posts.'));
         }
 
+        $query = DB::posts();
+        
+        // Search filter
+        if($request->q && strlen($request->q) >= 2){
+            $search = Helper::RequestClean($request->q);
+            $query->whereAnyIs([
+                ['title' => "%{$search}%"],
+                ['content' => "%{$search}%"],
+            ], 'LIKE ');
+        }
+        
+        // Category filter
+        if($request->category && $request->category != 'all'){
+            $query->where('categoryid', Helper::RequestClean($request->category));
+        }
+        
+        // Language filter
+        if($request->lang && $request->lang != 'all'){
+            $query->where('lang', Helper::RequestClean($request->lang));
+        }
+
         $posts = [];
         
-        foreach(DB::posts()->orderByDesc('date')->paginate(15) as $post){
+        foreach($query->orderByDesc('date')->paginate(15) as $post){
             
             $post->categoryname = null;
 
             if($post->categoryid && $category = DB::postcategories()->first($post->categoryid)){
                 $post->categoryname = $category->name;
             }
+
+            if($post->userid && $user = DB::user()->where('id', $post->userid)->first()){
+                $post->user = $user;
+            }
+            
             $posts[] = $post;
         }
 
+        // Get unique languages from posts for filter dropdown
+        $languages = DB::posts()->select('lang')->groupBy('lang')->find();
+        $langList = [];
+        $langInfo = [];
+        
+        // Get language info from Localization
+        $allLangs = \Core\Localization::listInfo();
+        $langMap = ['en' => 'English'];
+        foreach($allLangs as $lang){
+            if(isset($lang['code']) && isset($lang['name'])){
+                $langMap[$lang['code']] = $lang['name'];
+            }
+        }
+        
+        foreach($languages as $lang){
+            if($lang->lang){
+                $langCode = $lang->lang;
+                $langList[] = $langCode;
+                $langInfo[$langCode] = isset($langMap[$langCode]) ? $langMap[$langCode] : strtoupper($langCode);
+            }
+        }
+        $langList = array_unique($langList);
+        sort($langList);
+
+        // Get categories for filter dropdown
+        $categories = DB::postcategories()->orderByAsc('name')->find();
+
         View::set('title', e('Posts'));
 
-        return View::with('admin.blog.index', compact('posts'))->extend('admin.layouts.main');
+        return View::with('admin.blog.index', compact('posts', 'langList', 'langInfo', 'categories'))->extend('admin.layouts.main');
     }
     /**
      * Add Post
@@ -291,6 +345,148 @@ class Blog {
         if($post->image) \Helpers\App::delete(PUB."/content/blog/{$post->image}");
         $post->delete();
         return Helper::redirect()->back()->with('success', e('Post has been deleted.'));
+    }
+    /**
+     * Toggle Publish Status
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 7.5.2
+     * @param integer $id
+     * @param string $nonce
+     * @return void
+     */
+    public function toggle(int $id, string $nonce){
+        if(!user()->hasRolePermission('blog.edit')) {
+            return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to edit blog posts.'));
+        }
+
+        \Gem::addMiddleware('DemoProtect');
+
+        if(!Helper::validateNonce($nonce, 'blog.toggle')){
+            return Helper::redirect()->back()->with('danger', e('An unexpected error occurred. Please try again.'));
+        }
+
+        if(!$post = DB::posts()->where('id', $id)->first()){
+            return Helper::redirect()->back()->with('danger', e('Blog post not found. Please try again.'));
+        }
+
+        $post->published = $post->published ? 0 : 1;
+        $post->save();
+
+        $message = $post->published ? e('Post has been published.') : e('Post has been unpublished.');
+        return Helper::redirect()->back()->with('success', $message);
+    }
+    /**
+     * Publish Selected Posts
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 7.5.2
+     * @param Request $request
+     * @return void
+     */
+    public function publishAll(Request $request){
+        if(!user()->hasRolePermission('blog.edit')) {
+            return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to edit blog posts.'));
+        }
+
+        \Gem::addMiddleware('DemoProtect');
+
+        $ids = json_decode($request->selected);
+
+        if(!$ids || empty($ids)) return Helper::redirect()->back()->with('danger', e('No post was selected. Please try again.'));
+
+        foreach($ids as $id){
+            if($post = DB::posts()->where('id', $id)->first()){
+                $post->published = 1;
+                $post->save();
+            }
+        }
+
+        return Helper::redirect()->back()->with('success', e('Selected posts have been published.'));
+    }
+    /**
+     * Unpublish Selected Posts
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 7.5.2
+     * @param Request $request
+     * @return void
+     */
+    public function unpublishAll(Request $request){
+        if(!user()->hasRolePermission('blog.edit')) {
+            return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to edit blog posts.'));
+        }
+
+        \Gem::addMiddleware('DemoProtect');
+
+        $ids = json_decode($request->selected);
+
+        if(!$ids || empty($ids)) return Helper::redirect()->back()->with('danger', e('No post was selected. Please try again.'));
+
+        foreach($ids as $id){
+            if($post = DB::posts()->where('id', $id)->first()){
+                $post->published = 0;
+                $post->save();
+            }
+        }
+
+        return Helper::redirect()->back()->with('success', e('Selected posts have been unpublished.'));
+    }
+    /**
+     * Reset Views for Selected Posts
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 7.5.2
+     * @param Request $request
+     * @return void
+     */
+    public function resetViewsAll(Request $request){
+        if(!user()->hasRolePermission('blog.edit')) {
+            return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to edit blog posts.'));
+        }
+
+        \Gem::addMiddleware('DemoProtect');
+
+        $ids = json_decode($request->selected);
+
+        if(!$ids || empty($ids)) return Helper::redirect()->back()->with('danger', e('No post was selected. Please try again.'));
+
+        foreach($ids as $id){
+            if($post = DB::posts()->where('id', $id)->first()){
+                $post->views = 0;
+                $post->save();
+            }
+        }
+
+        return Helper::redirect()->back()->with('success', e('Views have been reset for selected posts.'));
+    }
+    /**
+     * Delete Selected Posts
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 7.5.2
+     * @param Request $request
+     * @return void
+     */
+    public function deleteAll(Request $request){
+        if(!user()->hasRolePermission('blog.delete')) {
+            return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to delete blog posts.'));
+        }
+
+        \Gem::addMiddleware('DemoProtect');
+
+        $ids = json_decode($request->selected);
+
+        if(!$ids || empty($ids)) return Helper::redirect()->back()->with('danger', e('No post was selected. Please try again.'));
+
+        foreach($ids as $id){
+            if($post = DB::posts()->where('id', $id)->first()){
+                if($post->image) \Helpers\App::delete(PUB."/content/blog/{$post->image}");
+                $post->delete();
+            }
+        }
+
+        return Helper::redirect()->back()->with('success', e('Selected posts have been deleted.'));
     }
     /**
      * Categories

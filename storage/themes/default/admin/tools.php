@@ -45,12 +45,10 @@
                         <input class="form-check-input" type="checkbox" value="1" name="users">
                         <span class="form-check-label"><?php ee('Users with no links (accounts more than 30 days)') ?></span>
                     </label>
-                    <?php if(\Helpers\App::possible()): ?>
                     <label class="form-check form-check-inline d-block mb-2">
                         <input class="form-check-input" type="checkbox" value="1" name="subscription">
                         <span class="form-check-label"><?php ee('Pending Subscriptions') ?></span>
                     </label>
-                    <?php endif ?>
                     <label class="form-check form-check-inline d-block mb-2">
                         <input class="form-check-input" type="checkbox" value="1" name="payments">
                         <span class="form-check-label"><?php ee('Pending Payments') ?></span>

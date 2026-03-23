@@ -276,7 +276,8 @@ class Users {
         $user->admin = $request->admin ?? 0;
         $user->active= $request->active ?? 0;
         $user->auth_key = Helper::Encode($user->email.$user->id.uniqid().rand(0, 99999));
-        $user->banned = 0;  
+        $user->banned = 0;
+        $user->extra = json_encode(['bio' => $request->bio ? Helper::clean($request->bio) : '']);
         $user->save();
         $request->clear();
         return Helper::redirect()->to(route('admin.users'))->with('success', e('User has been added successfully'));
@@ -368,6 +369,10 @@ class Users {
         $user->active= $request->active ?? 0;
         $user->banned = $request->banned ?? 0;
         $user->secret2fa = $request->secret2fa;
+        $extra = is_string($user->extra ?? '') ? json_decode($user->extra, true) : ($user->extra ?? []);
+        if (!is_array($extra)) $extra = [];
+        $extra['bio'] = $request->bio ? Helper::clean($request->bio) : '';
+        $user->extra = json_encode($extra);
         $user->save();
 
         return Helper::redirect()->back()->with('success', e('User has been updated successfully'));
@@ -466,9 +471,8 @@ class Users {
 
         DB::appevents()->where('userid', $id)->deleteMany();
 
-        if(\Helpers\App::possible()){
-            DB::subscription()->where('userid', $id)->deleteMany();
-        }
+        DB::subscription()->where('userid', $id)->deleteMany();
+
         $user->delete();
         return Helper::redirect()->back()->with('success', e('User has been deleted and the data has been wiped out.'));
     }
@@ -529,11 +533,100 @@ class Users {
 
         $urls = \Models\Url::where('userid', $user->id)->orderByDesc('date')->paginate(15);
 
+        $firstday = date('Y-m-01');
+        $lastday = date('Y-m-t');
+        $permission = ($plan && $plan->permission) ? json_decode($plan->permission) : null;
+        // User statistics (used / plan limit). Only include enabled features.
+        $stats = [
+            'urls' => [
+                'used' => DB::url()->where('userid', $user->id)->count(),
+                'limit' => $plan ? (int)$plan->numurls : 0,
+                'enabled' => true
+            ],
+            'clicks' => [
+                'used' => DB::stats()->whereRaw("(date BETWEEN '{$firstday}' AND '{$lastday}') AND urluserid = ?", $user->id)->count(),
+                'limit' => $plan ? (int)$plan->numclicks : 0,
+                'enabled' => true
+            ],
+            'bio' => [
+                'used' => DB::profiles()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->bio->enabled) && $permission->bio->enabled)
+            ],
+            'qr' => [
+                'used' => DB::qrs()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->qr->enabled) && $permission->qr->enabled)
+            ],
+            'channels' => [
+                'used' => DB::channels()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->channels->enabled) && $permission->channels->enabled)
+            ],
+            'bundle' => [
+                'used' => DB::bundle()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->bundle->enabled) && $permission->bundle->enabled)
+            ],
+            'splash' => [
+                'used' => DB::splash()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->splash->enabled) && $permission->splash->enabled)
+            ],
+            'overlay' => [
+                'used' => DB::overlay()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->overlay->enabled) && $permission->overlay->enabled)
+            ],
+            'domain' => [
+                'used' => DB::domains()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->domain->enabled) && $permission->domain->enabled)
+            ],
+            'pixels' => [
+                'used' => DB::pixels()->where('userid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->pixels->enabled) && $permission->pixels->enabled)
+            ],
+            'team' => [
+                'used' => DB::members()->where('teamid', $user->id)->count(),
+                'limit' => 0,
+                'enabled' => !$permission || (isset($permission->team->enabled) && $permission->team->enabled)
+            ]
+        ];
+        if($permission){
+            if(isset($permission->bio->count)) $stats['bio']['limit'] = (int)$permission->bio->count;
+            if(isset($permission->qr->count)) $stats['qr']['limit'] = (int)$permission->qr->count;
+            if(isset($permission->channels->count)) $stats['channels']['limit'] = (int)$permission->channels->count;
+            if(isset($permission->splash->count)) $stats['splash']['limit'] = (int)$permission->splash->count;
+            if(isset($permission->overlay->count)) $stats['overlay']['limit'] = (int)$permission->overlay->count;
+            if(isset($permission->domain->count)) $stats['domain']['limit'] = (int)$permission->domain->count;
+            if(isset($permission->pixels->count)) $stats['pixels']['limit'] = (int)$permission->pixels->count;
+            if(isset($permission->team->count)) $stats['team']['limit'] = (int)$permission->team->count;
+        }
+        if($user->admin){
+            foreach(array_keys($stats) as $k) $stats[$k]['limit'] = 0;
+        }
+
+        $features = [
+            'urls' => e('Links'),
+            'clicks' => e('Monthly Clicks'),
+            'bio' => e('Bio Pages'),
+            'qr' => e('QR Codes'),
+            'channels' => e('Channels'),
+            'bundle' => e('Campaigns'),
+            'splash' => e('Splash Pages'),
+            'overlay' => e('Overlays'),
+            'domain' => e('Domains'),
+            'pixels' => e('Pixels'),
+            'team' => e('Team Members')
+        ];
+
         if(_STATE == "DEMO") $user->email="demo@demo.com";
 
         View::set('title', e('View User'));
 
-        return View::with('admin.users.view', compact('user', 'plan', 'urls'))->extend('admin.layouts.main');
+        return View::with('admin.users.view', compact('user', 'plan', 'urls', 'stats', 'features'))->extend('admin.layouts.main');
     }
     /**
      * Login As
@@ -625,9 +718,8 @@ class Users {
     
             DB::appevents()->where('userid', $id)->deleteMany();
 
-            if(\Helpers\App::possible()){
-                DB::subscription()->where('userid', $id)->deleteMany();
-            }
+            DB::subscription()->where('userid', $id)->deleteMany();
+
             $user->delete();           
         }
         

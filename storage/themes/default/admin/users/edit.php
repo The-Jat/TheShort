@@ -77,6 +77,15 @@
                 </select>
                 <p class="form-text"><?php ee('Assign this user to a role.') ?></p>
             </div>
+            <?php
+                $userExtra = is_string($user->extra ?? '') ? json_decode($user->extra, true) : ($user->extra ?? []);
+                if (!is_array($userExtra)) $userExtra = [];
+            ?>
+            <div class="form-group mb-4">
+                <label for="bio" class="form-label fw-bold"><?php ee('Author Bio') ?></label>
+                <textarea class="form-control p-2" name="bio" id="bio" rows="4" placeholder="<?php ee('Short bio shown on blog posts...') ?>"><?php echo htmlspecialchars($userExtra['bio'] ?? '') ?></textarea>
+                <p class="form-text"><?php ee('Optional. Shown on blog single page when this user is the post author.') ?></p>
+            </div>
             <div class="form-group">
                 <div class="d-flex border rounded rounded-3 p-2 mb-3 align-items-center">
                     <div>

@@ -25,6 +25,11 @@ use GemError;
 
 final class Mailgun {
 
+    public static $name = 'Mailgun';
+    public static $logo = 'mailgun.png';
+    public static $siteurl = 'https://mailgun.com/';
+    public static $description = 'Mailgun is a powerful email marketing platform that allows you to send email campaigns to your subscribers.';
+
     private $url = null;
     /**
      * Sending Domain

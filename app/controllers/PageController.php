@@ -570,6 +570,23 @@ class Page {
         return View::with('pages.bio', compact('widgets'))->extend('layouts.main'); 
     }
     /**
+     * Link Shortener
+     *
+     * @author GemPixel <https://gempixel.com> 
+     * @version 7.3
+     * @return void
+     */
+    public function link(){
+
+        View::set('title', e('Link Shortener'));
+        
+        View::set('description', e('Transform long, complex URLs into memorable short links. Perfect for social media, marketing campaigns, and keeping your brand consistent.'));
+
+        View::push(assets('frontend/libs/clipboard/dist/clipboard.min.js'), 'js')->toFooter();
+
+        return View::with('pages.link')->extend('layouts.main'); 
+    }
+    /**
      * Consent
      *
      * @author GemPixel <https://gempixel.com> 

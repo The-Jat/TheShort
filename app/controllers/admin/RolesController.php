@@ -123,7 +123,7 @@ class Roles {
         }
 
         $permissions = Role::getAvailablePermissions();
-        $role->permissions = json_decode($role->permissions, true) ?: [];
+        $role->permissions = json_decode($role->permissions ?? '[]', true);
 
         View::set('title', e('Edit Role'));
 

@@ -25,6 +25,11 @@ use GemError;
 
 final class Mailchimp {
 
+    public static $name = 'Mailchimp';
+    public static $logo = 'mailchimp.jpeg';
+    public static $siteurl = 'https://mailchimp.com/';
+    public static $description = 'Mailchimp is a powerful email marketing platform that allows you to send email campaigns to your subscribers.';
+
     private $url = null;
     /**
      * Sending Domain

@@ -13,7 +13,6 @@
         <a href="<?php echo route('admin.crons.clear') ?>" class="btn btn-danger rounded-3 px-5 py-2 rounded-3 shadow-sm"><?php ee('Clear Logs') ?></a>
     </div>
 </div>
-<?php if(\Helpers\App::possible()): ?>
 <div class="row">
     <div class="col-md-6 h-100">
         <div class="card rounded-4 shadow-sm">
@@ -70,7 +69,6 @@
         </div>
     </div>
 </div>
-<?php endif ?>
 <div class="row">
     <div class="col-md-6 h-100">
         <div class="card rounded-4 shadow-sm">

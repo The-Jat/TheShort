@@ -11,7 +11,7 @@
     <div class="card flex-fill rounded-4 w-100">
         <div class="card-body py-3">
             <div class="chart chart-lg">
-                <canvas data-trigger="chart" data-url="<?php echo route('user.stats.clicks') ?>" data-color-start="rgba(220, 53, 69, 0.5)" data-color-stop="rgba(255,255,255,0.1)" data-color-border="rgba(220, 53, 69, 1)"></canvas>
+                <canvas data-trigger="chart" data-url="<?php echo route('user.stats.clicks') ?>" data-color-start="rgba(43, 130, 255, 0.5)" data-color-stop="rgba(255,255,255,0.1)" data-color-border="rgb(43, 130, 255)"></canvas>
             </div>
         </div>
     </div>

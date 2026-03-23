@@ -102,7 +102,7 @@
                         </form>
                         <?php endif ?>
                     </div>
-                    <div class="text-center mt-5">&copy; <?php echo date("Y") ?> <a href="<?php echo config('url') ?>" class="fw-bold"><?php echo config('title') ?></a>. <?php ee('All Rights Reserved') ?></p>
+                    <div class="text-center mt-5">&copy; <?php echo date("Y") ?> <a href="<?php echo config('url') ?>" class="fw-bold"><?php echo config('sitename') ?></a>. <?php ee('All Rights Reserved') ?></p>
                 </div>
             </div>
         </div>

@@ -41,6 +41,7 @@ Gem::post($prefix.'/checkout/redeem', 'Subscription@redeem')->middleware('Auth')
 Gem::get($prefix.'/page/{page}', 'Page@index')->name('page')->middleware('CheckDomain')->middleware('CheckMaintenance');
 Gem::get($prefix.'/qr-codes', 'Page@qr')->name('page.qr')->middleware('CheckDomain')->middleware('CheckMaintenance');
 Gem::get($prefix.'/bio-profiles', 'Page@bio')->name('page.bio')->middleware('CheckDomain')->middleware('CheckMaintenance');
+Gem::get($prefix.'/link-shortener', 'Page@link')->name('page.link')->middleware('CheckDomain')->middleware('CheckMaintenance');
 
 // Contact Page
 Gem::get($prefix.'/contact', 'Page@contact')->name('contact')->middleware('CheckDomain')->middleware('CheckPrivate');
@@ -62,6 +63,7 @@ Gem::group($prefix.'/blog', function(){
     Gem::setMiddleware(['CheckDomain', 'CheckPrivate']);
     Gem::get('/', 'Blog@index')->name('blog');
     Gem::get('/category/{post}', 'Blog@category')->name('blog.category');
+    Gem::get('/author/{identifier}', 'Blog@author')->name('blog.author');
     Gem::get('/search', 'Blog@search')->name('blog.search');    
     Gem::get('/{post}', 'Blog@post')->name('blog.post');
 });
@@ -93,6 +95,9 @@ Gem::group($prefix.'/user', function(){
     Gem::get('/login/2fa', 'Users@login2FA')->middleware('CheckDomain')->middleware('UserLogged')->name('login.2fa');
     Gem::post('/login/2fa/validate', 'Users@login2FAValidate')->middleware('CheckDomain')->middleware('UserLogged')->name('login.2fa.validate');
     Gem::post('/login/2fa/recover', 'Users@login2FARecover')->middleware('CheckDomain')->middleware('UserLogged')->name('login.2fa.recover');
+    Gem::get('/login/email2fa', 'Users@loginEmail2FA')->middleware('CheckDomain')->middleware('UserLogged')->name('login.email2fa');
+    Gem::post('/login/email2fa/validate', 'Users@loginEmail2FAValidate')->middleware('CheckDomain')->middleware('UserLogged')->name('login.email2fa.validate');
+    Gem::post('/login/email2fa/resend', 'Users@loginEmail2FAResend')->middleware('CheckDomain')->middleware('UserLogged')->name('login.email2fa.resend');
 
     Gem::get('/login/sso/{token}', 'Users@sso')->middleware('CheckDomain')->middleware('UserLogged')->name('login.sso');
 
@@ -155,6 +160,7 @@ Gem::group($prefix.'/user', function(){
     Gem::get('/tools', 'User\Tools@index')->name('tools');
     Gem::get('/tools/slack', 'User\Tools@slack')->name('user.slack');
     Gem::post('/tools/zapier', 'User\Tools@zapier')->name('user.zapier');
+    Gem::post('/integrations/mailchimp', 'User\Integrations@mailchimp')->name('integrations.mailchimp');
 
     Gem::get('/confirmation', 'User\Account@confirmation')->name('confirmation');
     Gem::get('/billing', 'User\Account@billing')->name('billing');
@@ -195,6 +201,13 @@ Gem::group($prefix.'/user', function(){
     Gem::post('/pixels/{id}/update', 'User\Pixels@update')->name('pixel.update');
     Gem::get('/pixels/{id}/delete/{nonce}', 'User\Pixels@delete')->name('pixel.delete');
     Gem::post('/pixels/assign', 'User\Pixels@addto')->name('pixels.addto');
+
+    Gem::get('/paramtemplates/', 'User\ParamTemplates@index')->name('paramtemplates');
+    Gem::get('/paramtemplates/create', 'User\ParamTemplates@create')->name('paramtemplates.create');
+    Gem::post('/paramtemplates/save', 'User\ParamTemplates@save')->name('paramtemplates.save');
+    Gem::get('/paramtemplates/{id}/edit', 'User\ParamTemplates@edit')->name('paramtemplates.edit');
+    Gem::post('/paramtemplates/{id}/update', 'User\ParamTemplates@update')->name('paramtemplates.update');
+    Gem::get('/paramtemplates/{id}/delete/{nonce}', 'User\ParamTemplates@delete')->name('paramtemplates.delete');
 
     Gem::get('/domains/', 'User\Domains@index')->name('domain');
     Gem::get('/domains/create', 'User\Domains@create')->name('domain.create');
@@ -267,6 +280,9 @@ Gem::group($prefix.'/user', function(){
     Gem::get('/get-verified', 'User\Verification@index')->name('user.verification');
     Gem::post('/get-verified/verify', 'User\Verification@verify')->name('user.verification.verify');
 
+    Gem::get('/notifications', 'User\Notifications@index')->name('user.notifications');
+    Gem::get('/verification/view/{filename}', 'User\Verification@view')->name('user.verification.view');
+
     Gem::get('/invoice/{id}','User\Account@invoice')->name('invoice');
 
     Gem::get('/export/links', 'User\Export@links')->name('user.export.links');
@@ -286,8 +302,6 @@ Gem::group(appConfig('app.adminroute'), function(){
     Gem::setMiddleware(['Auth@admin', 'Locale@admin']);
 
     Gem::get('/', 'Admin\Dashboard@index')->name('admin');
-
-    Gem::post('/verify', 'Admin\Settings@verify')->name('admin.verify');
 
     Gem::get('/statistics', 'Admin\Stats@index')->name('admin.stats');
     Gem::get('/statistics/links', 'Admin\Stats@statsLinks')->name('admin.stats.links');
@@ -426,6 +440,14 @@ Gem::group(appConfig('app.adminroute'), function(){
     Gem::get('/bio/themes/{id}/edit', 'Admin\BioThemes@edit')->name('admin.bio.theme.edit');
     Gem::post('/bio/themes/{id}/update', 'Admin\BioThemes@update')->name('admin.bio.theme.update');
     Gem::get('/bio/themes/{id}/delete/{nonce}', 'Admin\BioThemes@delete')->name('admin.bio.theme.delete');
+    // Bio Templates
+    Gem::get('/bio/templates', 'Admin\BioTemplates@index')->name('admin.bio.templates');
+    Gem::get('/bio/templates/new', 'Admin\BioTemplates@new')->name('admin.bio.templates.new');
+    Gem::post('/bio/templates/save', 'Admin\BioTemplates@save')->name('admin.bio.templates.save');
+    Gem::get('/bio/templates/{id}/edit', 'Admin\BioTemplates@edit')->name('admin.bio.templates.edit');
+    Gem::post('/bio/templates/{id}/update', 'Admin\BioTemplates@update')->name('admin.bio.templates.update');
+    Gem::get('/bio/templates/{id}/delete/{nonce}', 'Admin\BioTemplates@delete')->name('admin.bio.templates.delete');
+    Gem::get('/bio/templates/{id}/toggle', 'Admin\BioTemplates@toggle')->name('admin.bio.templates.toggle');
 
     // QR
     Gem::get('/qr', 'Admin\Qr@index')->name('admin.qr');
@@ -451,7 +473,12 @@ Gem::group(appConfig('app.adminroute'), function(){
     Gem::post('/blog/save', 'Admin\Blog@save')->name('admin.blog.save');
     Gem::get('/blog/{id}/edit', 'Admin\Blog@edit')->name('admin.blog.edit');
     Gem::post('/blog/{id}/update', 'Admin\Blog@update')->name('admin.blog.update');
+    Gem::get('/blog/{id}/toggle/{nonce}', 'Admin\Blog@toggle')->name('admin.blog.toggle');
     Gem::get('/blog/{id}/delete/{nonce}', 'Admin\Blog@delete')->name('admin.blog.delete');
+    Gem::post('/blog/publish/all', 'Admin\Blog@publishAll')->name('admin.blog.publishall');
+    Gem::post('/blog/unpublish/all', 'Admin\Blog@unpublishAll')->name('admin.blog.unpublishall');
+    Gem::post('/blog/resetviews/all', 'Admin\Blog@resetViewsAll')->name('admin.blog.resetviewsall');
+    Gem::post('/blog/delete/all', 'Admin\Blog@deleteAll')->name('admin.blog.deleteall');
     Gem::get('/blog/categories', 'Admin\Blog@categories')->name('admin.blog.categories');
     Gem::post('/blog/category/save', 'Admin\Blog@categorySave')->name('admin.blog.category.save');
     Gem::get('/blog/category/{id}/edit', 'Admin\Blog@categoryEdit')->name('admin.blog.category.edit');
@@ -516,8 +543,6 @@ Gem::group(appConfig('app.adminroute'), function(){
     Gem::get('/plugins/{id}/disable', 'Admin\Plugins@disable')->name('admin.plugins.disable');
     Gem::get('/plugins/{id}/delete/{token}', 'Admin\Plugins@delete')->name('admin.plugins.delete');
     Gem::post('/plugins/upload', 'Admin\Plugins@upload')->name('admin.plugins.upload');
-    Gem::get('/marketplace', 'Admin\Plugins@directory')->name('admin.plugins.dir');
-    Gem::get('/marketplace/{tag}', 'Admin\Plugins@single')->name('admin.plugins.single');
 
     // Settings
     Gem::get('/settings', 'Admin\Settings@index')->name('admin.settings');
@@ -566,9 +591,8 @@ Gem::group(appConfig('app.adminroute'), function(){
     Gem::post('/notifications/save', 'Admin\Notifications@save')->name('admin.notifications.save');
     Gem::get('/notifications/{id}/delete/{nonce}', 'Admin\Notifications@delete')->name('admin.notifications.delete');
 
-    Gem::route(['GET', 'POST'], '/update', 'Admin\Dashboard@update')->name('admin.update');
-    Gem::post('/update/process', 'Admin\Dashboard@updateProcess')->name('admin.update.process');
-
+    Gem::get('/about', 'Admin\Dashboard@about')->name('admin.about');
+    
     Gem::get('/crons', 'Admin\Dashboard@crons')->name('admin.crons');
     Gem::get('/crons/clear', 'Admin\Dashboard@cronsClear')->name('admin.crons.clear');
     Gem::get('/phpinfo', 'Admin\Dashboard@phpinfo')->name('admin.phpinfo');

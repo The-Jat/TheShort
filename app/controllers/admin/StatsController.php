@@ -231,8 +231,6 @@ class Stats {
             return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to view statistics.'));
         }
 
-        if(!\Helpers\App::isExtended()) return;
-
         $response = ['label' => e('Subscriptions')];
 
         $timestamp = strtotime('now');

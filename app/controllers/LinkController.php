@@ -239,27 +239,60 @@ class Link {
 
 		}
 
-		// Check if URL is geo targeted
-		if(!empty($url->location) && config("geotarget")){
-
+		// Advanced targeting takes precedence over individual targeting rules
+		$advancedMatched = false;
+		if($options && isset($options['advanced']) && is_array($options['advanced']) && config("geotarget") && config("devicetarget")){
 			$geo = $request->country();
-
 			$country = strtolower($geo['country']);
-			$state = strtolower($geo['state']);
-			$location = json_decode($url->location, true);
-
-			if($country && isset($location[$country])) {
-				$redirect = isset($location[$country]['all']) ? $location[$country]['all'] : $location[$country];
+			
+			if(strpos($request->device(), ' ') !== false){
+				$device = strtolower(implode(' ', explode(' ',$request->device(), -1)));
+			} else {
+				$device = strtolower($request->device());
 			}
-
-			if($state && isset($location[$country][$state])) {
-				$redirect = $location[$country][$state];
+			
+			$browser_language = $request->server('http_accept_language') ? substr($request->server('http_accept_language'), 0, 2) : null;
+			if($browser_language && strpos($browser_language, ' ') !== false){
+				$language = strtolower(implode(' ', explode(' ',$browser_language, -1)));
+			} else {
+				$language = $browser_language ? strtolower($browser_language) : null;
 			}
-			if(isset($redirect) && !is_array($redirect)) $url->url = $redirect;
+			
+			foreach($options['advanced'] as $rule){
+				$countryMatch = !empty($rule['country']) && $country && strtolower($rule['country']) === $country;
+				$deviceMatch = !empty($rule['device']) && $device && strtolower($rule['device']) === $device;
+				$languageMatch = !empty($rule['language']) && $language && strtolower($rule['language']) === $language;
+				
+				if($countryMatch && $deviceMatch && $languageMatch && !empty($rule['target'])){
+					$url->url = $rule['target'];
+					$advancedMatched = true;
+					break;
+				}
+			}
 		}
 
-		// Check if URL is device targeted
-		if(!empty($url->devices) && config("devicetarget")){
+		// Check if URL is geo targeted
+		if(!$advancedMatched){
+			if(!empty($url->location) && config("geotarget")){
+
+				$geo = $request->country();
+				$country = strtolower($geo['country']);
+				$state = strtolower($geo['state']);
+				$location = json_decode($url->location, true);
+
+				if($country && isset($location[$country])) {
+					$redirect = isset($location[$country]['all']) ? $location[$country]['all'] : $location[$country];
+				}
+
+				if($state && isset($location[$country][$state])) {
+					$redirect = $location[$country][$state];
+				}
+				if(isset($redirect) && !is_array($redirect)) $url->url = $redirect;
+			}
+		}
+
+		// Check if URL is device targeted (skip if advanced targeting matched)
+		if(!$advancedMatched && !empty($url->devices) && config("devicetarget")){
 
 			if(strpos($request->device(), ' ') !== false){
 				$device = strtolower(implode(' ', explode(' ',$request->device(), -1)));
@@ -270,16 +303,18 @@ class Link {
 			$devices = json_decode($url->devices, true);
 			if(isset($devices[$device]) && $device) {
 
-				$url->url = $devices[$device];
+				$options['deeplink']['mainurl'] = $devices[$device];
 
 				if($device == 'iphone' || $device == 'ipad' || $device == 'android'){
 					if($user->has('deeplink') && $options && isset($options['deeplink']) && $options['deeplink']['enabled']) return Gate::deeplink($url, $user, $device, $options['deeplink']);
 				}
+
+				$url->url = $devices[$device];
 			}
 		}
 
-
-		if($options && isset($options['languages'])){
+		// Check language targeting (skip if advanced targeting matched)
+		if(!$advancedMatched && $options && isset($options['languages'])){
 			$browser_language = $request->server('http_accept_language') ? substr($request->server('http_accept_language'), 0, 2) : null;
 			if($browser_language && strpos($browser_language, ' ') !== false){
 				$language = strtolower(implode(' ', explode(' ',$browser_language, -1)));
@@ -392,6 +427,286 @@ class Link {
 		if($url->meta_image){
 			header("Location: ".uploads('images/'.$url->meta_image));
 			exit;
+		}
+
+		if($url->profileid){			
+			$profile = null;
+			if($url->profileid){
+				$profile = DB::profiles()->where('id', $url->profileid)->first();
+			}
+			
+			if(!$profile){				
+				$profile = DB::profiles()->where('urlid', $url->id)->first();
+			}
+			
+			if($profile){				
+				$appConfig = appConfig('app');
+				$profileData = json_decode($profile->data, true);
+								
+				$avatarPath = null;
+				if(isset($profileData['avatar']) && !empty($profileData['avatar'])){
+					$avatarPath = $appConfig['storage']['profile']['path'].'/'.$profileData['avatar'];
+					if(!file_exists($avatarPath)){
+						$avatarPath = null;
+					}
+				}
+								
+				if(!$avatarPath && $url->userid){
+					$user = \Models\User::where('id', $url->userid)->first();
+					if($user && $user->avatar){
+						$avatarPath = $appConfig['storage']['avatar']['path'].'/'.$user->avatar;
+						if(!file_exists($avatarPath)){
+							$avatarPath = null;
+						}
+					}
+				}
+								
+				$bioName = $profile->name ?? 'Bio Page';
+								
+				$shortLink = \Helpers\App::shortRoute($url->domain, $profile->alias);
+								
+				$width = 1200;
+				$height = 630;
+								
+				$image = imagecreatetruecolor($width, $height);
+								
+				$color1 = imagecolorallocate($image, 138, 43, 226);
+				$color2 = imagecolorallocate($image, 30, 144, 255);
+								
+				for($i = 0; $i < $height; $i++){
+					$ratio = $i / $height;
+					$r = (int)(138 * (1 - $ratio) + 30 * $ratio);
+					$g = (int)(43 * (1 - $ratio) + 144 * $ratio);
+					$b = (int)(226 * (1 - $ratio) + 255 * $ratio);
+					$color = imagecolorallocate($image, $r, $g, $b);
+					imageline($image, 0, $i, $width, $i, $color);
+				}
+								
+				$fontPath = PUB.'/static/frontend/fonts/nunito-sans-v12-latin-regular.ttf';
+								
+				// Add "Check my Bio Page" text in top left corner with rounded background
+				$topText = "Get your ".config('sitename')." Bio Page";
+				$topTextSize = 12;
+				$padding = 15;
+				$borderRadius = 8;
+				$topTextX = 40;
+				$topTextY = 50;
+				
+				// Use bold font (700 weight)
+				$boldFontPath = PUB.'/static/frontend/fonts/nunito-sans-v12-latin-800.ttf';
+				$textFontPath = file_exists($boldFontPath) ? $boldFontPath : $fontPath;
+				
+				if(file_exists($textFontPath)){
+					$bbox = imagettfbbox($topTextSize, 0, $textFontPath, $topText);
+					$textWidth = $bbox[4] - $bbox[0];
+					$textHeight = $bbox[1] - $bbox[7];
+					
+					$bgX = $topTextX - $padding;
+					$bgY = $topTextY - $padding;
+					$bgWidth = $textWidth + ($padding * 2);
+					$bgHeight = $textHeight + ($padding * 2);
+
+					$bgColor = imagecolorallocatealpha($image, 0, 0, 0, 77);
+					
+					imagefilledrectangle($image, $bgX, $bgY, $bgX + $bgWidth, $bgY + $bgHeight, $bgColor);
+
+					$topTextColor = imagecolorallocate($image, 255, 255, 255);
+					$textY = $topTextY + $textHeight;
+					imagettftext($image, $topTextSize, 0, $topTextX, $textY, $topTextColor, $textFontPath, $topText);
+				}
+								
+				$avatarSize = 200;
+				$avatarX = ($width - $avatarSize) / 2;
+				$avatarY = 100;
+								
+				if($avatarPath && file_exists($avatarPath)){
+					$avatarInfo = getimagesize($avatarPath);
+					if($avatarInfo){
+						$avatarSource = null;
+						switch($avatarInfo[2]){
+							case IMAGETYPE_JPEG:
+								$avatarSource = imagecreatefromjpeg($avatarPath);
+								break;
+							case IMAGETYPE_PNG:
+								$avatarSource = imagecreatefrompng($avatarPath);
+								break;
+							case IMAGETYPE_GIF:
+								$avatarSource = imagecreatefromgif($avatarPath);
+								break;
+						}
+						
+						if($avatarSource){
+							// Resize avatar to square
+							$avatarResized = imagecreatetruecolor($avatarSize, $avatarSize);
+							imagealphablending($avatarResized, false);
+							imagesavealpha($avatarResized, true);
+							
+							// Create transparent background
+							$transparent = imagecolorallocatealpha($avatarResized, 0, 0, 0, 127);
+							imagefill($avatarResized, 0, 0, $transparent);
+							
+							// Resize avatar maintaining aspect ratio
+							$srcWidth = $avatarInfo[0];
+							$srcHeight = $avatarInfo[1];
+							$ratio = min($avatarSize / $srcWidth, $avatarSize / $srcHeight);
+							$newWidth = $srcWidth * $ratio;
+							$newHeight = $srcHeight * $ratio;
+							$xOffset = ($avatarSize - $newWidth) / 2;
+							$yOffset = ($avatarSize - $newHeight) / 2;
+							
+							imagecopyresampled($avatarResized, $avatarSource, $xOffset, $yOffset, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
+							
+							// Apply circular mask by checking distance from center
+							$centerX = $avatarSize / 2;
+							$centerY = $avatarSize / 2;
+							$radius = $avatarSize / 2;
+							
+							for($x = 0; $x < $avatarSize; $x++){
+								for($y = 0; $y < $avatarSize; $y++){
+									$distance = sqrt(pow($x - $centerX, 2) + pow($y - $centerY, 2));
+									if($distance > $radius){
+										imagesetpixel($avatarResized, $x, $y, $transparent);
+									}
+								}
+							}
+							
+							// Copy avatar to main image with proper alpha blending
+							imagealphablending($image, true);
+							imagecopy($image, $avatarResized, $avatarX, $avatarY, 0, 0, $avatarSize, $avatarSize);
+							
+							imagedestroy($avatarSource);
+							imagedestroy($avatarResized);
+						}
+					}
+				} else {
+					// Draw default avatar circle if no avatar
+					$avatarBg = imagecolorallocate($image, 255, 255, 255);
+					$avatarCenterX = $width / 2;
+					$avatarCenterY = $avatarY + $avatarSize / 2;
+					imagefilledellipse($image, $avatarCenterX, $avatarCenterY, $avatarSize, $avatarSize, $avatarBg);
+					
+					// Add initials
+					$initials = strtoupper(substr(preg_replace('/[^a-zA-Z0-9]/', '', $bioName), 0, 2));
+					if(empty($initials)) $initials = 'BP';
+					$textColor = imagecolorallocate($image, 138, 43, 226);
+					$fontSize = 60;
+					if(file_exists($fontPath)){
+						$bbox = imagettfbbox($fontSize, 0, $fontPath, $initials);
+						$textWidth = $bbox[4] - $bbox[0];
+						$textHeight = $bbox[1] - $bbox[7];
+						$textX = $avatarCenterX - ($textWidth / 2);
+						$textY = $avatarCenterY + ($textHeight / 2);
+						imagettftext($image, $fontSize, 0, $textX, $textY, $textColor, $fontPath, $initials);
+					} else {
+						// Fallback to built-in font if TTF not available
+						$font = 5;
+						$charWidth = imagefontwidth($font);
+						$charHeight = imagefontheight($font);
+						$textWidth = strlen($initials) * $charWidth;
+						$textX = $avatarCenterX - ($textWidth / 2);
+						$textY = $avatarCenterY - ($charHeight / 2);
+						imagestring($image, $font, $textX, $textY, $initials, $textColor);
+					}
+				}
+				
+				// Add bio page name with word wrapping
+				$white = imagecolorallocate($image, 255, 255, 255);
+				$fontSize = 48;
+				$maxWidth = $width - 100; // Margins
+				$bioNameY = $avatarY + $avatarSize + 30;
+				
+				// Word wrap bio name using TTF font measurement
+				$words = explode(' ', $bioName);
+				$lines = [];
+				$currentLine = '';
+				
+				if(file_exists($fontPath)){
+					foreach($words as $word){
+						$testLine = $currentLine ? $currentLine . ' ' . $word : $word;
+						$bbox = imagettfbbox($fontSize, 0, $fontPath, $testLine);
+						$lineWidth = $bbox[4] - $bbox[0];
+						
+						if($lineWidth <= $maxWidth){
+							$currentLine = $testLine;
+						} else {
+							if($currentLine) $lines[] = $currentLine;
+							$currentLine = $word;
+						}
+					}
+					if($currentLine) $lines[] = $currentLine;
+					
+					// Get line height
+					$bbox = imagettfbbox($fontSize, 0, $fontPath, 'Ag');
+					$lineHeight = $bbox[1] - $bbox[7];
+					
+					// Center and draw each line
+					foreach($lines as $index => $line){
+						$bbox = imagettfbbox($fontSize, 0, $fontPath, $line);
+						$textWidth = $bbox[4] - $bbox[0];
+						$textHeight = $bbox[1] - $bbox[7];
+						$textX = ($width - $textWidth) / 2;
+						$textY = $bioNameY + ($index * ($lineHeight + 10)) + $textHeight;
+						imagettftext($image, $fontSize, 0, $textX, $textY, $white, $boldFontPath, $line);
+					}
+				} else {
+					// Fallback to built-in font
+					$font = 5;
+					$charWidth = imagefontwidth($font);
+					$charHeight = imagefontheight($font);
+					$maxCharsPerLine = floor($maxWidth / $charWidth);
+					$currentLine = '';
+					
+					foreach($words as $word){
+						if(strlen($currentLine . $word) <= $maxCharsPerLine){
+							$currentLine .= ($currentLine ? ' ' : '') . $word;
+						} else {
+							if($currentLine) $lines[] = $currentLine;
+							$currentLine = $word;
+						}
+					}
+					if($currentLine) $lines[] = $currentLine;
+					
+					foreach($lines as $index => $line){
+						$textWidth = strlen($line) * $charWidth;
+						$textX = ($width - $textWidth) / 2;
+						$textY = $bioNameY + ($index * ($charHeight + 10));
+						imagestring($image, $font, $textX, $textY, $line, $white);
+					}
+				}
+				
+				// Add short link
+				$linkFontSize = 22;
+				// Calculate link Y position based on which font path was used
+				if(isset($lineHeight)){
+					$linkY = $bioNameY + (count($lines) * ($lineHeight + 10));
+				} else {
+					$linkY = $bioNameY + (count($lines) * ($charHeight + 10));
+				}
+				
+				if(file_exists($fontPath)){
+					$bbox = imagettfbbox($linkFontSize, 0, $fontPath, $shortLink);
+					$textWidth = $bbox[4] - $bbox[0];
+					$textHeight = $bbox[1] - $bbox[7];
+					$textX = ($width - $textWidth) / 2;
+					$textY = $linkY + $textHeight;
+					imagettftext($image, $linkFontSize, 0, $textX, $textY, $white, $fontPath, $shortLink);
+				} else {
+					// Fallback to built-in font
+					$font = 3;
+					$charWidth = imagefontwidth($font);
+					$textWidth = strlen($shortLink) * $charWidth;
+					$textX = ($width - $textWidth) / 2;
+					imagestring($image, $font, $textX, $linkY, $shortLink, $white);
+				}
+				
+				// Output image
+				header("Content-Type: image/png");
+				header("Cache-Control: max-age=31556926");
+				header("Etag: ".md5($url->id.$profile->id));
+				imagepng($image);
+				imagedestroy($image);
+				exit;
+			}
 		}
 
 		$lurl = urlencode($url->url);

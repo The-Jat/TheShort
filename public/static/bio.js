@@ -347,6 +347,10 @@ $(document).ready(function(){
 	$("[data-trigger=changetheme]").click(function(e){
         e.preventDefault();
         let form = $(this).parents('form');
+		let value = $(this).data('value');
+		if(value) form.find('input[name=themeid]').val(value);
+		$('[data-trigger=changetheme]').removeClass('theme-active');
+		$(this).addClass('theme-active');
         sendRequest(
             form.attr('action'),
             new FormData(form[0]),
@@ -439,39 +443,6 @@ function setColor(element, color, e){
   $('input[name=themeid]').val('');
 	e.val(color.toHexString());
 }
-
-function customTheme(classname, buttoncolor, buttontextcolor, textcolor){
-
-  $('input[name=themeid]').val('');
-	$('input[name=theme]').val(classname);
-	$('input[name=mode]').val('custom');
-
-	$("#buttontextcolor").val(buttontextcolor);
-	$("#buttontextcolor").spectrum({
-		color: buttontextcolor,
-		showInput: true,
-		preferredFormat: "hex",
-		move: function (color) { setColor("#preview .btn-custom", color, $(this)); },
-		hide: function (color) { setColor("#preview .btn-custom", color, $(this)); }
-	});
-	$("#buttoncolor").val(buttoncolor);
-	$("#buttoncolor").spectrum({
-		color: buttoncolor,
-		showInput: true,
-		preferredFormat: "hex",
-		move: function (color) { setColor("#preview .btn-custom", color, $(this)); },
-		hide: function (color) { setColor("#preview .btn-custom", color, $(this));  }
-	});
-	$("#textcolor").val(textcolor);
-	$("#textcolor").spectrum({
-		color: textcolor,
-		showInput: true,
-		preferredFormat: "hex",
-		move: function (color) { setColor("#preview, #preview h3 > span, #preview p", color, $(this)); },
-		hide: function (color) { setColor("#preview, #preview h3 > span  #preview p", color, $(this)); }
-	});
-}
-
 function changeTheme(bg, bgst, bgsp, buttoncolor, buttontextcolor, textcolor, bgtype='single', buttonstyle = 'rectangle', gradientangle = '-45', shadow = false, shadowcolor = '#000', themeid = false){
     $('input[name=themeid]').val('');
     if(themeid){

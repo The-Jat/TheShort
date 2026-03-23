@@ -41,10 +41,6 @@ class Membership {
         if(!user()->hasRolePermission('subscriptions.view')) {
             return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to view subscriptions.'));
         }
-
-        if(!\Helpers\App::possible()){
-            return Helper::redirect()->to(route('admin.settings.config', ['payments']))->with('danger', 'Please enter your extended purchase code to unlock payments');
-        }
         
         View::set('title', e('Subscriptions'));
 
@@ -280,11 +276,9 @@ class Membership {
             $user->pro = 0;
             $user->save();
 
-            if(\Helpers\App::possible()){
-                foreach($this->processor() as $name => $processor){
-                    if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
-                    $response = call_user_func_array($processor['cancel'], [$user, $subscription]);
-                }
+            foreach($this->processor() as $name => $processor){
+                if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
+                $response = call_user_func_array($processor['cancel'], [$user, $subscription]);
             }
     
 

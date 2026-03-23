@@ -24,6 +24,7 @@
         <div class="card rounded-4 shadow-sm">
             <div class="card-body">
                 <form action="<?php echo route('admin.roles.update', $role->id) ?>" method="post">
+                    <?php echo csrf() ?>
                     <div class="mb-3">
                         <label for="name" class="form-label fw-bold"><?php ee('Role Name') ?> *</label>
                         <input type="text" class="form-control" id="name" name="name" value="<?php echo e($role->name) ?>" required>

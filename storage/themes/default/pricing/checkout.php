@@ -171,11 +171,9 @@
                             </div>
                         </div>
                     </div>
-                    <?php if(\Helpers\App::possible()): ?>
                     <div class="d-flex w-100">
                         <a href="#redeemvoucher" class="text-dark ml-auto" data-toggle="modal"><i class="fa fa-ticket-alt mr-2"></i> <?php ee('Redeem Voucher') ?></a>
                     </div>
-                    <?php endif ?>
                     <div class="card rounded card-body mt-4">
                         <?php ee('By subscribing to this plan, you agree to our Terms & Conditions. Subscription is charged in {c}. If you have any questions, please contact us.', null, ['c' => config('currency')]) ?>
                     </div>
@@ -184,7 +182,6 @@
         </form>
     </div>
 </section>
-<?php if(\Helpers\App::possible()): ?>
 <div class="modal fade" id="redeemvoucher" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -215,4 +212,3 @@
     </div>
   </div>
 </div>
-<?php endif ?>

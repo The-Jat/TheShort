@@ -35,7 +35,7 @@ class Home {
      * @return void
      */
     public function index(Request $request){
-        
+
         // @group plugin
         Plugin::dispatch('home.pre');
 
@@ -66,6 +66,15 @@ class Home {
         Plugin::dispatch('home', $count);
 
         View::set('title', config('title'));
+
+        if(config('theme') === 'the23' && isset($themeconfig->homepage) && $themeconfig->homepage !== 'default'){
+            $page = new \Page();
+            switch($themeconfig->homepage){
+                case 'bio': return $page->bio($request);
+                case 'link': return $page->link();
+                case 'qr': return $page->qr();
+            }
+        }
 
         return View::with('index', compact('count', 'themeconfig', 'numbers'))->extend('layouts.main');
     }

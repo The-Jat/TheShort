@@ -35,9 +35,6 @@ class Vouchers {
      * @version 6.7
      */
     public function __construct(){
-        if(!\Helpers\App::possible()){
-            return Helper::redirect()->to(route('admin.settings.config', ['payments']))->with('danger', 'Please enter your extended purchase code to unlock vouchers.');
-        }
     }
     /**
      * Vouchers

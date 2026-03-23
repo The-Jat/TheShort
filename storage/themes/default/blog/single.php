@@ -59,6 +59,20 @@
                 <article>
                     <?php echo $post->content ?>
                 </article>
+                <div class="card shadow-sm rounded mt-5">
+                    <div class="card-body p-4">
+                        <h3 class="h4 mb-3"><?php ee('Author') ?></h3>
+                        <div class="d-flex align-items-start gap-3">
+                            <img src="<?php echo $post->avatar ?>" alt="<?php echo htmlspecialchars($post->author) ?>" class="rounded-circle border border-2 border-secondary flex-shrink-0" width="64" height="64" style="object-fit: cover;">
+                            <div class="ml-3">
+                                <h6 class="fw-bold mb-1"><?php if(!empty($authorIdentifier)): ?><a href="<?php echo route('blog.author', [strtolower($authorIdentifier)]) ?>" class="text-dark text-decoration-none"><?php echo htmlspecialchars($post->author) ?></a><?php else: ?><?php echo htmlspecialchars($post->author) ?><?php endif ?></h6>
+                                <?php if(!empty($authorBio)): ?>
+                                    <div class="text-muted small"><?php echo nl2br(htmlspecialchars($authorBio)) ?></div>
+                                <?php endif ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

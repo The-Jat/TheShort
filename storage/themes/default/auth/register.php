@@ -130,7 +130,7 @@
                         <a href="<?php echo route('login') ?>" class="small font-weight-bold"><?php ee('Login') ?></a>
                     </div>
 
-                    <div class="text-center mt-5">&copy; <?php echo date("Y") ?> <a href="<?php echo config('url') ?>" class="font-weight-bold"><?php echo config('title') ?></a>. <?php ee('All Rights Reserved') ?></p>
+                    <div class="text-center mt-5">&copy; <?php echo date("Y") ?> <a href="<?php echo config('url') ?>" class="font-weight-bold"><?php echo config('sitename') ?></a>. <?php ee('All Rights Reserved') ?></p>
                 </div>
             </div>
         </div>

@@ -348,6 +348,10 @@ class QR {
                 $request->type = "text";
                 $request->text = url('shorturl');
             }
+            $userlogo = false;
+            if($request->selectlogo){
+                $userlogo = $request->selectlogo;
+            }
 
             if($request->template && $template = DB::qrtemplates()->where('id', $request->template)->first()){
                 $template->data = json_decode($template->data);
@@ -377,7 +381,7 @@ class QR {
                 $request->eye = $template->data->eye ?? '';
                 $request->eyeframe = $template->data->eyeframe ?? '';
                 $request->eyecolor = $template->data->eyecolor ?? '';
-                $request->eyeframecolor = $template->data->eyeframecolor;
+                $request->eyeframecolor = $template->data->eyeframecolor ?? '';
             }
 
             $margin = is_numeric($request->margin) && $request->margin <= 10 ? $request->margin : 0;
@@ -426,11 +430,11 @@ class QR {
                     $data->isPunched();
                 }                
 
-                if($request->selectlogo && $request->selectlogo !='none'){                    
-                    if(!file_exists(PUB.'/static/images/'.$request->selectlogo)){
-                        $data->withLogo(appConfig('app.storage')['qr']['path'].'/'.$request->selectlogo, $size);
+                if($userlogo && $userlogo !='none'){                    
+                    if(!file_exists(PUB.'/static/images/'.$request->selectlogo.'.png')){
+                        $data->withLogo(appConfig('app.storage')['qr']['path'].'/'.$userlogo, $size);
                     } else {
-                        $data->withLogo(PUB.'/static/images/'.$request->selectlogo.'.png', $size);
+                        $data->withLogo(PUB.'/static/images/'.$userlogo.'.png', $size);
                     }
                 }
 
@@ -527,6 +531,11 @@ class QR {
 
         $qrdata['data'] = $input;
 
+        $userlogo = false;
+        if($request->selectlogo){
+            $userlogo = $request->selectlogo;
+        }
+
         if($request->template && $template = DB::qrtemplates()->where('id', $request->template)->first()){
             $template->data = json_decode($template->data);
             
@@ -543,6 +552,7 @@ class QR {
             $request->logosize = $template->data->logosize;
             $request->punchedlogo = $template->data->punchedlogo;
             $request->selectlogo = $template->data->definedlogo;
+            $userlogo = $template->data->definedlogo;
             $request->frame = [
                 'type' => $template->data->frame->type,
                 'color' => $template->data->frame->color,
@@ -584,8 +594,8 @@ class QR {
                 $qrdata['punchedlogo'] = false;
             }
 
-            if($request->selectlogo && $request->selectlogo != 'none'){
-                $qrdata['definedlogo'] = $request->selectlogo.'.png';
+            if($userlogo && $userlogo != 'none'){
+                $qrdata['definedlogo'] = $userlogo.'.png';
             }
 
             if(is_numeric($request->logosize) && $request->logosize > 50 && $request->logosize <= 500 ){
@@ -624,7 +634,8 @@ class QR {
         }
 
         $url = null;
-        $alias = \substr(md5(Auth::user()->rID().$data.Helper::rand(12)), 0, 8);
+        $uniquestr = is_array($data) ? json_encode($data) : $data;
+        $alias = Auth::user()->rID().\substr(md5($uniquestr), 0, 8).Helper::rand(4);
 
         if(!in_array($request->type, ['text', 'sms','wifi','staticvcard', 'event'])){
             $url = DB::url()->create();
@@ -642,7 +653,7 @@ class QR {
                     return Helper::redirect()->back()->with('danger', e('URL is suspected to contain malware and other harmful content.'));
                 }
             }
-            $url->alias = \substr(md5(Auth::user()->rID().$data.time()), 0, 6);
+            $url->alias = \substr(md5(Auth::user()->rID().$uniquestr.time()), 0, 6);
 
             if($request->domain && $this->validateDomainNames(trim($request->domain), Auth::user(), false)){
                 $url->domain = clean($request->domain);
@@ -1433,7 +1444,8 @@ class QR {
             }
     
             $url = null;
-            $alias = \substr(md5(Auth::user()->rID().$data.Helper::rand(12)), 0, 8);
+            $uniquestr = is_array($data) ? json_encode($data) : $data;
+            $alias = \substr(md5(Auth::user()->rID().$uniquestr.Helper::rand(12)), 0, 8);
     
             if(!in_array($request->type, ['text', 'sms','wifi','staticvcard', 'event'])){
                 $url = DB::url()->create();
@@ -1451,7 +1463,7 @@ class QR {
                         continue;
                     }
                 }
-                $url->alias = \substr(md5(Auth::user()->rID().$data.time()), 0, 6);
+                $url->alias = \substr(md5(Auth::user()->rID().$uniquestr.time()), 0, 6);
     
                 if($request->domain && $this->validateDomainNames(trim($request->domain), Auth::user(), false)){
                     $url->domain = clean($request->domain);

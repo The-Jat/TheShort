@@ -62,17 +62,15 @@
             <?php if(\Helpers\Permissions::can('plans.view')): ?>
             <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.plans') ?>"><?php ee('Plans') ?></a></li>
             <?php endif ?>
-            <?php if(\Helpers\App::possible()): ?>
-                <?php if(\Helpers\Permissions::can('subscriptions.view')): ?>
-                <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.subscriptions') ?>"><?php ee('Subscriptions') ?></a></li>
-                <?php endif ?>
-                <?php if(\Helpers\Permissions::can('plans.view')): ?>
-                <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.coupons') ?>"><?php ee('Coupons') ?></a></li>
-                <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.vouchers') ?>"><?php ee('Vouchers') ?></a></li>
-                <?php endif ?>
-                <?php if(\Helpers\Permissions::can('settings.view')): ?>
-                <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.tax') ?>"><?php ee('Tax Rates') ?></a></li>
-                <?php endif ?>
+            <?php if(\Helpers\Permissions::can('subscriptions.view')): ?>
+            <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.subscriptions') ?>"><?php ee('Subscriptions') ?></a></li>
+            <?php endif ?>
+            <?php if(\Helpers\Permissions::can('plans.view')): ?>
+            <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.coupons') ?>"><?php ee('Coupons') ?></a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.vouchers') ?>"><?php ee('Vouchers') ?></a></li>
+            <?php endif ?>
+            <?php if(\Helpers\Permissions::can('settings.view')): ?>
+            <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.tax') ?>"><?php ee('Tax Rates') ?></a></li>
             <?php endif ?>
             <?php if(\Helpers\Permissions::can('payments.view')): ?>
             <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.payments') ?>"><?php ee('Payments') ?></a></li>
@@ -91,6 +89,7 @@
             <?php endif ?>
             <?php if(\Helpers\Permissions::can('bio.create')): ?>
             <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.bio.themes') ?>"><?php ee('Bio Page Themes') ?></a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="<?php echo route('admin.bio.templates') ?>"><?php ee('Bio Templates') ?></a></li>
             <?php endif ?>
         </ul>
     </li>
@@ -264,11 +263,6 @@
         </ul>
     </li>
     <li class="sidebar-item">
-        <a class="sidebar-link" href="<?php echo route('admin.plugins.dir') ?>">
-            <i class="align-middle" data-feather="shopping-bag"></i> <span class="align-middle"><?php ee('Marketplace') ?></span>
-        </a>
-    </li>
-    <li class="sidebar-item">
         <a class="sidebar-link collapsed" data-bs-target="#nav-setting" data-bs-toggle="collapse">
             <i class="align-middle" data-feather="settings"></i> <span class="align-middle"><?php ee('Settings') ?></span>
         </a>
@@ -325,14 +319,11 @@
         <a class="sidebar-link" href="<?php echo route('admin.crons') ?>">
             <i class="align-middle" data-feather="terminal"></i> <span class="align-middle"><?php ee('Cron Jobs') ?></span>
         </a>
-    </li>
-    <li class="sidebar-item">
-        <a class="sidebar-link" href="<?php echo route("admin.update") ?>">
-            <i class="align-middle" data-feather="download-cloud"></i> <?php ee('Update') ?>
-            <?php if(\Helpers\App::newUpdate(true)): ?>
-                <small class="badge bg-success ms-2"><?php ee('New') ?></small>
-            <?php endif ?>
-        </a>
+        <li class="sidebar-item">
+            <a class="sidebar-link" href="<?php echo route("admin.about") ?>">
+                <i class="align-middle" data-feather="download-cloud"></i> <?php ee('About') ?>
+            </a>
+        </li>
     </li>
     <?php endif ?>
 </ul>

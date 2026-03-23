@@ -75,13 +75,27 @@ class themeSettings {
             $option->colors->primaryalt = '#0065bd';
             $option->colors->secondary = '#22cfff';
             $option->colors->primarybg = '#f7f9fc';
+            $option->colors->darkbg = '#030122';
             $option->colors->scrollbar = '#0088ff';
         }
-
-        if(!isset($optiion->colors->darkbg)) $option->colors->darkbg = '#030122';
-
+        if(!isset($option->colors->body)) $option->colors->body = '#ffffff';
+        if(!isset($option->colors->bodycolor)) $option->colors->bodycolor = '#343f52';
+        if(!isset($option->homepage)) $option->homepage = 'default';
+        
         CDN::load('coloris');
         View::push("<script>
+                    Coloris.setInstance('#body', {
+                        theme: 'polaroid',
+                        themeMode: 'dark',
+                        alpha: false,
+                        swatches: ['#ffffff','#f7f9fc','#f5fff6','#f7f9fc','#e3e5ea','#f4ebf9']
+                    });
+                    Coloris.setInstance('#body-color', {
+                        theme: 'polaroid',
+                        themeMode: 'dark',
+                        alpha: false,
+                        swatches: ['#343f52','#22cfff','#00ffc3', '#22cfff', '#030715','#00ff77']
+                    });
                     Coloris.setInstance('#primary', {
                         theme: 'polaroid',
                         themeMode: 'dark',
@@ -118,16 +132,41 @@ class themeSettings {
                         alpha: false,
                         swatches: ['#e2626b','#627ee3','#2fad50','#0088ff','#010615','#ae00ff']
                     });
+
+                    function updateThemeColors(body, bodycolor, primary, primaryalt, secondary, primarybg, darkbg, scrollbar){
+                        $('#body').val(body);
+                        $('#body-color').val(bodycolor);
+                        $('#primary').val(primary);
+                        $('#primaryalt').val(primaryalt);
+                        $('#secondary').val(secondary);
+                        $('#primarybg').val(primarybg);
+                        $('#darkbg').val(darkbg);
+                        $('#scrollbar').val(scrollbar);
+                        document.querySelectorAll('[data-coloris]').forEach(function(element){
+                            element.dispatchEvent(new Event('input', { bubbles: true }));
+                        });
+                    }
                     </script>", 'custom')->toFooter();
+
+        View::push("<style>
+                    .theme-preset {
+                        transition: all 0.3s ease;
+                    }
+                    .theme-preset:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+                        border-color: var(--bs-primary) !important;
+                    }
+                    </style>", 'custom')->toHeader();
 
         CDN::load('simpleeditor');
 
         \Core\View::push("<script>
                             $('#homedescription').summernote({
                                 toolbar: [
-                                    ['style', ['bold', 'italic', 'underline', 'clear'],
+                                    ['style', ['bold', 'italic', 'underline', 'clear']],
                                   ],
-                                  height: 100
+                                height: 100
                             });
                         </script>", "custom")->toFooter();
 
@@ -137,7 +176,7 @@ class themeSettings {
                                 <div class="card shadow-sm">
                                     <div class="card-body">
                                         <div class="form-group mb-4">
-                                            <label for="style" class="form-label fw-bolder mb-3 d-block">'.e('Theme Scheme').'</label>
+                                            <label for="style" class="form-label text-black fw-bolder mb-3 d-block">'.e('Theme Scheme').'</label>
                                             <label class="btn border-primary text-dark border px-3 py-4">
                                                 <input type="radio" name="homestyle" value="default" class="me-2" autocomplete="off" '.($option->homestyle == 'default' ? 'checked' : '').'> '.e('Default').'
                                             </label>
@@ -151,9 +190,111 @@ class themeSettings {
                                                 <input type="radio" name="homestyle" value="auto" class="me-2" autocomplete="off" '.($option->homestyle == 'auto' ? 'checked' : '').'> '.e('Auto Mode').'
                                             </label>
                                         </div>
+                                        <h5 class="fw-bolder mb-3">'.e('Pre-defined Colors').'</h5>
+                                        <p>'.e('You can choose from pre-defined colors to quickly apply to your theme.').'</p>
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-4">
+                                                <div class="card border theme-preset" style="cursor: pointer;" onclick="updateThemeColors(\'#ffffff\', \'#343f52\', \'#0088ff\', \'#0065bd\', \'#22cfff\', \'#f7f9fc\', \'#030122\', \'#0088ff\')">
+                                                    <div class="card-body p-3 text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
+                                                            <div style="width: 20px; height: 20px; background: #0088ff; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #0065bd; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #22cfff; border-radius: 3px;"></div>
+                                                        </div>
+                                                        <div class="mt-2 mb-0">
+                                                            <strong class="d-block">'.e('Ocean Blue').'</strong>
+                                                            <small class="text-muted">'.e('Default').'</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card border theme-preset" style="cursor: pointer;" onclick="updateThemeColors(\'#f6f5f5\', \'#343f52\', \'#e2626b\', \'#c25058\', \'#fab758\', \'#ffffff\', \'#3d1718\', \'#e2626b\')">
+                                                    <div class="card-body p-3 text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
+                                                            <div style="width: 20px; height: 20px; background: #e2626b; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #c25058; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #fab758; border-radius: 3px;"></div>
+                                                        </div>
+                                                        <div class="mt-2 mb-0">
+                                                            <strong class="d-block">'.e('Coral Sunset').'</strong>
+                                                            <small class="text-muted">'.e('Warm').'</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card border theme-preset" style="cursor: pointer;" onclick="updateThemeColors(\'#ffffff\', \'#343f52\', \'#4e67eb\', \'#2746e3\', \'#a357fa\', \'#f5f8ff\', \'#131b3d\', \'#627ee3\')">
+                                                    <div class="card-body p-3 text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
+                                                                <div style="width: 20px; height: 20px; background: #4e67eb; border-radius: 3px;"></div>
+                                                                <div style="width: 20px; height: 20px; background: #2746e3; border-radius: 3px;"></div>
+                                                                <div style="width: 20px; height: 20px; background: #a357fa; border-radius: 3px;"></div>
+                                                        </div>
+                                                        <div class="mt-2 mb-0">
+                                                            <strong class="d-block">'.e('Royal Purple').'</strong>
+                                                            <small class="text-muted">'.e('Elegant').'</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card border theme-preset" style="cursor: pointer;" onclick="updateThemeColors(\'#ffffff\', \'#343f52\', \'#2fad50\', \'#24853d\', \'#00ffc3\', \'#f5fff6\', \'#0c2d15\', \'#2fad50\')">
+                                                    <div class="card-body p-3 text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
+                                                            <div style="width: 20px; height: 20px; background: #2fad50; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #24853d; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #00ffc3; border-radius: 3px;"></div>
+                                                        </div>
+                                                        <div class="mt-2 mb-0">
+                                                            <strong class="d-block">'.e('Forest Green').'</strong>
+                                                            <small class="text-muted">'.e('Natural').'</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card border theme-preset" style="cursor: pointer;" onclick="updateThemeColors(\'#ffffff\', \'#343f52\', \'#010615\', \'#040b22\', \'#030715\', \'#e3e5ea\', \'#010615\', \'#010615\')">
+                                                    <div class="card-body p-3 text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
+                                                            <div style="width: 20px; height: 20px; background: #010615; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #040b22; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #030715; border-radius: 3px;"></div>
+                                                        </div>
+                                                        <div class="mt-2 mb-0">
+                                                            <strong class="d-block">'.e('Midnight Dark').'</strong>
+                                                            <small class="text-muted">'.e('Dark').'</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card border theme-preset" style="cursor: pointer;" onclick="updateThemeColors(\'#ffffff\', \'#343f52\', \'#ff0090\', \'#ae00ff\', \'#00ff77\', \'#f4ebf9\', \'#330025\', \'#ae00ff\')">
+                                                    <div class="card-body p-3 text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
+                                                            <div style="width: 20px; height: 20px; background: #ff0090; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #ae00ff; border-radius: 3px;"></div>
+                                                            <div style="width: 20px; height: 20px; background: #00ff77; border-radius: 3px;"></div>
+                                                        </div>
+                                                        <div class="mt-2 mb-0">
+                                                            <strong class="d-block">'.e('Vibrant Pink').'</strong>
+                                                            <small class="text-muted">'.e('Bold').'</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
                                         <h5 class="fw-bolder mb-3">'.e('Theme Colors').'</h5>
                                         <p>'.e('You can customize colors for front pages (home, pricing, blog etc). Some colors are already preset. You can either use colors from the palette (example #1 with #1 in all options) or mix and match. You can also use your own colors. After saving settings, if you do not see changes, you need to release browser cache. If you are using Cloudflare, you will need to purge cache as well.').'</p>
-
+                                        <div class="form-group my-3">
+                                            <label for="body" class="form-label mb-3">'.e('Body Color').'</label><br>
+                                            <input type="text" value="'.$option->colors->body.'" id="body" name="colors[body]" class="form-control" data-coloris>
+                                        </div>
+                                        <div class="form-group my-3">
+                                            <label for="body-color" class="form-label mb-3">'.e('Body Text Color').'</label><br>
+                                            <input type="text" value="'.$option->colors->bodycolor.'" id="body-color" name="colors[body-color]" class="form-control" data-coloris>
+                                        </div>  
                                         <div class="form-group my-3">
                                             <label for="primary" class="form-label mb-3">'.e('Primary Color').'</label><br>
                                             <input type="text" value="'.$option->colors->primary.'" id="primary" name="colors[primary]" class="form-control" data-coloris>
@@ -251,6 +392,16 @@ class themeSettings {
                                             <p class="form-text">'.e('This will replace the home main description right before the shortener form. If you leave it empty, the site description will be shown.').'</p>
                                         </div>
                                         <div class="form-group mt-4">
+                                            <label for="homepage" class="form-label fw-bold">'.e('Home Page').'</label>
+                                            <select class="form-select" name="homepage" id="homepage">
+                                                <option value="default" '.($option->homepage == 'default' ? 'selected' : '').'>'.e('Default').' (index.php)</option>
+                                                <option value="bio" '.($option->homepage == 'bio' ? 'selected' : '').'>'.e('Bio Page').' (pages/bio.php)</option>
+                                                <option value="link" '.($option->homepage == 'link' ? 'selected' : '').'>'.e('Link Shortener').' (pages/link.php)</option>
+                                                <option value="qr" '.($option->homepage == 'qr' ? 'selected' : '').'>'.e('QR Codes').' (pages/qr.php)</option>
+                                            </select>
+                                            <p class="form-text">'.e('Choose which page to display when visitors go to your site root (homepage).').'</p>
+                                        </div>
+                                        <div class="form-group mt-4">
                                             <div class="d-flex align-items-center">
                                                 <div>
                                                     <label for="siteimage" class="form-label fw-bold">'.e('Default Site Image').'</label>
@@ -335,6 +486,8 @@ class themeSettings {
         $data['homedescription'] = $request->homedescription;
         $data['customfooter'] = $request->customfooter;
         $data['homestyle'] = Helper::clean($request->homestyle, 3);
+        $data['homepage'] = Helper::clean($request->homepage, 20);
+        if(!in_array($data['homepage'], ['default', 'bio', 'link', 'qr'])) $data['homepage'] = 'default';
         $data['homelinks'] = Helper::clean($request->homelinks, 3);
         $data['homecolor'] = Helper::clean($request->homecolor, 3);
         $data['pricing'] = Helper::clean($request->pricing, 3);
@@ -343,6 +496,8 @@ class themeSettings {
         $data['blog'] = Helper::clean($request->blog, 3);
 
         $data['colors'] = [
+            'body' => '#ffffff',
+            'body-color' => '#343f52',
             'primary' => '#0088ff',
             'primaryalt' => '#0065bd',
             'secondary' => '#22cfff',
@@ -350,6 +505,8 @@ class themeSettings {
             'darkbg' => '#030122',
             'scrollbar' => '#0088ff'
         ];
+
+        $data['cssname'] = strtolower(Helper::rand(12));
 
         foreach($request->colors as $name => $color){
             if(strlen(trim($color)) == 7) $data['colors'][$name] = trim(clean($color));
@@ -414,7 +571,7 @@ class themeSettings {
         $setting->var = json_encode($data);
         $setting->save();
 
-        self::cssVariables($data['colors']);
+        self::cssVariables($data['colors'], $data['cssname']);
 
         return Helper::redirect()->back()->with('success', e('Settings are successfully saved.'));
     }
@@ -426,14 +583,25 @@ class themeSettings {
      * @param array $variables
      * @return void
      */
-    private static function cssVariables(array $variables){
+    private static function cssVariables(array $variables, string $cssname){
 
         $variables['primarybgrgb'] = implode(', ', sscanf($variables['primarybg'], "#%02x%02x%02x"));
         $variables['darkbgrgb'] = implode(', ', sscanf($variables['darkbg'], "#%02x%02x%02x"));
+        $variables['liquidrgb'] = implode(', ', array_merge(sscanf($variables['body'], "#%02x%02x%02x"), [0.8]));
+        $variables['darkbg'] = implode(', ', sscanf($variables['darkbg'], "#%02x%02x%02x"));
 
-        $data = ":root{--body: #fff;--body-color: #343f52;--hamburger-color: #343f52;--bs-primary: {$variables['primary']};--bs-primary-alt: {$variables['primaryalt']};--bs-secondary: {$variables['secondary']};--bg-primary: {$variables['primarybg']};--bg-secondary: #fff;--bs-primary-rgb: {$variables['primarybgrgb']};--scrollbar-color: {$variables['scrollbar']};--bg-header: #fff;--bs-link-color: var(--bs-primary);--bs-link-hover-color: var(--bs-primary-alt);--bs-dark-rgb:{$variables['darkbgrgb']};}";
+        $data = ":root{--body: {$variables['body']};--body-color: {$variables['body-color']};--hamburger-color: {$variables['body-color']};--bs-primary: {$variables['primary']};--bs-primary-alt: {$variables['primaryalt']};--bs-secondary: {$variables['secondary']};--bg-primary: {$variables['primarybg']};--bg-secondary: {$variables['secondary']};--bs-primary-rgb: {$variables['primarybgrgb']};--scrollbar-color: {$variables['scrollbar']};--bg-header: rgba({$variables['liquidrgb']});--bs-link-color: var(--bs-primary);--bs-link-hover-color: var(--bs-primary-alt);--bs-dark-rgb:{$variables['darkbgrgb']};--bg-liquid: rgba({$variables['liquidrgb']});--bs-dark-rgb: {$variables['darkbg']};}";
 
-        file_put_contents(PUB.'/content/variables.css', $data);
+        $config = config("theme_config");
+        if(isset($config->cssname) && $config->cssname != $cssname){
+            if(file_exists(PUB.'/content/'.$config->cssname.'.css')){
+                unlink(PUB.'/content/'.$config->cssname.'.css');
+            }
+        }
+        if($css = fopen(PUB.'/content/'.$cssname.'.css', 'w')){
+            fwrite($css, $data);
+            fclose($css);
+        }
     }
     /**
      * Theme Config

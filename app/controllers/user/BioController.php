@@ -134,10 +134,24 @@ class Bio {
             $domains[] = $domain;
         }
 
+        // Get available templates for user's plan
+        $templates = [];
+        $userPlanId = $user->planid;
+        foreach(DB::biotemplates()->where('status', 1)->orderByDesc('created_at')->find() as $template){
+            $templatePlanIds = json_decode($template->planids ?? '[]', true);
+            // If no plan IDs specified, template is available to all plans
+            if(empty($templatePlanIds) || in_array($userPlanId, $templatePlanIds) || $user->admin){
+                $template->profile = DB::profiles()->first($template->profileid);
+                if($template->profile){
+                    $template->profile->data = json_decode($template->profile->data ?? '');
+                }
+                $templates[] = $template;
+            }
+        }
 
         View::set('title', e('Bio Pages'));
 
-        return View::with('bio.index', compact('bios', 'count', 'total', 'domains', 'views'))->extend('layouts.dashboard');
+        return View::with('bio.index', compact('bios', 'count', 'total', 'domains', 'views', 'templates'))->extend('layouts.dashboard');
     }
     /**
      * Create a Bio Page
@@ -193,26 +207,53 @@ class Bio {
             }
 		}
 
+        // Check if template is provided
         $data = [];
+        if($request->templateid){
+            $template = DB::biotemplates()->where('id', $request->templateid)->where('status', 1)->first();
+            if($template){
+                $templatePlanIds = json_decode($template->planids ?? '[]', true);
+                // Check if user's plan has access to this template
+                if(empty($templatePlanIds) || in_array($user->planid, $templatePlanIds) || $user->admin){
+                    $templateData = json_decode($template->data, true);
+                    if($templateData){
+                        $data = $templateData;
+                        // Reset user-specific data
+                        if(isset($data['settings'])) $data['settings']['verified'] = $user->verified;
+                        // Clear any user-specific links that might reference other users
+                        if(isset($data['links'])){
+                            foreach($data['links'] as $key => $link){
+                                if(isset($link['urlid'])){
+                                    unset($data['links'][$key]['urlid']);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-        $data['avatarenabled'] = 1;
-        $data['style']['bg'] = null;
-        $data['style']['font'] = null;
-        $data['style']['gradient'] = ['start' => null, 'stop' => null];
-        $data['style']['socialposition'] = null;
-        $data['style']['buttoncolor'] = null;
-        $data['style']['buttontextcolor'] = null;
-        $data['style']['buttonstyle'] = null;
-        $data['style']['textcolor'] = null;
-        $data['style']['custom'] = null;
-        $data['style']['mode'] = null;
+        // If no template or template failed, use default data
+        if(empty($data)){
+            $data['avatarenabled'] = 1;
+            $data['style']['bg'] = null;
+            $data['style']['font'] = null;
+            $data['style']['gradient'] = ['start' => null, 'stop' => null];
+            $data['style']['socialposition'] = null;
+            $data['style']['buttoncolor'] = null;
+            $data['style']['buttontextcolor'] = null;
+            $data['style']['buttonstyle'] = null;
+            $data['style']['textcolor'] = null;
+            $data['style']['custom'] = null;
+            $data['style']['mode'] = null;
 
-        $data['settings']['share'] = 0;
-        $data['settings']['sensitive'] = 0;
-        $data['settings']['cookie'] = 0;
-        $data['settings']['verified'] = $user->verified;
+            $data['settings']['share'] = 0;
+            $data['settings']['sensitive'] = 0;
+            $data['settings']['cookie'] = 0;
+            $data['settings']['verified'] = $user->verified;
 
-        $data['links'] = [];
+            $data['links'] = [];
+        }
 
         $alias = $request->custom ? $this->slug($request->custom) : $this->alias();
 
@@ -467,8 +508,7 @@ class Bio {
 
         $bio->data = json_decode($bio->data ?? '');
         $bio->responses = json_decode($bio->responses ?? '');
-
-
+        
         if($request->downloadqr){
             if(in_array($request->downloadqr, ['png', 'pdf', 'svg'])){
 
@@ -526,9 +566,6 @@ class Bio {
         View::push(route('bio.widgetjs'), 'script')->toFooter();
 
         if(isset($bio->data->style->mode)){
-            if($bio->data->style->mode == 'custom') View::push('<script>$(document).ready(function() { customTheme("'.$bio->data->style->theme.'","'.$bio->data->style->buttoncolor.'","'.$bio->data->style->buttontextcolor.'","'.$bio->data->style->textcolor.'","'.$bio->data->style->mode.'", "'.$bio->data->style->buttonstyle.'", "-45", "'.($bio->data->style->shadow ?? 'false').'", "'.($bio->data->style->shadowcolor ?? 'false').'") } ); </script>', 'custom')
-            ->toFooter();
-
             if($bio->data->style->mode == 'gradient') View::push('<script>$(document).ready(function() { changeTheme("'.$bio->data->style->bg.'","'.($bio->data->style->gradient->start ?? '').'","'.($bio->data->style->gradient->stop ?? '').'","'.$bio->data->style->buttoncolor.'","'.$bio->data->style->buttontextcolor.'","'.$bio->data->style->textcolor.'","'.$bio->data->style->mode.'", "'.$bio->data->style->buttonstyle.'", "-45", "'.($bio->data->style->shadow ?? 'false').'", "'.($bio->data->style->shadowcolor ?? 'false').'") } ); </script>', 'custom')->toFooter();
 
             if($bio->data->style->mode == 'singlecolor') View::push('<script>$(document).ready(function() { changeTheme("'.$bio->data->style->bg.'","","","'.$bio->data->style->buttoncolor.'","'.$bio->data->style->buttontextcolor.'","'.$bio->data->style->textcolor.'","'.$bio->data->style->mode.'", "'.$bio->data->style->buttonstyle.'", "-45", "'.($bio->data->style->shadow ?? 'false').'", "'.($bio->data->style->shadowcolor ?? 'false').'") } ); </script>', 'custom')->toFooter();
@@ -540,15 +577,16 @@ class Bio {
         }
 
         View::push('<script> var biodata = '.json_encode($bio->data->links).'; bioupdate();</script>', 'custom')->toFooter();
-
         $themes = [];
-        foreach(DB::themes()->where('status', 1)->find() as $theme){
-
-            if($theme->paidonly && !Auth::user()->pro()) continue;
-
+        foreach(DB::themes()->where('status', 1)->orderByDesc('id')->find() as $theme){
+            
+            if($theme->paidonly && !Auth::user()->pro() && !Auth::user()->admin) $theme->disabled = true;
+            
+            if($theme->paidonly && !empty($theme->planids) && Auth::user()->pro() && !Auth::user()->admin && !in_array(Auth::user()->planid, json_decode($theme->planids ?? '[]', true))) $theme->disabled = true;
+            
             $theme->data = json_decode($theme->data);
             if($theme->data->bgtype == 'single') {
-                $theme->data->style = "background:{$theme->data->singlecolor} !important";
+                $theme->data->style = "background:{$theme->data->singlecolor} !important;";
             }
             if($theme->data->bgtype == 'gradient') {
                 $theme->data->style = "background: linear-gradient({$theme->data->gradientangle}deg, {$theme->data->gradientstart} 0%, {$theme->data->gradientstop} 100%);";
@@ -557,12 +595,12 @@ class Bio {
                 $theme->data->style = "background-image: url(".uploads($theme->data->bgimage, 'profile').");background-size: cover;";
             }
             if($theme->data->bgtype == 'css') {
-                $theme->data->style = $theme->data->customcss;
+                View::push('<style id="theme-'.$theme->id.'">'.str_replace('body', '#theme-'.$theme->id, $theme->data->customcss).'</style>','custom')->toHeader();
             }
 
-            if($theme->data->buttonstyle == 'rectangle') {
+            if($theme->data->buttonstyle == 'rectangular') {
 
-                $theme->data->button = "background:{$theme->data->buttoncolor} !important; color: {$theme->data->buttontextcolor}; border-radius: 5px;";
+                $theme->data->button = "background:{$theme->data->buttoncolor} !important; color:{$theme->data->buttontextcolor}; border-radius: 5px;";
 
                 if($theme->data->shadow == 'soft'){
                     $theme->data->button .= "box-shadow: 2px 2px 5px {$theme->data->shadowcolor};";
@@ -608,6 +646,35 @@ class Bio {
                     $theme->data->button .= "box-shadow: 5px 5px 0px 1px {$theme->data->shadowcolor};";
                 }
             }
+            
+            // Apply frost effect if enabled
+            if(isset($theme->data->frost) && $theme->data->frost){
+                $buttonColor = $theme->data->buttoncolor ?? '#000000';
+                $rgb = sscanf($buttonColor, "#%02x%02x%02x");
+                if(count($rgb) == 3){
+                    $rgba = 'rgba('.$rgb[0].','.$rgb[1].','.$rgb[2].',0.6)';
+                    $borderRgba = 'rgba('.$rgb[0].','.$rgb[1].','.$rgb[2].',0.8)';
+                    if(strpos($theme->data->button, 'background:transparent') !== false){
+                        $theme->data->button = str_replace('background:transparent', 'background: '.$rgba, $theme->data->button);
+                    } else {
+                        $theme->data->button = preg_replace('/background:[^;!]+/', 'background: '.$rgba, $theme->data->button);
+                    }
+                    if(preg_match('/border[^:]*color[^:]*:[^;]+/', $theme->data->button)){
+                        $theme->data->button = preg_replace('/border[^:]*color[^:]*:[^;]+/', 'border-color: '.$borderRgba.' !important', $theme->data->button);
+                    } else {
+                        $theme->data->button .= '; border-color: '.$borderRgba.' !important';
+                    }
+                    $theme->data->button .= '; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);';
+                }
+            }
+            
+            // Apply font if set
+            if(isset($theme->data->font) && !empty($theme->data->font)){
+                $theme->data->fontStyle = 'font-family: '.str_replace('+', ' ', $theme->data->font).';';
+            } else {
+                $theme->data->fontStyle = '';
+            }
+            
             $themes[] = $theme;
         }
 
@@ -831,7 +898,8 @@ class Bio {
         $data['style']['buttontextcolor'] = clean($request->buttontextcolor, 3);
         $data['style']['shadow'] = clean($request->shadow, 3);
         $data['style']['shadowcolor'] = clean($request->shadowcolor, 3);
-        $data['style']['textcolor'] = clean($request->textcolor, 3);    
+        $data['style']['textcolor'] = clean($request->textcolor, 3);
+        $data['style']['frost'] = (int) ($request->frost ?? 0);
 
         if($user->has('biocss')){
             $data['style']['custom'] = str_replace(['navbar-logo'], 'UnAuthorizedCSS', Helper::clean($request->customcss, 3));
@@ -846,6 +914,19 @@ class Bio {
         $data['settings']['share'] = (int) $request->share ? Helper::clean($request->share, 3) : 0;
         $data['settings']['sensitive'] = (int) $request->sensitive ? Helper::clean($request->sensitive, 3) : 0;
         $data['settings']['cookie'] = (int) $request->cookie ? Helper::clean($request->cookie, 3) : 0;
+        $data['settings']['agerestriction'] = (int) ($request->agerestriction ?? 0);
+        if($request->minimumage){
+            $data['settings']['minimumage'] = (int) $request->minimumage;
+            if($data['settings']['minimumage'] < 13) $data['settings']['minimumage'] = 13;
+            if($data['settings']['minimumage'] > 100) $data['settings']['minimumage'] = 100;
+        } else {
+            $data['settings']['minimumage'] = 18;
+        }
+        if($request->ageredirect){
+            $data['settings']['ageredirect'] = Helper::clean($request->ageredirect, 3);
+        } else {
+            $data['settings']['ageredirect'] = '';
+        }
 
         if($user->has('poweredby')){
             $data['settings']['branding'] = $request->branding ? Helper::clean($request->branding, 3) : 0;
@@ -1046,9 +1127,27 @@ class Bio {
         }
         
         if($request->themeid && $theme = DB::themes()->where('id', clean($request->themeid))->first()){
+            // Check if theme is enabled
+            if($theme->status != 1){
+                return Response::factory(['error' => true, 'message' => e('This theme is not available.'), 'token' => csrf_token()])->json();
+            }
+            
+            // Check if theme requires premium and user is not pro
+            if($theme->paidonly && !$user->pro()){
+                return Response::factory(['error' => true, 'message' => e('This theme is only available for premium users.'), 'token' => csrf_token()])->json();
+            }
+            
+            // Check if theme has plan restrictions
+            $themePlanIds = json_decode($theme->planids ?? '[]', true);
+            if(!empty($themePlanIds) && !$user->admin){
+                if(!in_array($user->planid, $themePlanIds)){
+                    return Response::factory(['error' => true, 'message' => e('This theme is not available for your plan.'), 'token' => csrf_token()])->json();
+                }
+            }
+            
             $data['themeid'] = $theme->id;
         } else {
-            $data['themeid'] = null;
+            $data['themeid'] = !$request->themeid && $data['themeid'] ? $data['themeid'] : null;
         }
 
         if($image = $request->file('bgimage')){
@@ -1088,7 +1187,7 @@ class Bio {
 
         if($request->theme){
             $data['style']['theme'] = clean($request->theme);
-        }
+        } 
 
         if($request->social){
             $data['social'] = [];
@@ -1136,6 +1235,9 @@ class Bio {
         if($request->textcolor){
             $data['style']['textcolor'] = clean($request->textcolor, 3);
         }
+        if(!is_null($request->frost)){
+            $data['style']['frost'] = in_array($request->frost, ['0', '1']) ? (int) $request->frost : 0;
+        }
 
         if($request->customcss && $user->has('biocss')){
             $data['style']['custom'] = str_replace(['navbar-logo'], 'UnAuthorizedCSS', Helper::clean($request->customcss, 3));
@@ -1153,6 +1255,17 @@ class Bio {
         }
         if(!is_null($request->cookie)){
             $data['settings']['cookie'] = in_array($request->cookie, ['0', '1'])  ? Helper::clean($request->cookie, 3) : 0;
+        }
+        if(!is_null($request->agerestriction)){
+            $data['settings']['agerestriction'] = in_array($request->agerestriction, ['0', '1']) ? Helper::clean($request->agerestriction, 3) : 0;
+        }
+        if($request->minimumage){
+            $data['settings']['minimumage'] = (int) $request->minimumage;
+            if($data['settings']['minimumage'] < 13) $data['settings']['minimumage'] = 13;
+            if($data['settings']['minimumage'] > 100) $data['settings']['minimumage'] = 100;
+        }
+        if($request->ageredirect){
+            $data['settings']['ageredirect'] = Helper::clean($request->ageredirect, 3);
         }
 
         if(!is_null($request->branding) && $user->has('poweredby')){
@@ -1269,27 +1382,75 @@ class Bio {
 
         $profiledata = json_decode($profile->data, true);
 
-        View::push(assets('biopages.min.css').'?v=1.1')->toHeader();
+        if(isset($profiledata['themeid']) && $profiledata['themeid'] && $theme = DB::themes()->where('id', clean($profiledata['themeid']))->first()){
+            $theme->data = json_decode($theme->data);
+            //override all styles with theme styles            
+            if(isset($theme->data->textcolor)) $profiledata['style']['textcolor'] = $theme->data->textcolor;
+            
+            if(isset($theme->data->buttoncolor)) $profiledata['style']['buttoncolor'] = $theme->data->buttoncolor;
+            if(isset($theme->data->buttontextcolor)) $profiledata['style']['buttontextcolor'] = $theme->data->buttontextcolor;
+            if(isset($theme->data->buttonstyle)) $profiledata['style']['buttonstyle'] = $theme->data->buttonstyle;
+            if(isset($theme->data->shadow)) $profiledata['style']['shadow'] = $theme->data->shadow;
+            if(isset($theme->data->shadowcolor)) $profiledata['style']['shadowcolor'] = $theme->data->shadowcolor;
+            if(isset($theme->data->frost)) $profiledata['style']['frost'] = $theme->data->frost;
+            if(isset($theme->data->font)) $profiledata['style']['font'] = $theme->data->font;
+            if(isset($theme->data->iconstyle)) $profiledata['style']['iconstyle'] = $theme->data->iconstyle;
+            
+            if(isset($theme->data->bgtype)){
+                if($theme->data->bgtype == 'single' && isset($theme->data->singlecolor)){
+                    $profiledata['style']['mode'] = 'singlecolor';
+                    $profiledata['style']['bg'] = $theme->data->singlecolor;
+                } elseif($theme->data->bgtype == 'gradient'){
+                    $profiledata['style']['mode'] = 'gradient';
+                    if(!isset($profiledata['style']['gradient'])) $profiledata['style']['gradient'] = [];
+                    if(isset($theme->data->gradientangle)) $profiledata['style']['gradient']['angle'] = $theme->data->gradientangle;
+                    if(isset($theme->data->gradientstart)) $profiledata['style']['gradient']['start'] = $theme->data->gradientstart;
+                    if(isset($theme->data->gradientstop)) $profiledata['style']['gradient']['stop'] = $theme->data->gradientstop;
+                } elseif($theme->data->bgtype == 'image'){
+                    $profiledata['style']['mode'] = 'image';
+                    if(isset($theme->data->bgimage)) $profiledata['bgimage'] = $theme->data->bgimage;
+                } elseif($theme->data->bgtype == 'css'){
+                    $profiledata['style']['mode'] = 'css';
+                    if(isset($theme->data->customcss)) $profiledata['style']['customcss'] = $theme->data->customcss;
+                }
+            }
+        }
 
-        View::push('<style>body{min-height: 100vh;color: '.$profiledata['style']['textcolor'].';'.(isset($profiledata['style']['mode']) && $profiledata['style']['mode'] == 'singlecolor' ? 'background: '.$profiledata['style']['bg'].';' : '').''.(!isset($profiledata['style']['mode']) || $profiledata['style']['mode'] == 'gradient' ? 'background: linear-gradient('.(isset($profiledata['style']['gradient']['angle']) && is_numeric($profiledata['style']['gradient']['angle']) ? $profiledata['style']['gradient']['angle'] : '135').'deg,'.$profiledata['style']['gradient']['start'].' 0%, '.$profiledata['style']['gradient']['stop'].' 100%);' : '').'}.fa,.fab,.far,.fas,.fa-brands,.fa-solid{font-size: 1.5em}h1,h3,em,p,a{color: '.$profiledata['style']['textcolor'].' !important;}a:hover{color: '.$profiledata['style']['textcolor'].';opacity: 0.8;}.btn-custom,.btn-custom.active{font-weight:700; background: '.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].' !important;}a.btn-custom:hover,button.btn-custom:hover{opacity: 0.8;background: '.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].';}.btn-custom p, .btn-custom h3, .btn-custom span{color: '.$profiledata['style']['buttontextcolor'].' !important;}.rss{font-weight:400;background:'.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].';height:300px} .rss a{color:'.$profiledata['style']['buttontextcolor'].' !important}.item > h1,.item > h2,.item > h3,.item > h4,.item > h5,.item > h6{color:'.$profiledata['style']['textcolor'].';}.cc-floating.cc-type-info.cc-theme-classic .cc-btn{color:#000 !important}.modal-backdrop.show{opacity:0.85!important}#social a:first-child{margin-left: 0 !important}.form-control{background:#fff !important;color:#000 !important}.layout2 .d-block{height:250px;}@media (max-width: 767px) {.layout2 .d-block{height:150px;}}.layout2 .useravatar{margin-top: -60px;}.card{background: '.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].' !important;}.card a, .card h6, .card p, .card .card-body {color: '.$profiledata['style']['buttontextcolor'].' !important;}.fa-animated .fa{transition: transform 0.2s linear;font-size: 18px !important}.fa-animated:not(.collapsed) .fa{transform: rotate(180deg);.btn-icon-only{width:36px;heigth:36px;}} .btn+.btn {margin-left: 0 !important}.btn-custom span{display:inline-block;max-width: 80%}.modal{color:#000 !important}.btn-custom img{max-width: 15%;border-radius:3px;margin: 0 5px;width: 46px;height: 46px;}.btn-custom .fa,.btn-custom .fab,.btn-custom .far,.btn-custom .fas,.btn-custom .fa-brands,.btn-custom .fa-solid{font-size:2.0em}.translate-middle-y{transform: translateY(-50%) !important;}.top-50{top: 50%;}audio::-webkit-media-controls-panel{background: '.$profiledata['style']['buttoncolor'].';}.a{fill:'.$profiledata['style']['textcolor'].' !important;}.b,.c{fill:'.App::invertColor($profiledata['style']['textcolor']).' !important; opacity: 0.5}</style>','custom')->toHeader();
+        View::push(assets('biopages.min.css').'?v=1.2')->toHeader();
+
+        View::push('<style>body{min-height: 100vh;color: '.$profiledata['style']['textcolor'].' !important;'.(isset($profiledata['style']['mode']) && $profiledata['style']['mode'] == 'singlecolor' ? 'background: '.$profiledata['style']['bg'].';' : '').''.(!isset($profiledata['style']['mode']) || $profiledata['style']['mode'] == 'gradient' ? 'background: linear-gradient('.(isset($profiledata['style']['gradient']['angle']) && is_numeric($profiledata['style']['gradient']['angle']) ? $profiledata['style']['gradient']['angle'] : '135').'deg,'.$profiledata['style']['gradient']['start'].' 0%, '.$profiledata['style']['gradient']['stop'].' 100%);' : '').'}.fa,.fab,.far,.fas,.fa-brands,.fa-solid{font-size: 1.5em}h1,h3,em,p,a{color: '.$profiledata['style']['textcolor'].' !important;}a:hover{color: '.$profiledata['style']['textcolor'].';opacity: 0.8;}.btn-custom,.btn-custom.active{font-weight:700; background: '.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].' !important;}a.btn-custom:hover,button.btn-custom:hover{opacity: 0.8;background: '.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].';}.btn-custom p, .btn-custom h3, .btn-custom span{color: '.$profiledata['style']['buttontextcolor'].' !important;}.rss{font-weight:400;background:'.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].';height:300px} .rss a{color:'.$profiledata['style']['buttontextcolor'].' !important}.item > h1,.item > h2,.item > h3,.item > h4,.item > h5,.item > h6{color:'.$profiledata['style']['textcolor'].';}.cc-floating.cc-type-info.cc-theme-classic .cc-btn{color:#000 !important}.modal-backdrop.show{opacity:0.85!important}#social a:first-child{margin-left: 0 !important}.form-control{background:#fff !important;color:#000 !important}.layout2 .d-block{height:250px;}@media (max-width: 767px) {.layout2 .d-block{height:150px;}}.layout2 .useravatar{margin-top: -60px;}.card{background: '.$profiledata['style']['buttoncolor'].';color: '.$profiledata['style']['buttontextcolor'].' !important;}.card a, .card h6, .card p, .card .card-body {color: '.$profiledata['style']['buttontextcolor'].' !important;}.fa-animated .fa{transition: transform 0.2s linear;font-size: 18px !important}.fa-animated:not(.collapsed) .fa{transform: rotate(180deg);.btn-icon-only{width:36px;heigth:36px;}} .btn+.btn {margin-left: 0 !important}.btn-custom span{display:inline-block;max-width: 80%}.modal{color:#000 !important}.btn-custom img{max-width: 15%;border-radius:3px;margin: 0 5px;width: 46px;height: 46px;}.btn-custom .fa,.btn-custom .fab,.btn-custom .far,.btn-custom .fas,.btn-custom .fa-brands,.btn-custom .fa-solid{font-size:2.0em}.translate-middle-y{transform: translateY(-50%) !important;}.top-50{top: 50%;}audio::-webkit-media-controls-panel{background: '.$profiledata['style']['buttoncolor'].';}.a{fill:'.$profiledata['style']['textcolor'].' !important;}.b,.c{fill:'.App::invertColor($profiledata['style']['textcolor']).' !important; opacity: 0.5}</style>','custom')->toHeader();
 
         if(isset($profiledata['style']['buttonstyle'])){
             if($profiledata['style']['buttonstyle'] == 'trec'){
-                View::push('<style>.btn-custom,.card{background-color:transparent;border:2px solid '.$profiledata['style']['buttoncolor'].';}.btn-custom img{border-radius:5px}</style>','custom')->toHeader();
+                View::push('<style>.btn-custom,.card{background-color:transparent;border:2px solid '.$profiledata['style']['buttoncolor'].'; border-radius:10px;}.btn-custom img{border-radius:5px}</style>','custom')->toHeader();
             }elseif($profiledata['style']['buttonstyle'] == 'tro'){
-                View::push('<style>.btn-custom,.card{background-color:transparent;border:2px solid '.$profiledata['style']['buttoncolor'].';border-radius:50px;}.btn-custom.faqs{border-radius:5px}.btn-custom img{border-radius:50px;}</style>','custom')->toHeader();
+                View::push('<style>.btn-custom,.card{background-color:transparent;border:2px solid '.$profiledata['style']['buttoncolor'].';border-radius:50px;}.btn-custom.btn-custom img{border-radius:50px;}</style>','custom')->toHeader();
             }elseif($profiledata['style']['buttonstyle'] == 'rounded'){
-                View::push('<style>.btn-custom,.card{border-radius:50px;}.btn-custom.faqs{border-radius:5px}.btn-custom img{border-radius:50px;}</style>','custom')->toHeader();
+                View::push('<style>.btn-custom,.card{border-radius:25px;}.btn-custom.faqs{border-radius:5px}.btn-custom img{border-radius:50px;}</style>','custom')->toHeader();
+            }elseif($profiledata['style']['buttonstyle'] == 'rectangular'){
+                View::push('<style>.btn-custom,.card{border-radius:5px;}.btn-custom.faqs{border-radius:5px}.btn-custom img{border-radius:5px;}</style>','custom')->toHeader();
             }elseif($profiledata['style']['buttonstyle'] == 'none'){
                 View::push('<style>.btn-custom,.card{border-radius:0;}.btn-custom img{border-radius:5px}</style>','custom')->toHeader();
             }
-        } 
+        }
         if(isset($profiledata['style']['shadow']) && !empty($profiledata['style']['shadowcolor'])){
             if($profiledata['style']['shadow'] == 'soft'){
                 View::push('<style>.btn-custom,.card{box-shadow: 0px 5px 10px rgba('.implode(',',sscanf($profiledata['style']['shadowcolor'], "#%02x%02x%02x")).',0.4)}</style>','custom')->toHeader();
             }elseif($profiledata['style']['shadow'] == 'hard'){
                 View::push('<style>.btn-custom,.card{box-shadow: 5px 5px 0px 1px '.$profiledata['style']['shadowcolor'].'}</style>','custom')->toHeader();
             }
+        }
+        if(isset($profiledata['style']['frost']) && $profiledata['style']['frost']){
+            $buttonColor = $profiledata['style']['buttoncolor'] ?? '#000000';
+            $rgb = sscanf($buttonColor, "#%02x%02x%02x");
+            if(count($rgb) == 3){
+                $rgba = 'rgba('.$rgb[0].','.$rgb[1].','.$rgb[2].',0.6)';
+                $borderRgba = 'rgba('.$rgb[0].','.$rgb[1].','.$rgb[2].',0.8)';
+            } else {
+                $rgba = $buttonColor;
+                $borderRgba = $buttonColor;
+            }
+            View::push('<style>.btn-custom,.card{background: '.$rgba.' !important;border: 1px solid '.$borderRgba.' !important;backdrop-filter: blur(5px);-webkit-backdrop-filter: blur(5px);}</style>','custom')->toHeader();
         }
 
         if(isset($profiledata['settings']['share']) && $profiledata['settings']['share']){
@@ -1298,7 +1459,7 @@ class Bio {
 
             View::push("<script>
                     if(typeof navigator.share == 'function' && navigator.share){
-                        $('#modal-share').append('<a href=\"#\" data-trigger=\"share\" class=\"d-flex align-items-center text-left text-start btn text-black d-block w-100 p-3 border mb-2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"feather feather-share mr-2 me-2\"><path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"></path><polyline points=\"16 6 12 2 8 6\"></polyline><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"15\"></line></svg><span class=\"align-middle\">".e('More share options')."</span></a>');
+                        $('#more-share-options').removeClass('d-none').html('<a href=\"#\" data-trigger=\"share\" class=\"d-flex align-items-center text-left text-start btn text-black d-block w-100 p-3 border mb-2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"feather feather-share mr-2 me-2\"><path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"></path><polyline points=\"16 6 12 2 8 6\"></polyline><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"15\"></line></svg><span class=\"align-middle\">".e('More share options')."</span></a>');
                     }
                     $('[data-trigger=share]').click(function(e){
                         e.preventDefault();
@@ -1338,9 +1499,115 @@ class Bio {
                             </div>
                         </div><script>new bootstrap.Modal(document.getElementById("sensitiveModal"), {backdrop:\'static\',keyboard: false}).show();$(\'.modal-backdrop.show\').attr(\'style\', \'opacity: 1 !important\');if(typeof modal == "function") $(\'#sensitiveModal\').modal(\'show\');</script>','custom')->toFooter();
         }
+        
+        if(isset($profiledata['settings']['agerestriction']) && $profiledata['settings']['agerestriction']){
+            $minimumAge = isset($profiledata['settings']['minimumage']) ? (int)$profiledata['settings']['minimumage'] : 18;
+            $redirectUrl = isset($profiledata['settings']['ageredirect']) && !empty($profiledata['settings']['ageredirect']) ? $profiledata['settings']['ageredirect'] : url();
+            View::push('<div class="modal fade" id="ageRestrictionModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="ageRestrictionModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title text-dark" id="ageRestrictionModalLabel">'.e('Age Verification').'</h5>
+                                </div>
+                                <div class="modal-body text-dark">
+                                <p class="text-dark">'.e('This page is restricted to users who are {age} years or older.', null, ['age' => $minimumAge]).'</p>
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">'.e('Enter your date of birth').'</label>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <select class="form-control" id="ageDay" required>
+                                                <option value="">'.e('Day').'</option>'.implode('', array_map(function($d){ return '<option value="'.$d.'">'.$d.'</option>'; }, range(1, 31))).'
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <select class="form-control" id="ageMonth" required>
+                                                <option value="">'.e('Month').'</option>
+                                                <option value="1">'.e('January').'</option>
+                                                <option value="2">'.e('February').'</option>
+                                                <option value="3">'.e('March').'</option>
+                                                <option value="4">'.e('April').'</option>
+                                                <option value="5">'.e('May').'</option>
+                                                <option value="6">'.e('June').'</option>
+                                                <option value="7">'.e('July').'</option>
+                                                <option value="8">'.e('August').'</option>
+                                                <option value="9">'.e('September').'</option>
+                                                <option value="10">'.e('October').'</option>
+                                                <option value="11">'.e('November').'</option>
+                                                <option value="12">'.e('December').'</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <select class="form-control" id="ageYear" required>
+                                                <option value="">'.e('Year').'</option>'.implode('', array_map(function($y){ return '<option value="'.$y.'">'.$y.'</option>'; }, range(date('Y'), date('Y') - 100))).'
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="text-danger mt-2" id="ageError" style="display:none;"></div>
+                                </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary text-white" id="verifyAge">'.e('Verify').'</button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <script>
+                        (function(){
+                            var minAge = '.$minimumAge.';
+                            var redirectUrl = "'.htmlspecialchars($redirectUrl, ENT_QUOTES).'";
+                            var verifiedKey = "ageVerified_'.md5($profile->alias).'";
+                            
+                            // Check if already verified in this session
+                            if(sessionStorage.getItem(verifiedKey) === "1"){
+                                return;
+                            }
+                            
+                            var modal = new bootstrap.Modal(document.getElementById("ageRestrictionModal"), {backdrop:\'static\',keyboard: false});
+                            modal.show();
+                            $(\'.modal-backdrop.show\').attr(\'style\', \'opacity: 1 !important\');
+                            
+                            $("#verifyAge").click(function(){
+                                var day = $("#ageDay").val();
+                                var month = $("#ageMonth").val();
+                                var year = $("#ageYear").val();
+                                
+                                if(!day || !month || !year){
+                                    $("#ageError").text("'.e('Please enter your complete date of birth').'").show();
+                                    return;
+                                }
+                                
+                                var birthDate = new Date(year, month - 1, day);
+                                var today = new Date();
+                                var age = today.getFullYear() - birthDate.getFullYear();
+                                var monthDiff = today.getMonth() - birthDate.getMonth();
+                                
+                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                    age--;
+                                }
+                                
+                                if(age < minAge){
+                                    $("#ageError").text("'.e('You must be {age} years or older to access this page.', null, ['age' => $minimumAge]).'").show();
+                                    setTimeout(function(){
+                                        window.location.href = redirectUrl;
+                                    }, 2000);
+                                } else {
+                                    // Store verification in sessionStorage
+                                    sessionStorage.setItem(verifiedKey, "1");
+                                    modal.hide();
+                                    $(\'.modal-backdrop\').remove();
+                                }
+                            });
+                        })();
+                        </script>','custom')->toFooter();
+        }
         if((!isset($profiledata['style']['mode']) && isset($profiledata['bgimage']) && $profiledata['bgimage']) ||
         (isset($profiledata['style']['mode']) && $profiledata['style']['mode'] == "image" && isset($profiledata['bgimage']) && $profiledata['bgimage'])) {
             View::push('<style>body{background-image: url(\''.uploads($profiledata['bgimage'], 'profile').'\');background-size:cover}</style>','custom')->toHeader();
+        }
+        
+        // Apply theme custom CSS if bgtype is 'css'
+        if(isset($profiledata['style']['mode']) && $profiledata['style']['mode'] == 'css' && isset($profiledata['style']['customcss']) && !empty($profiledata['style']['customcss'])){
+            View::push('<style>'.$profiledata['style']['customcss'].'</style>','custom')->toHeader();
         }
         
         if(isset($profiledata['themeid']) && $profiledata['themeid'] && $theme = DB::themes()->where('id', clean($profiledata['themeid']))->first()){
@@ -1348,8 +1615,8 @@ class Bio {
             if($theme->data->bgtype == 'image'){
                 View::push('<style>body{background-image: url(\''.uploads($theme->data->bgimage, 'profile').'\') !important;background-size:cover}</style>','custom')->toHeader();
             }
-            if($theme->data->bgtype == 'css'){
-                View::push('<style>body{'.$theme->data->customcss.'}</style>','custom')->toHeader();
+            if($theme->data->bgtype == 'css' && isset($theme->data->customcss) && !empty($theme->data->customcss)){
+                View::push('<style>'.$theme->data->customcss.'</style>','custom')->toHeader();
             }
         }
         // @group Plugin

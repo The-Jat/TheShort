@@ -36,10 +36,10 @@
                         </div>
                         <div id="content" class="mt-3">
                             <div class="item mb-3">
-                                <a href="#" class="btn d-block btn-light text-primary shadow-sm py-3">🛒 <?php ee('New Merch') ?></a>
+                                <a href="#" class="btn d-block btn-light shadow-sm py-3">🛒 <?php ee('New Merch') ?></a>
                             </div>
                             <div class="item mb-3">
-                                <a href="#" class="btn d-block btn-light text-primary shadow-sm py-3">🔥 <?php ee('Shop') ?></a>
+                                <a href="#" class="btn d-block btn-light shadow-sm py-3">🔥 <?php ee('Shop') ?></a>
                             </div>
                         </div>                        
                     </div>
@@ -110,7 +110,7 @@
                         </div>                        
                         <div id="content" class="mt-3">
                             <div class="item mb-3">
-                                <a href="#" class="btn d-block btn-light text-primary shadow-sm py-3 position-relative rounded-pill"><i class="fa fa-music position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Listen') ?></a>
+                                <a href="#" class="btn d-block btn-light shadow-sm py-3 position-relative rounded-pill"><i class="fa fa-music position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Listen') ?></a>
                             </div>
                         </div>
                     </div>
@@ -123,7 +123,7 @@
                         </div>
                         <div id="content" class="mt-3">
                             <div class="item mb-3">
-                                <a href="#" class="btn d-block btn-light text-primary shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-youtube position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Subscribe') ?></a>
+                                <a href="#" class="btn d-block btn-light shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-youtube position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Subscribe') ?></a>
                             </div>
                         </div>
                     </div>
@@ -136,13 +136,13 @@
                         </div>
                         <div id="content" class="mt-3">
                             <div class="item mb-3">
-                                <a href="#" class="btn d-block btn-light text-primary shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-youtube position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Subscribe') ?></a>
+                                <a href="#" class="btn d-block btn-light shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-youtube position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Subscribe') ?></a>
                             </div>
                             <div class="item mb-3">
-                                <a href="#" class="btn d-block btn-light text-primary shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-tiktok position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Our videos') ?></a>
+                                <a href="#" class="btn d-block btn-light shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-tiktok position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Our videos') ?></a>
                             </div>
                             <div class="item mb-3">
-                                <a href="#" class="btn d-block btn-light text-primary shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-instagram position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Follow us') ?></a>
+                                <a href="#" class="btn d-block btn-light shadow-sm py-3 position-relative rounded-pill"><i class="fab fa-instagram position-absolute start-0 left-0 fs-4 ms-3 ml-3"></i> <?php ee('Follow us') ?></a>
                             </div>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
 					<p><?php ee('You are one click away from taking control of all of your links, and instantly get better results.') ?></p>
 				</div>
 				<div class="col-sm-4 text-end">
-					<a class="btn btn-light text-primary btn-lg d-block d-sm-inline-block" href="<?php echo route('register') ?>"><?php ee('Get Started') ?></a>
+					<a class="btn btn-light btn-lg d-block d-sm-inline-block" href="<?php echo route('register') ?>"><?php ee('Get Started') ?></a>
 				</div>
 			</div>
 		</div>

@@ -181,6 +181,8 @@ return [
 		'sendgrid' => \Core\Support\Sendgrid::class,
 		'postmark' => \Core\Support\Postmark::class,
 		'mailchimp' => \Core\Support\Mailchimp::class,
+		'resend' => \Core\Support\Resend::class,
+		'ses' => \Core\Support\SES::class,
 	],
 	/**
 	 * Path to cache folder

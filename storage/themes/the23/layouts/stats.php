@@ -12,6 +12,11 @@
         <?php if(config('cookieconsent')->enabled): ?>
             <link rel="stylesheet" type="text/css" href="<?php echo assets('frontend/libs/cookieconsent/cookieconsent.css') ?>">
         <?php endif ?>
+        <?php if(isset(config("theme_config")->cssname)): ?>
+            <link rel="stylesheet" href="<?php echo uploads(config("theme_config")->cssname.'.css') ?>" id="stylesheet">
+        <?php else: ?>
+            <link rel="stylesheet" href="<?php echo uploads('variables.css') ?>" id="stylesheet">
+        <?php endif ?>
         <link rel="stylesheet" href="<?php echo assets('style.min.css') ?>?v=1.1" id="stylesheet">
         <?php if(config('fonts') && !config('cookieconsent')->enabled): ?>
             <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -47,7 +52,7 @@
         <?php block('footer') ?>        
         
         <script src="<?php echo assets('app.min.js') ?>"></script>
-        <script src="<?php echo assets('server.min.js') ?>?v=1.2"></script>
+        <script src="<?php echo assets('server.min.js') ?>?v=1.1"></script>
         <?php echo html_entity_decode(config('customfooter')) ?>
         <?php if(!empty(config('analytic'))): ?>
 			<script<?php echo \Helpers\App::cookieConsent('analytics') ?>async src='https://www.googletagmanager.com/gtag/js?id=<?php echo config('analytic') ?>'></script>

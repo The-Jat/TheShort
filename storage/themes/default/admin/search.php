@@ -164,3 +164,20 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="deleteAllModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold"><?php ee('Are you sure you want to proceed?') ?></h5>
+        <button type="button" class="btn btn-transparent border-0 p-0" data-bs-close data-bs-dismiss="modal" aria-label="Close"><i class="fs-3 fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <p><?php ee('You are trying to delete many records. This action is permanent and cannot be reversed.') ?></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white border px-3 py-2 rounded-3 shadow-sm" data-bs-close data-bs-dismiss="modal"><?php ee('Cancel') ?></button>
+        <a href="<?php echo route('admin.links.deleteall') ?>" class="btn btn-danger px-5 py-2 rounded-3 shadow-sm" data-trigger="submitchecked"><?php ee('Confirm') ?></a>
+      </div>
+    </div>
+  </div>
+</div>

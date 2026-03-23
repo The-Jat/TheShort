@@ -198,11 +198,11 @@ class Stripe{
             
             \GemError::log('Payment system "Stripe" not enabled or configured.');
 
-            return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+            return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
         }
 
 	  	if(!$plan = DB::plans()->first($id)){
-			return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+			return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
 	  	}			
 
 		if($request->type == 'business' && !$request->company){
@@ -234,7 +234,7 @@ class Stripe{
 
 		if(isset($stripeConfig->type) && $stripeConfig->type == "stripe") return self::paymentLink($request, $type, $plan, $user);
   
-		if(!$request->stripeToken) return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+		if(!$request->stripeToken) return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 		
 		$stripe = new \Stripe\StripeClient(config('stripe')->secret);	
 
@@ -276,10 +276,10 @@ class Stripe{
 
 			} catch(\Exception $e) {
 				\GemError::log('Stripe Error: '.$e->getMessage());
-				return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+				return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 			}
 
-			if(!isset($customer->id)) return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+			if(!isset($customer->id)) return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 
 			$user->customerid = $customer->id;
 			$user->save();
@@ -312,7 +312,7 @@ class Stripe{
 				$user->customerid = null;
 				$user->save();
 				\GemError::log('Stripe Customer Error: '.$e->getMessage());
-				return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+				return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 			}
 		}
   
@@ -436,7 +436,7 @@ class Stripe{
 				
 				\GemError::log('Stripe Error: '.$e->getMessage());
 
-				return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+				return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 			}			
 		
 		} else {
@@ -508,7 +508,7 @@ class Stripe{
 			} catch (\Exception $e) {
 
 				\GemError::log('Stripe Error:'.$e->getMessage(), $intent);
-				return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+				return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 
 			}				
 		}	
@@ -905,7 +905,7 @@ class Stripe{
 				"id" => $plan->slug."monthly"
 			]);      
 		} catch (\Exception $e) {
-			
+			\GemError::log('Stripe Sync Plan Monthly Error: '.$e->getMessage());
 		}
 	  
 		try {
@@ -920,7 +920,7 @@ class Stripe{
 			]);
 			
 		} catch (\Exception $e) {
-			
+			\GemError::log('Stripe Sync Plan Yearly Error: '.$e->getMessage());
 		}
 
 		return $product->id;
@@ -1109,10 +1109,10 @@ class Stripe{
 
 			} catch(\Exception $e) {
 				\GemError::log('Stripe Error: '.$e->getMessage());
-				return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+				return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 			}
 
-			if(!isset($customer->id)) return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+			if(!isset($customer->id)) return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 
 			$user->customerid = $customer->id;			
 			$user->save();		  
@@ -1139,6 +1139,7 @@ class Stripe{
 			];
 		} else {
 			$checkout = [
+				'currency' => strtolower(config('currency')),
 				'success_url' => route('dashboard',['success' => true]),
 				'cancel_url' => route('dashboard', ['success' => false]),
 				'line_items' => [
@@ -1194,13 +1195,54 @@ class Stripe{
 			$tax->data = json_decode($tax->data);
 
 			$checkout['line_items'][0]['tax_rates'] = [$tax->data->stripe];
-		}	
+		}
+
+	if($request->type == 'business' && $request->company && $request->taxid){
+		$checkout['custom_fields'] = [
+			[
+				'key' => 'company',
+				'type' => 'text',
+				'label' => [
+					'custom' => e('Company'),
+					'type' => 'custom'
+				],
+				'text' => [
+					'default_value' => clean($request->company)
+				],
+				'optional' => true
+			],
+			[
+				'key' => 'tax_id',
+				'type' => 'text',
+				'label' => [
+					'custom' => e('Tax ID'),
+					'type' => 'custom'
+				],
+				'text' => [
+					'default_value' => clean($request->taxid)
+				],
+				'optional' => true
+			],
+			[
+				'key' => 'contact_person',
+				'type' => 'text',
+				'label' => [
+					'custom' => e('Contact Person'),
+					'type' => 'custom'
+				],
+				'text' => [
+					'default_value' => clean($request->name)
+				],
+				'optional' => true
+			]
+		];
+	}
 
 		try{
 			$session = $stripe->checkout->sessions->create($checkout);
 		} catch(\Exception $e){
 			\GemError::log('Stripe Error: '.$e->getMessage());
-			return back()->with("warning", e("An error ocurred, please try again. You have not been charged."));
+			return back()->with("warning", e("An error occurred, please try again. You have not been charged."));
 		}
 
 		return Helper::redirect()->to($session->url);

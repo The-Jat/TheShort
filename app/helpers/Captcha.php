@@ -206,7 +206,7 @@ final class Captcha {
      */
     public static function hCaptchaDisplay($action = null){
         return '<div class="h-captcha" data-sitekey="'.config('captcha_public').'"'.(\Helpers\App::isDark() ? ' data-theme="dark"' : '').''.($action ? ' data-action="'.$action.'"' : '').'></div>
-                <script src="https://www.hCaptcha.com/1/api.js?hl='.\Core\Localization::locale().'" async defer></script>
+                <script src="h"https://js.hcaptcha.com/1/api.js?hl='.\Core\Localization::locale().'" async defer></script>
                 <script>
                   var recaptcha = () => {
                     return hcaptcha.reset();
@@ -309,7 +309,7 @@ final class Captcha {
         
         $altcha = new Altcha(AuthToken);
 
-        $options = new ChallengeOptions(Algorithm::SHA256, BaseChallengeOptions::DEFAULT_MAX_NUMBER, (new \DateTimeImmutable())->add(new \DateInterval('PT10S')), 12);
+        $options = new ChallengeOptions(Algorithm::SHA256, BaseChallengeOptions::DEFAULT_MAX_NUMBER, (new \DateTimeImmutable())->add(new \DateInterval('PT10S')));
 
         $challenge = $altcha->createChallenge($options);
         return \Core\Response::factory($challenge)->json();

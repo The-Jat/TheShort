@@ -479,7 +479,7 @@
 					<p><?php ee('You are one click away from taking control of all of your links, and instantly get better results.') ?></p>
 				</div>
 				<div class="col-sm-4 text-end">
-					<a class="btn btn-light text-primary btn-lg d-block d-sm-inline-block" href="<?php echo route('register') ?>"><?php ee('Get Started') ?></a>
+					<a class="btn btn-light btn-lg d-block d-sm-inline-block" href="<?php echo route('register') ?>"><?php ee('Get Started') ?></a>
 				</div>
 			</div>
 		</div>

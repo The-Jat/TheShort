@@ -77,6 +77,16 @@ class Integrations {
                 'setup' => [self::class, 'wordpress'],
                 'text' => e('Download')
             ],
+            'mailchimp' => [
+                'name' => e('Mailchimp'),
+                'icon' => '<span class="border rounded-3 p-2 icon-45 d-flex align-items-center justify-content-center bg-warning text-black"><i class="fab fa-mailchimp fs-2"></i></span>',
+                'link' => 'https://mailchimp.com',
+                'available' => $user->has('mailchimp'),
+                'condition' => !empty($user->mailchimpapikey),
+                'description' => e('Connect with Mailchimp to automatically add newsletter subscribers to your Mailchimp lists.'),
+                'route' => route('integrations','mailchimp'),
+                'setup' => [self::class, 'mailchimp'],
+            ],
             'shortcuts' => [
                 'name' => e('Shortcuts'),
                 'icon' => '<img src="'.assets('images/shortcuts.svg').'" class="icon-45 border rounded-3 p-2">',
@@ -180,6 +190,58 @@ class Integrations {
         View::set('title', e('Shortcuts Integration'));
     
         return View::with('integrations.shortcuts')->extend('layouts.dashboard');
+    }
+    /**
+     * Mailchimp Integration
+     *
+     * @author GemPixel <https://gempixel.com> 
+     * @version 7.2
+     * @return void
+     */
+    public static function mailchimp(Request $request){
+        
+        $user = Auth::user();
+
+        if(!$user->has('mailchimp')) return \Models\Plans::notAllowed();
+
+        View::set('title', e('Mailchimp Integration'));
+
+        if($request->isPost()){
+            \Gem::addMiddleware('DemoProtect');
+
+            $apiKey = clean($request->apikey);
+
+            if(empty($apiKey)){
+                return back()->with('danger', e('Please enter your Mailchimp API key.'));
+            }
+
+            try {
+                $mailchimp = new \Helpers\MailchimpMarketing($apiKey);
+                
+                if(!$mailchimp->verify()){
+                    return back()->with('danger', e('Invalid Mailchimp API key. Please check and try again.'));
+                }
+
+                $user->mailchimpapikey = $apiKey;
+                $user->save();
+
+                return back()->with('success', e('Mailchimp API key has been saved successfully.'));
+            } catch(\Exception $e){
+                return back()->with('danger', e('An error occurred: {error}', null, ['error' => $e->getMessage()]));
+            }
+        }
+
+        $lists = [];
+        if(!empty($user->mailchimpapikey)){
+            try {
+                $mailchimp = new \Helpers\MailchimpMarketing($user->mailchimpapikey);
+                $lists = $mailchimp->getLists();
+            } catch(\Exception $e){
+                // Silently fail, will show empty list
+            }
+        }
+
+        return View::with('integrations.mailchimp', compact('lists'))->extend('layouts.dashboard');
     }
     /**
      * WP Plugin

@@ -213,7 +213,7 @@ class Subscription {
 
         Plugin::dispatch('checkout', [$id, $type]);
 
-        if(\Helpers\App::possible() && $subscription = DB::subscription()->where('userid', $user->id)->where('status', 'Active')->first()){
+        if($subscription = DB::subscription()->where('userid', $user->id)->where('status', 'Active')->first()){
             if($subscription->plan == 'lifetime') return Helper::redirect()->to(route('billing'))->with('danger', e('Please contact us so we can upgrade your plan since you are on a lifetime plan.'));
         }
 
@@ -226,12 +226,10 @@ class Subscription {
             $user->expiration = null;
 			$user->save();   
 
-            if(\Helpers\App::possible()){
-                if($subscription = DB::subscription()->where('userid', $user->id)->where('status', 'Active')->first()){
-                    foreach( $this->processor() as $name => $processor){
-                        if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
-                        call_user_func_array($processor['cancel'], [$user, $subscription]);
-                    }
+            if($subscription = DB::subscription()->where('userid', $user->id)->where('status', 'Active')->first()){
+                foreach( $this->processor() as $name => $processor){
+                    if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
+                    call_user_func_array($processor['cancel'], [$user, $subscription]);
                 }
             }
                     
@@ -289,11 +287,7 @@ class Subscription {
 
         if($plan->price <= 0) return Helper::redirect()->to(route('pricing'));
 
-        if(!\Helpers\App::possible()){
-            $processors['paypal'] = $this->processor('paypal');
-        } else {
-            $processors = $this->processor();
-        }
+        $processors['paypal'] = $this->processor('paypal');
         
         $tax = null;
         $country = null;
@@ -351,12 +345,10 @@ class Subscription {
 
         $user->save();
 
-        if(\Helpers\App::possible()){
-            if($subscription = DB::subscription()->where('userid', $user->id)->where('status', 'Active')->first()){
-                foreach( $this->processor() as $name => $processor){
-                    if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
-                    call_user_func_array($processor['cancel'], [$user, $subscription]);
-                }
+        if($subscription = DB::subscription()->where('userid', $user->id)->where('status', 'Active')->first()){
+            foreach( $this->processor() as $name => $processor){
+                if(!config($name) || !config($name)->enabled || !$processor['cancel']) continue;
+                call_user_func_array($processor['cancel'], [$user, $subscription]);
             }
         }
 
@@ -470,8 +462,6 @@ class Subscription {
      */
     public function redeem(Request $request){
 
-        if(!\Helpers\App::possible()) stop(404);
-        
         $user = Auth::user();
         
         if(!$request->code) return back()->with('danger', e('Voucher is invalid or has expired.'));

@@ -172,7 +172,7 @@ function charts(el, url){
                 plugins: {filler: {propagate: false}, legend: {display: false}},
                 scales: {
                     x: { grid: {display: false}, min: 0},
-                    y: { grid: {display: false}, min: 0}
+                    y: { grid: {display: false}, min: 0, ticks: {callback: value => Number.isInteger(value) ? value : undefined}}
                 }
             }
         });		

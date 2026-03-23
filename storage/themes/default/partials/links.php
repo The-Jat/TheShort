@@ -5,34 +5,36 @@
             <div class="flex-grow-1">
                 <div class="float-end">
                     <button type="button" class="btn btn-default bg-transparent btn-sm" data-bs-toggle="dropdown" aria-expanded="false"><i data-feather="more-vertical"></i></button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" data-trigger="shortinfo" data-shorturl="<?php echo Helpers\App::shortRoute($url->domain, $url->alias.$url->custom) ?>"><i data-feather="share"></i> <?php ee('Share') ?></a></li>
-                        <li><a class="dropdown-item" href="<?php echo route('stats', [$url->id]) ?>"><i data-feather="bar-chart-2"></i> <?php ee('Statistics') ?></a></li>
+                    <ul class="dropdown-menu rounded-4 shadow-lg">
+                        <li><a class="dropdown-item" data-trigger="shortinfo" data-shorturl="<?php echo Helpers\App::shortRoute($url->domain, $url->alias.$url->custom) ?>"><i class="me-2" data-feather="share"></i> <?php ee('Share') ?></a></li>
+                        <li><a class="dropdown-item" href="<?php echo route('stats', [$url->id]) ?>"><i class="me-2" data-feather="bar-chart-2"></i> <?php ee('Statistics') ?></a></li>
                         <?php if(user()->teamPermission('links.edit')): ?>
-                            <li><a class="dropdown-item" href="<?php echo route('links.edit', [$url->id]) ?>"><i data-feather="edit"></i> <?php ee('Edit') ?></a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<?php echo route('links.edit', [$url->id]) ?>"><i class="me-2" data-feather="edit"></i> <?php ee('Edit') ?></a></li>
                             <?php if($url->archived): ?>
-                                <li><a class="dropdown-item" href="<?php echo route('links.unarchive', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i data-feather="briefcase"></i> <?php ee('Unarchive') ?></a></li>
+                                <li><a class="dropdown-item" href="<?php echo route('links.unarchive', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i class="me-2" data-feather="briefcase"></i> <?php ee('Unarchive') ?></a></li>
                             <?php else: ?>
-                                <li><a class="dropdown-item" href="<?php echo route('links.archive', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i data-feather="briefcase"></i> <?php ee('Archive') ?></a></li>
+                                <li><a class="dropdown-item" href="<?php echo route('links.archive', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i class="me-2" data-feather="briefcase"></i> <?php ee('Archive') ?></a></li>
                             <?php endif ?>
                             <?php if($url->public): ?>
-                                <li><a class="dropdown-item" href="<?php echo route('links.private', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i data-feather="eye-off"></i> <?php ee('Set Private') ?></a></li>
+                                <li><a class="dropdown-item" href="<?php echo route('links.private', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i class="me-2" data-feather="eye-off"></i> <?php ee('Set Private') ?></a></li>
                             <?php else: ?>
-                                <li><a class="dropdown-item" href="<?php echo route('links.public', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i data-feather="eye"></i> <?php ee('Set Public') ?></a></li>
+                                <li><a class="dropdown-item" href="<?php echo route('links.public', ['link' => $url->id]) ?>" data-trigger="archiveselected"><i class="me-2" data-feather="eye"></i> <?php ee('Set Public') ?></a></li>
                             <?php endif ?>
+                            <li><hr class="dropdown-divider"></li>
                         <?php endif ?>
                         <?php if(user()->has('qr')): ?>
-                            <li><a class="dropdown-item" href="<?php echo route('qr.create', ['url' => Helpers\App::shortRoute($url->domain, $url->alias.$url->custom)]) ?>"><i data-feather="aperture"></i> <?php ee('Custom QR Code') ?></a></li>
+                            <li><a class="dropdown-item" href="<?php echo route('qr.create', ['url' => Helpers\App::shortRoute($url->domain, $url->alias.$url->custom)]) ?>"><i class="me-2" data-feather="aperture"></i> <?php ee('Custom QR Code') ?></a></li>
                         <?php endif ?>
                         <?php if(user()->has('export')): ?>
-                            <li><a class="dropdown-item" href="<?php echo route('links.stats.export', [$url->id]) ?>"><i data-feather="download"></i> <?php ee('Export Statistics') ?></a></li>
+                            <li><a class="dropdown-item" href="<?php echo route('links.stats.export', [$url->id]) ?>"><i class="me-2" data-feather="download"></i> <?php ee('Export Statistics') ?></a></li>
                         <?php endif ?>
                         <?php if(user()->teamPermission('links.edit')): ?>
-                            <li><a class="dropdown-item" href="<?php echo route('links.reset', [$url->id, \Core\Helper::nonce('link.reset')]) ?>" data-bs-toggle="modal" data-trigger="modalopen" data-bs-target="#resetModal"><i data-feather="rotate-ccw"></i> <?php ee('Reset Stats') ?></a></li>
+                            <li><a class="dropdown-item" href="<?php echo route('links.reset', [$url->id, \Core\Helper::nonce('link.reset')]) ?>" data-bs-toggle="modal" data-trigger="modalopen" data-bs-target="#resetModal"><i class="me-2" data-feather="rotate-ccw"></i> <?php ee('Reset Stats') ?></a></li>
                         <?php endif ?>
                         <?php if(user()->teamPermission('links.delete')): ?>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo route('links.delete', [$url->id, \Core\Helper::nonce('link.delete')]) ?>" data-bs-toggle="modal" data-trigger="modalopen" data-bs-target="#deleteModal"><i data-feather="trash"></i> <?php ee('Delete') ?></a></li>
+                            <li><a class="dropdown-item text-danger" href="<?php echo route('links.delete', [$url->id, \Core\Helper::nonce('link.delete')]) ?>" data-bs-toggle="modal" data-trigger="modalopen" data-bs-target="#deleteModal"><i class="me-2" data-feather="trash"></i> <?php ee('Delete') ?></a></li>
                         <?php endif ?>
                     </ul>
                 </div>
@@ -79,6 +81,9 @@
                 <?php endif ?>
                 <?php if (!empty($url->options) && isset($url->options['deeplink']) && !empty($url->options['deeplink'])): ?>
                     <i class="align-middle me-1" data-feather="git-branch"></i> <small class="me-2"><?php echo e('Deep Linking')?></small>
+                <?php endif ?>
+                <?php if (!empty($url->options) && isset($url->options['advanced']) && !empty($url->options['advanced'])): ?>
+                    <i class="align-middle me-1" data-feather="target"></i> <small class="me-2"><?php echo e('Advanced Targeting')?></small>
                 <?php endif ?>
                 <?php if (!empty($url->pass)): ?>
                     <i class="align-middle me-1" data-feather="lock"></i> <small class="me-2"><?php echo e('Protected')?></small>

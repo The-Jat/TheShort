@@ -146,6 +146,66 @@ class Blog {
         return View::with('blog.categories', compact('posts', 'categories', 'popular', 'current', 'menu'))->extend('layouts.main');
     }
     /**
+     * Author archive – all posts by author
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 7.8.5
+     * @param string $identifier Username or user ID
+     * @return void
+     */
+    public function author(string $identifier){
+
+        $identifier = clean($identifier);
+        if (is_numeric($identifier)) {
+            $author = User::where('id', (int) $identifier)->first();
+        } else {
+            $author = User::where('username', $identifier)->first();
+        }
+        if (!$author) stop(404);
+
+        $authorName = $author->name ?? ucfirst($author->username);
+        $authorBio = '';
+        if (!empty($author->extra)) {
+            $extra = is_string($author->extra) ? json_decode($author->extra, true) : $author->extra;
+            $authorBio = isset($extra['bio']) ? (string) $extra['bio'] : '';
+        }
+
+        $categories = $this->categoryList();
+        $menu = [];
+        $i = 0;
+        foreach ($categories as $item) {
+            if ($i > 3) {
+                $menu['other'][$item->id] = $item;
+            } else {
+                $menu[$item->id] = $item;
+            }
+            $i++;
+        }
+
+        $posts = [];
+        foreach ($this->getPosts()->where('userid', $author->id)->orderByDesc('date')->paginate(6) as $post) {
+            $post->content = str_replace('{{--ad--}}', '', $post->content);
+            if (strpos($post->content, '{{--more--}}') !== false) {
+                $post->content = Helper::readmore($post->content, '', null);
+            } else {
+                $post->content = Helper::readmore(Helper::truncate(strip_tags($post->content), 250), '', null);
+            }
+            $post->date = date('F d, Y', strtotime($post->date));
+            $post->author = $authorName;
+            $post->avatar = $author->avatar();
+            $posts[] = $post;
+        }
+
+        $popular = $this->getPosts()->orderByDesc('views')->limit(10)->find();
+
+        View::set('title', e('Posts by {name}', null, ['name' => $authorName]));
+        View::set('description', $authorBio ? Helper::truncate(strip_tags($authorBio), 160) : e('All articles by {name}', null, ['name' => $authorName]));
+
+        Plugin::dispatch('blog.author');
+
+        return View::with('blog.author', compact('posts', 'categories', 'popular', 'author', 'authorName', 'authorBio', 'menu'))->extend('layouts.main');
+    }
+    /**
      * Search Blog
      *
      * @author GemPixel <https://gempixel.com>
@@ -247,9 +307,15 @@ class Blog {
         }
         $post->author = $author->name ?? ucfirst($author->username);
         $post->avatar = $author ? $author->avatar() : null;
+        $authorIdentifier = $author && !empty($author->username) ? $author->username : ($author ? (string) $author->id : '');
+        $authorBio = '';
+        if ($author && !empty($author->extra)) {
+            $extra = is_string($author->extra) ? json_decode($author->extra, true) : $author->extra;
+            $authorBio = isset($extra['bio']) ? (string) $extra['bio'] : '';
+        }
         $name = $post->author;
 
-        $query = DB::posts()->where('published', 1);
+        $query = DB::posts()->where('published', 1)->whereRaw("date <= '".Helper::dtime()."'");
 
         if($post->categoryid){
             $query->where('categoryid', $post->categoryid);
@@ -283,6 +349,8 @@ class Blog {
 
         $category = DB::postcategories()->where('id', $post->categoryid)->first();
 
+        $popular = $this->getPosts()->whereNotEqual('id', $post->id)->orderByDesc('views')->limit(10)->find();
+
         View::push('<script type="application/ld+json">'.json_encode($json).'</script>', 'custom')->toFooter();
 
         View::push(assets('content-style.min.css'), 'css')->toHeader();
@@ -290,7 +358,7 @@ class Blog {
         // @group Plugin
         Plugin::dispatch('blog.single');
 
-        return View::with('blog.single', compact('post', 'posts', 'category'))->extend('layouts.main');
+        return View::with('blog.single', compact('post', 'posts', 'category', 'popular', 'authorBio', 'authorIdentifier'))->extend('layouts.main');
     }
     /**
      * Category list

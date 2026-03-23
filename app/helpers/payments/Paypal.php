@@ -92,11 +92,11 @@ class Paypal{
             
             \GemError::log('Payment system "PayPal" not enabled or configured.');
 
-            return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+            return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
         }
 
         if(!$plan = DB::plans()->first($id)){
-			return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+			return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
 	  	}			
 
         if($type == "yearly"){
@@ -245,7 +245,7 @@ class Paypal{
                 exit;
             }
 
-            if(\Helpers\App::possible() && !$request->custom && $request->product_name){
+            if(!$request->custom && $request->product_name){
 
                 $userid = str_replace('userid:', '', $request->product_name);
                 

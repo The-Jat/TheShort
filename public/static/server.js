@@ -37,7 +37,7 @@ $(document).ready(function(){
             data: $(this).serialize(),
             dataType: 'json',
             beforeSend: function(){
-                $('body').append('<div class="preloader"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div></div>');
+                $('body').append('<div class="preloader"><div class="spinner-border text-primary" role="status"></div></div>');
             },
             complete: function(){
                 $('.preloader').remove();
@@ -111,7 +111,7 @@ $(document).ready(function(){
             processData: false,
             contentType: false,
             beforeSend: function(){
-                form.find('button[type=submit]').html('<div class="preloader"><div class="spinner-border spinner-border-sm text-white" role="status"><span class="sr-only">Loading...</span></div></div>').attr('disabled', 'disabled');
+                form.find('button[type=submit]').html('<div class="preloader"><div class="spinner-border spinner-border-sm text-white" role="status"></div></div>').attr('disabled', 'disabled');
             },
             complete: function(){
                 $('.preloader').remove();
@@ -169,7 +169,7 @@ $(document).ready(function(){
               url: action,
               data: "q="+val,
               beforeSend: function() {
-                $("#return-ajax").html('<div class="preloader"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div></div>');
+                $("#return-ajax").html('<div class="preloader"><div class="spinner-border text-primary" role="status"></div></div>');
               },
               complete: function() {
                 $('.preloader').fadeOut("fast", function(){$(this).remove()});
@@ -195,7 +195,7 @@ $(document).ready(function(){
             url: $(this).attr('href'),
             data: "selected="+JSON.stringify(ids),
             beforeSend: function() {
-              $("#return-ajax").html('<div class="preloader"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div></div>');
+              $("#return-ajax").html('<div class="preloader"><div class="spinner-border text-primary" role="status"></div></div>');
             },
             complete: function() {
               $('.preloader').fadeOut("fast", function(){$(this).remove()});

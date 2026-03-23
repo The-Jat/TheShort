@@ -89,7 +89,15 @@ class Verification {
 
         $filename = md5(time().Helper::rand(32)).'.'.$file->ext;
 
-        $request->move($file, appConfig('app.storage')['files']['path'], $filename);
+        // Create verifications directory if it doesn't exist
+        $verificationPath = STORAGE.'/verifications';
+        if(!file_exists($verificationPath)){
+            mkdir($verificationPath, 0755, true);
+            // Create index.php for security
+            file_put_contents($verificationPath.'/index.php', '<?php exit; ?>');
+        }
+
+        $request->move($file, $verificationPath, $filename);
 
         $user->address = json_encode([
             "name"  	=>	$request->billingname ? Helper::RequestClean($request->billingname) : '',
@@ -116,5 +124,68 @@ class Verification {
         ]);
 
         return back()->with('success', e('Thank you. We will process your document as soon as possible and verify you.'));
+    }
+    /**
+     * View Verification File
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 6.6
+     * @param string $filename
+     * @return void
+     */
+    public function view(string $filename){
+        $user = Auth::user();
+        
+        if(!$user){
+            stop(404);
+        }
+        
+        // Check if verification exists and belongs to user
+        if(!$verification = DB::verification()->where('file', $filename)->where('userid', $user->id)->first()){
+            // Allow admins to view any verification file
+            if(!$user->admin){
+                stop(404);
+            }
+            if(!$verification = DB::verification()->where('file', $filename)->first()){
+                stop(404);
+            }
+        }
+        
+        // Check file in old directory first (backward compatibility), then new directory
+        $oldPath = appConfig('app.storage')['files']['path'].'/'.$filename;
+        $newPath = STORAGE.'/verifications/'.$filename;
+        
+        $filePath = null;
+        if(file_exists($oldPath)){
+            $filePath = $oldPath;
+        } elseif(file_exists($newPath)){
+            $filePath = $newPath;
+        }
+        
+        if(!$filePath || !file_exists($filePath)){
+            stop(404);
+        }
+        
+        // Get file extension and set appropriate content type
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        $mimeTypes = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'pdf' => 'application/pdf',
+            'png' => 'image/png'
+        ];
+        
+        $contentType = $mimeTypes[$ext] ?? 'application/octet-stream';
+        
+        // Set headers to display in browser instead of downloading
+        header('Content-Type: '.$contentType);
+        header('Content-Length: '.filesize($filePath));
+        header('Cache-Control: private, max-age=3600');
+        header('Content-Disposition: inline; filename="'.basename($filename).'"');
+        
+        // Output file
+        readfile($filePath);
+        exit;
     }
 }

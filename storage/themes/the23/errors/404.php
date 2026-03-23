@@ -12,6 +12,11 @@
         <?php if(config('cookieconsent')->enabled): ?>
             <link rel="stylesheet" type="text/css" href="<?php echo assets('frontend/libs/cookieconsent/cookieconsent.css') ?>">
         <?php endif ?>
+        <?php if(isset(config("theme_config")->cssname)): ?>
+            <link rel="stylesheet" href="<?php echo uploads(config("theme_config")->cssname.'.css') ?>" id="stylesheet">
+        <?php else: ?>
+            <link rel="stylesheet" href="<?php echo uploads('variables.css') ?>" id="stylesheet">
+        <?php endif ?>
         <link rel="stylesheet" href="<?php echo assets('style.min.css') ?>" id="stylesheet">
         <?php if(config('fonts') && !config('cookieconsent')->enabled): ?>
             <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -32,7 +37,7 @@
                     <?php if(config('logo')): ?>
                         <img alt="<?php echo config('title') ?>" src="<?php echo uploads(config('logo')) ?>" id="navbar-logo">
                     <?php else: ?>
-                        <h1 class="h5 fw-bold"><?php echo config('title') ?></h1>
+                        <h1 class="h5 fw-bold"><?php echo config('sitename') ?></h1>
                     <?php endif ?>        
                     </a>
 

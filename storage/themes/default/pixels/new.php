@@ -7,7 +7,7 @@
                     <?php echo csrf() ?>
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="form-group mb-4">
+                            <div class="input-select form-group mb-4">
                                 <label for="type" class="form-label fw-bold"><?php echo e("Pixel Provider") ?></label>
                                 <select name="type" id="type" class="form-control" data-toggle="select">
                                     <?php foreach($providers as $key => $provider): ?>
@@ -43,7 +43,7 @@
             </div>
             <div class="card-body">
                 <p> <?php echo ee('Ad platforms such as Facebook and Adwords provide a conversion tracking tool to allow you to gather data on your customers and how they behave on your website. By adding your pixel ID from either of the platforms, you will be able to optimize marketing simply by using short URLs.') ?></p>
-                <a href="<?php echo route('faq') ?>#pixels" class="btn btn-primary btn-sm"><?php ee("More info") ?></a>             
+                <a href="<?php echo route('faq') ?>#pixels" class="btn btn-primary btn-sm rounded-3"><?php ee("More info") ?></a>             
             </div>
         </div>
     </div>

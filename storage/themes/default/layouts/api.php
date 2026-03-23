@@ -103,7 +103,7 @@
                 ]) ?>
         </script> 
         <script src="<?php echo assets('frontend/js/app.min.js') ?>"></script>
-        <script src="<?php echo assets('server.min.js') ?>"></script>  
+        <script src="<?php echo assets('server.min.js') ?>?v=1.1"></script>  
         <script>
             feather.replace({
                 'width': '1em',

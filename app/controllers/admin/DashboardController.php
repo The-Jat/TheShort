@@ -57,16 +57,16 @@ class Dashboard {
 
         $reports = DB::reports()->orderByDesc('date')->limit(5)->findMany();
 
-        $payments = \Helpers\App::possible() ? DB::payment()->orderByDesc('date')->limit(5)->map(function($payment){
+        $payments = DB::payment()->orderByDesc('date')->limit(5)->map(function($payment){
             if($user = User::where('id', $payment->userid)->first()){
                 if(_STATE == "DEMO") $user->email = "demo@demo.com";
                 $payment->user = $user->email;
                 $payment->useravatar = $user->avatar();
             }
             return $payment;
-        }) : [];
+        });
 
-        $subscriptions = \Helpers\App::possible() ? DB::subscription()->orderByDesc('date')->limit(5)->map(function($subscription){
+        $subscriptions = DB::subscription()->orderByDesc('date')->limit(5)->map(function($subscription){
             if($user = User::where('id', $subscription->userid)->first()){
                 if(_STATE == "DEMO") $user->email = "demo@demo.com";
                 $subscription->user = $user->email;
@@ -76,16 +76,14 @@ class Dashboard {
                 $subscription->plan = $plan->name;
             }
             return $subscription;
-        }) : [];
+        });
 
         $counts = [];
         $counts['urls'] = ['name' => e('Links'), 'count' => DB::url()->count(), 'count.today' => DB::url()->whereRaw('`date` >= CURDATE()')->count()];
         $counts['users'] = ['name' => e('Users'), 'count' => DB::user()->count(), 'count.today' => DB::user()->whereRaw('`date` >= CURDATE()')->count()];
 
-        if(\Helpers\App::possible()){
-            $counts['subscriptions'] =['name' => e('Subscriptions'), 'count' => DB::subscription()->where('status', 'Active')->count(), 'count.today' => DB::subscription()->where('status', 'Active')->whereRaw('`date` >= CURDATE()')->count()];
-            $counts['payments'] = ['name' => e('Payments'), 'count' => DB::payment()->where('status', 'Completed')->sum('amount'), 'count.today' => DB::payment()->where('status', 'Completed')->whereRaw('`date` >= CURDATE()')->sum('amount')];
-        }
+        $counts['subscriptions'] =['name' => e('Subscriptions'), 'count' => DB::subscription()->where('status', 'Active')->count(), 'count.today' => DB::subscription()->where('status', 'Active')->whereRaw('`date` >= CURDATE()')->count()];
+        $counts['payments'] = ['name' => e('Payments'), 'count' => DB::payment()->where('status', 'Completed')->sum('amount'), 'count.today' => DB::payment()->where('status', 'Completed')->whereRaw('`date` >= CURDATE()')->sum('amount')];
 
         View::set('title', e('Admin Dashboard'));
         View::push(assets('frontend/libs/clipboard/dist/clipboard.min.js'), 'js')->toFooter();
@@ -147,7 +145,7 @@ class Dashboard {
                 return Helper::redirect()->to(route('admin.qr', ['q' => $request->q]));
             }
 
-            if(App::possible() && $request->type == 'subscriptions'){
+            if($request->type == 'subscriptions'){
                 return Helper::redirect()->to(route('admin.subscriptions', ['q' => $request->q]));
             }
         }
@@ -303,73 +301,12 @@ class Dashboard {
      *
      * @author GemPixel <https://gempixel.com>
      * @version 6.0
-     * @return void
      */
-    public function update(Request $request){
+    public function about(Request $request)
+    {
+        View::set("title", e("About Script"));
 
-        if(!user()->hasRolePermission('settings.view')) {
-            return Helper::redirect()->to(route('admin'))->with('danger', e('You do not have permission to update the script.'));
-        }
-
-        if($request->newcode){
-            \Gem::addMiddleware('DemoProtect');
-
-            if(!\Helpers\App::license($request->newcode)) return Helper::redirect()->back()->with('danger', e('Please enter a valid purchase code.'));
-
-            $setting = DB::settings()->where('config', 'purchasecode')->first();
-
-            $setting->var = Helper::RequestClean($request->newcode);
-            $setting->save();
-
-            return Helper::redirect()->back()->with('success', e('Purchase code has been updated successfully.'));
-        }
-
-        $update = \Helpers\App::newUpdate(true);
-        $log = \Helpers\App::updateChangelog();
-
-        $changes = [];
-
-        $label = ["Added" => "primary", "Improved" => "success", "Fixed" => "warning", "Removed" => "danger"];
-        if($log){
-            foreach($log->log as $change){
-                $change->date = $log->date;
-                $change->class = $label[$change->type];
-                $changes[] = $change;
-            }
-        }
-
-        View::set("title", e("Update Script"));
-
-        return View::with('admin.update', compact('update', 'changes'))->extend('admin.layouts.main');
-    }
-    /**
-     * Process Update
-     *
-     * @author GemPixel <https://gempixel.com>
-     * @version 6.0
-     * @param \Core\Request $request
-     * @return void
-     */
-    public function updateProcess(Request $request){
-
-        $purchasecode = trim(Helper::RequestClean($request->code));
-
-        $update = new \Helpers\Autoupdate($purchasecode);
-
-        try {
-
-            $update->install();
-
-            $setting = DB::settings()->where('config', 'purchasecode')->first();
-
-            $setting->var = $purchasecode;
-            $setting->save();
-
-            return Helper::redirect()->back()->with("success", e("Script has been successfully updated."));
-
-        }catch(\Exception $e){
-            return Helper::redirect()->back()->with("danger", $e->getMessage());
-        }
+        return View::with('admin.about')->extend('admin.layouts.main');
     }
     /**
      * View PHP Info

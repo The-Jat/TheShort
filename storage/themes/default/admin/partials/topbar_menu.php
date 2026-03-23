@@ -94,11 +94,6 @@
             </div>
         </li>
         <?php endif ?>
-        <?php if(\Helpers\App::newUpdate()): ?>
-            <li class="nav-item">
-                <a class="nav-link text-primary fw-bold" href="<?php echo route("admin.update") ?>"><i data-feather="bell" class="me-1"></i> <?php ee('Update') ?></a>
-            </li>
-        <?php endif ?>
         <li class="nav-item">
             <a class="nav-link fw-bold me-2 align-middle" href="<?php echo route('home') ?>" data-tooltip="<?php ee('Home') ?>">
                 <?php ee('Home') ?>

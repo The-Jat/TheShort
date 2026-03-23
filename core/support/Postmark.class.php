@@ -25,6 +25,11 @@ use GemError;
 
 final class Postmark {
 
+    public static $name = 'Postmark';
+    public static $logo = 'postmark.png';
+    public static $siteurl = 'https://postmarkapp.com/';
+    public static $description = 'Postmark is a powerful email marketing platform that allows you to send email campaigns to your subscribers.';
+
     private $url = null;
     /**
      * Sending Domain

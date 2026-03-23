@@ -153,6 +153,99 @@
                     </div>
                 </div>
             <?php endif ?>
+            <?php if(config("geotarget") && \Core\Auth::user()->has("geo") !== false && config("devicetarget") && \Core\Auth::user()->has("device") !== false && \Core\Auth::user()->has('language') !== false):?>
+                <div class="card rounded-4 shadow-sm">
+                    <div class="card-body">
+                        <div id="advanced">
+                            <div class="d-flex align-items-center">
+                                <h4 class="mb-0 fw-bold"><?php echo e("Advanced Targeting")?></h4>
+                                <div class="ms-auto">
+                                    <a href="#" class="btn btn-sm btn-primary rounded-3" data-trigger="addmore" data-for="advanced"><i class="fa fa-plus me-1"></i> <?php echo e("Add")?></a>
+                                </div>
+                            </div>
+                            <p class="text-muted mb-0 mt-3">
+                                <?php echo e('Set conditional redirects based on multiple criteria. All conditions (Country, Device, and Language) must match for the redirect to occur.')?>
+                            </p>
+                            <?php 
+                            $advancedRules = [];
+                            if(isset($url->options) && $url->options != "null"){
+                                $options = json_decode($url->options, true);
+                                if(isset($options['advanced']) && is_array($options['advanced'])){
+                                    $advancedRules = $options['advanced'];
+                                }
+                            }
+                            ?>
+                            <?php foreach($advancedRules as $rule):?>
+                                <div class="row">
+                                    <div class="col-sm-4 mt-3">
+                                        <div class="input-group input-select">
+                                            <span class="input-group-text bg-white"><i data-feather="map-pin"></i></span>
+                                            <select name="advanced_country[]" class="form-control border-start-0 ps-0" data-trigger="getStates" data-toggle="select">
+                                                <?php echo \Core\Helper::Country(uppercountryname($rule['country'] ?? 'United States'), true) ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 mt-3">
+                                        <div class="input-group input-select">
+                                            <span class="input-group-text bg-white"><i data-feather="smartphone"></i></span>
+                                            <select name="advanced_device[]" class="form-select border-start-0 ps-0" data-toggle="select">
+                                                <?php echo \Core\Helper::devices($rule['device'] ?? '') ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 mt-3">
+                                        <div class="input-group input-select">
+                                            <span class="input-group-text bg-white"><i data-feather="globe"></i></span>
+                                            <select name="advanced_language[]" class="form-select border-start-0 ps-0" data-toggle="select">
+                                                <?php echo \Helpers\App::languagelist($rule['language'] ?? 'en') ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i data-feather="link"></i></span>
+                                            <input type="text" name="advanced_target[]" class="form-control border-start-0 ps-0 p-2" placeholder="<?php echo e("Type the url to redirect user to.")?>" value="<?php echo $rule['target'] ?? '' ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <p><a href="#" class="btn btn-danger btn-sm mt-1" data-trigger="deletemore"><?php ee('Delete') ?></a></p>
+                            <?php endforeach ?>
+                            <div class="row d-none" data-toggle="addable" data-label="advanced" data-states="<?php echo route('server.states') ?>">
+                                <div class="col-sm-4 mt-3">
+                                    <div class="input-group input-select">
+                                        <span class="input-group-text bg-white"><i data-feather="map-pin"></i></span>
+                                        <select name="advanced_country[]" class="form-control border-start-0 ps-0" data-trigger="getStates" data-toggle="select">
+                                            <?php echo \Core\Helper::Country('United States', true) ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 mt-3">
+                                    <div class="input-group input-select">
+                                        <span class="input-group-text bg-white"><i data-feather="smartphone"></i></span>
+                                        <select name="advanced_device[]" class="form-select border-start-0 ps-0" data-toggle="select">
+                                            <?php echo \Core\Helper::devices() ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 mt-3">
+                                    <div class="input-group input-select">
+                                        <span class="input-group-text bg-white"><i data-feather="globe"></i></span>
+                                        <select name="advanced_language[]" class="form-select border-start-0 ps-0" data-toggle="select">
+                                            <?php echo \Helpers\App::languagelist('en') ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i data-feather="link"></i></span>
+                                        <input type="text" name="advanced_target[]" class="form-control border-start-0 ps-0 p-2" placeholder="<?php echo e("Type the url to redirect user to.")?>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif ?>
             <?php if(config("devicetarget") && \Core\Auth::user()->has("device") !== false):?>
                 <div class="card rounded-4 shadow-sm">
                     <div class="card-body">

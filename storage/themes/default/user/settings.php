@@ -11,7 +11,7 @@
             <?php echo csrf() ?>
             <div class="card shadow-sm rounded-4">
                 <div class="card-body">
-                    <div class="form-group mb-3 mb-4 d-flex align-items-center">
+                    <div class="form-group mb-4 d-flex align-items-center">
                         <div class="me-3">
                             <label for="avatar" role="button">
                                 <img src="<?php echo $user->avatar() ?>" width="100" class="rounded-3 border shadow-sm" id="avatar-preview">
@@ -33,8 +33,21 @@
                     </div>
                     <button type="submit" class="btn btn-primary rounded-3 px-3 py-2 mt-2"><?php ee('Save Changes') ?></button>
                 </div>
-            </div>            
-            <div class="card shadow-sm rounded-4">
+            </div>
+            <?php if($user->admin): ?>
+            <div class="card shadow-sm rounded-4 mt-4">
+                <div class="card-body">
+                    <h4 class="mb-3 fw-bold"><?php ee('Author Bio') ?></h4>
+                    <p class="text-muted small"><?php ee('This bio is shown on blog posts you author. Only visible to users with author access.') ?></p>
+                    <div class="form-group mb-3">
+                        <label for="bio" class="form-label fw-bold"><?php ee('Bio') ?></label>
+                        <textarea class="form-control p-2" name="bio" id="bio" rows="4" placeholder="<?php ee('A short bio about yourself...') ?>"><?php echo htmlspecialchars($user->extra['bio'] ?? '') ?></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary rounded-3 px-3 py-2 mt-2"><?php ee('Save Changes') ?></button>
+                </div>
+            </div>
+            <?php endif ?>
+            <div class="card shadow-sm rounded-4 <?php echo $user->admin ? 'mt-4' : '' ?>">
                 <div class="card-body">
                     <div class="row mb-4">
                         <div class="col-md-12">

@@ -25,6 +25,11 @@ use GemError;
 
 final class Sendgrid {
 
+    public static $name = 'Sendgrid';
+    public static $logo = 'sendgrid.jpeg';
+    public static $siteurl = 'https://sendgrid.com/';
+    public static $description = 'Sendgrid is a powerful email marketing platform that allows you to send email campaigns to your subscribers.';
+
     private $url = null;
     /**
      * Sending Domain

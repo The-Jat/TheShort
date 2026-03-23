@@ -171,6 +171,13 @@
         </a>
     </li>
     <?php endif ?>
+    <?php if($user->has('parametertemplates')): ?>
+    <li class="sidebar-item">
+        <a class="sidebar-link rounded-4" href="<?php echo route('paramtemplates') ?>">
+            <i class="align-middle" data-feather="hash"></i> <span class="align-middle"><?php ee('Parameter Templates') ?></span>
+        </a>
+    </li>
+    <?php endif ?>
     <?php if($user->has('domain')): ?>
     <li class="sidebar-item">
         <a class="sidebar-link rounded-4" href="<?php echo route('domain') ?>">

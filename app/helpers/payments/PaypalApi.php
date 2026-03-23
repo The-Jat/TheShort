@@ -99,11 +99,11 @@ class PaypalApi{
             
             \GemError::log('Payment system "PaypalAPI" not enabled or configured.');
 
-            return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+            return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
         }
 
         if(!$plan = DB::plans()->first($id)){
-			return back()->with('danger', e('An error ocurred, please try again. You have not been charged.'));
+			return back()->with('danger', e('An error occurred, please try again. You have not been charged.'));
 	  	}			
 
         $plan->data = json_decode($plan->data);

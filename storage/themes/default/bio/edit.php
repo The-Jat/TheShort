@@ -40,9 +40,9 @@
                                 <div class="me-sm-3 mb-2 position-relative border rounded rounded-4">
                                     <a href="#" data-trigger="uploadavatar">
                                     <?php if(isset($bio->data->avatar)): ?>
-                                        <img src="<?php echo uploads($bio->data->avatar, 'profile') ?>" class="rounded rounded-3 w-100" id="useravatar">
+                                        <img src="<?php echo uploads($bio->data->avatar, 'profile') ?>" class="rounded rounded-4 w-100" id="useravatar">
                                     <?php else: ?>
-                                        <img src="<?php echo user()->avatar() ?>" class="rounded rounded-3 w-100" id="useravatar">
+                                        <img src="<?php echo user()->avatar() ?>" class="rounded rounded-4 w-100" id="useravatar">
                                     <?php endif ?>
                                     </a>
                                     <div class="position-absolute top-0 end-0">
@@ -202,7 +202,7 @@
                                     <?php if(isset($bio->data->layoutbanner) && $bio->data->layoutbanner): ?>
                                         <img src="<?php echo uploads($bio->data->layoutbanner, 'profile') ?>" class="w-100 rounded-3 border shadow-sm" id="layoutbanner-preview">
                                     <?php else: ?>
-                                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAQAAACRI2S5AAAAEklEQVR42mP8/58BL2AcVQAGAHscEfhX5bYNAAAAAElFTkSuQmCC" class="w-100 rounded-3 border shadow-sm" id="layoutbanner-preview">
+                                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9InRyYW5zcGFyZW50Ii8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoODAsIDMwKSBzY2FsZSgwLjEpIj48cGF0aCBkPSJNMzQ0LjA1OCwyMDcuNTA2Yy0xNi41NjgsMC0zMCwxMy40MzItMzAsMzB2NzYuNjA5aC0yNTR2LTc2LjYwOWMwLTE2LjU2OC0xMy40MzItMzAtMzAtMzBjLTE2LjU2OCwwLTMwLDEzLjQzMi0zMCwzMHYxMDYuNjA5YzAsMTYuNTY4LDEzLjQzMiwzMCwzMCwzMGgzMTRjMTYuNTY4LDAsMzAtMTMuNDMyLDMwLTMwVjIzNy41MDZDMzc0LjA1OCwyMjAuOTM4LDM2MC42MjYsMjA3LjUwNiwzNDQuMDU4LDIwNy41MDZ6Ii8+PHBhdGggZD0iTTEyMy41NywxMzUuOTE1bDMzLjQ4OC0zMy40ODh2MTExLjc3NWMwLDE2LjU2OCwxMy40MzIsMzAsMzAsMzBjMTYuNTY4LDAsMzAtMTMuNDMyLDMwLTMwVjEwMi40MjZsMzMuNDg4LDMzLjQ4OGM1Ljg1Nyw1Ljg1OCwxMy41MzUsOC43ODcsMjEuMjEzLDguNzg3YzcuNjc4LDAsMTUuMzU1LTIuOTI5LDIxLjIxMy04Ljc4N2MxMS43MTYtMTEuNzE2LDExLjcxNi0zMC43MSwwLTQyLjQyNkwyMDguMjcxLDguNzg4Yy0xMS43MTUtMTEuNzE3LTMwLjcxMS0xMS43MTctNDIuNDI2LDBMODEuMTQ0LDkzLjQ4OWMtMTEuNzE2LDExLjcxNi0xMS43MTYsMzAuNzEsMCw0Mi40MjZDMTAyLjg1OSwxNDcuNjMxLDEyMS44NTUsMTQ3LjYzMSwxMjMuNTcsMTM1LjkxNXoiLz48L2c+PC9zdmc+" class="w-100 rounded-3 border shadow-sm" id="layoutbanner-preview">
                                     <?php endif ?>
                                 </label>
                             </div>
@@ -216,108 +216,32 @@
                         </div>
                     </div>
                     <h4 class="fw-bold mb-3 mt-5"><?php ee('Themes') ?></h4>
-                    <input type="hidden" name="themeid" value="">
+                    <input type="hidden" name="themeid" value="<?php echo $bio->data->themeid ?>">
                     <div class="card rounded-4 card-body shadow-sm">
-                        <input type="hidden" name="theme" value="<?php echo $bio->data->style->theme ?? '' ?>">
                         <div class="row mt-3">
                             <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3 biobg_gradientbg" style="height:100px;" data-trigger="changetheme" data-theme="biobg_gradientbg" onclick="customTheme('biobg_gradientbg', '#ffffff', '#000000', '#ffffff');">
-                                    <p class="d-block" style="color:#ffffff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#ffffff;width:100%;height:30px;color:#000000"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3 biobg_boxes" style="height:100px;" data-trigger="changetheme" data-theme="biobg_boxes" onclick="customTheme('biobg_boxes', '#000000', '#ffffff', '#000000');">
-                                    <p class="d-block" style="color:#000000">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#000000;width:100%;height:30px;color:#ffffff"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3 biobg_shapes" style="height:100px;overflow:hidden;position:relative;" data-trigger="changetheme" data-theme="biobg_shapes" onclick="customTheme('biobg_shapes', '#ffffff', '#000000', '#ffffff');">
-                                    <p class="d-block" style="color:#ffffff;z-index:1;position:relative;">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#ffffff;width:100%;height:30px;color:#000000;z-index:1;position:relative;"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3 biobg_iso" style="height:100px;" data-trigger="changetheme" data-theme="biobg_iso" onclick="customTheme('biobg_iso', '#252731', '#ffffff', '#000000');">
-                                    <p class="d-block" style="color:#000000">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#252731;width:100%;height:30px;color:#fff"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3 biobg_paper" style="height:100px;" data-trigger="changetheme" data-theme="biobg_paper" onclick="customTheme('biobg_paper', '#e6b800', '#ffffff', '#000000');">
-                                    <p class="d-block" style="color:#000000">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#e6b800;width:100%;height:30px;color:#fff"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3 biobg_pattern" style="height:100px;" data-trigger="changetheme" data-theme="biobg_pattern" onclick="customTheme('biobg_pattern', '#00E692', '#ffffff', '#000000');">
-                                    <p class="d-block" style="color:#000000">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#00E692;width:100%;height:30px;color:#fff"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3 biobg_coil" style="height:100px;" data-trigger="changetheme" data-theme="biobg_coil" onclick="customTheme('biobg_coil', '#f42a8b', '#ffffff', '#000000');">
-                                    <p class="d-block" style="color:#000000">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#f42a8b;width:100%;height:30px;color:#fff"><?php ee('Link') ?></a>
+                                <div role="button" class="d-flex align-items-center justify-content-center overflow-hidden border border-2 rounded-3 bg-light p-3 <?php echo !isset($bio->data->themeid) || !$bio->data->themeid ? 'theme-active' : '' ?>" style="height:100px;" data-trigger="changetheme" data-value="-1" data-bs-toggle="tooltip" title="<?php ee('Custom') ?>">
+                                    <div class="pt-3">
+                                        <h3 class="d-block text-center text-muted"><i class="fa fa-brush"></i></h3>
+                                        <p class="text-center text-muted"><?php ee('Custom') ?></p>
+                                    </div>
                                 </div>
                             </div>
                             <?php foreach($themes as $theme): ?>
                                 <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                    <div role="button" class="d-block text-center border rounded p-3" style="height:100px;<?php echo $theme->data->style ?>" data-trigger="changetheme" onclick="changeTheme('<?php echo $theme->data->singlecolor ?? '' ?>', '<?php echo $theme->data->gradientstart ?? '' ?>', '<?php echo $theme->data->gradientstop ?? '' ?>', '<?php echo $theme->data->buttoncolor ?>', '<?php echo $theme->data->buttontextcolor ?>', '<?php echo $theme->data->textcolor ?>', '<?php echo $theme->data->bgtype ?>', '<?php echo $theme->data->buttonstyle ?? '' ?>', '<?php echo $theme->data->gradientangle ?? '' ?>', '<?php echo $theme->data->shadow ?? '' ?>', '<?php echo $theme->data->shadowcolor ?? '' ?>', '<?php echo $theme->id ?>');">
-                                        <p class="d-block" style="color:<?php echo $theme->data->textcolor ?>">Hello</p>
-                                        <a href="#" class="d-block py-1 text-decoration-none" style="<?php echo $theme->data->button??'' ?>"><?php ee('Link') ?></a>
+                                    <div id="theme-<?php echo $theme->id ?>" role="button" class="d-block border border-2 rounded-3 p-3 overflow-hidden position-relative <?php echo $theme->id == $bio->data->themeid ? 'theme-active' : '' ?><?php echo isset($theme->disabled) && $theme->disabled ? ' theme-disabled' : '' ?>" style="height:100px;<?php echo $theme->data->style??'' ?><?php echo isset($theme->data->fontStyle) ? ' '.$theme->data->fontStyle : '' ?>" data-trigger="changetheme" data-value="<?php echo $theme->id ?>" data-bs-toggle="tooltip" title="<?php echo $theme->name ?>">
+                                        <h3 class="d-block" style="color:<?php echo $theme->data->textcolor ?>"><?php ee('Aa') ?></h3>
+                                        <a href="#" class="d-block py-1 text-decoration-none text-center" style="<?php echo $theme->data->button ??'' ?>"><?php ee('Link') ?></a>
+                                        <?php if(isset($theme->disabled) && $theme->disabled): ?>
+                                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(0, 0, 0, 0.7); border-radius: 0.5rem;">
+                                                <a href="<?php echo route('pricing') ?>" class="text-white text-decoration-none" data-bs-toggle="tooltip" title="<?php ee('Upgrade to unlock this theme') ?>">
+                                                    <i class="fa fa-lock fa-2x"></i>
+                                                </a>
+                                            </div>
+                                        <?php endif ?>
                                     </div>
                                 </div>
                             <?php endforeach ?>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background: linear-gradient(-45deg, #000851 0%, #1CB5E0 100%);" data-trigger="changetheme" onclick="changeTheme('#1CB5E0', '#1CB5E0', '#000851', '#000851', '#ffffff', '#ffffff', 'gradient', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#fff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#000851;width:100%;height:30px;color:#fff"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background: linear-gradient(-45deg, #FC466B 0%, #3F5EFB 100%);" data-trigger="changetheme" onclick="changeTheme('#FC466B', '#3F5EFB', '#FC466B', '#ffffff', '#FC466B', '#ffffff', 'gradient', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#fff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#fff;width:100%;height:30px;color:#FC466B"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background: linear-gradient(-45deg, #FDBB2D 0%, #22C1C3 100%);" data-trigger="changetheme" onclick="changeTheme('#FDBB2D', '#22C1C3', '#FDBB2D', '#ffffff', '#FDBB2D', '#ffffff', 'gradient', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#fff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#fff;width:100%;height:30px;color:#FDBB2D"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background: linear-gradient(-45deg, #00c6ff 0%, #0072ff 100%);" data-trigger="changetheme" onclick="changeTheme('#00c6ff', '#0072ff', '#00c6ff', '#ffffff', '#00c6ff', '#ffffff', 'gradient', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#fff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#fff;width:100%;height:30px;color:#00c6ff"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background: linear-gradient(-45deg, #d53369 0%, #daae51 100%);" data-trigger="changetheme" onclick="changeTheme('#d53369', '#daae51', '#d53369', '#ffffff', '#d53369', '#ffffff', 'gradient', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#fff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#fff;width:100%;height:30px;color:#d53369"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background: linear-gradient(-45deg, #ED4264 0%, #FFEDBC 100%);" data-trigger="changetheme" onclick="changeTheme('#ED4264', '#FFEDBC', '#ED4264', '#ffffff', '#ED4264', '#ffffff', 'gradient', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#fff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#fff;width:100%;height:30px;color:#ED4264"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background: linear-gradient(-45deg, #232526 0%, #414345 100%);" data-trigger="changetheme" onclick="changeTheme('#232526', '#414345', '#232526', '#ffffff', '#232526', '#ffffff', 'gradient', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#fff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#fff;width:100%;height:30px;color:#232526"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
-                            <div class="col-6 col-sm-4 col-xl-3 mb-2">
-                                <div role="button" class="d-block text-center border rounded p-3" style="height:100px;background:#1e2028" data-trigger="changetheme" onclick="changeTheme('#1e2028', '#1e2028', '#1e2028', '#252731', '#ffffff', '#ffffff', 'single', 'rounded', '', 'none');">
-                                    <p class="d-block" style="color:#ffffff">Hello</p>
-                                    <a href="#" class="rounded-pill d-block pt-1 text-decoration-none" style="background:#252731;width:100%;height:30px;color:#fff"><?php ee('Link') ?></a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <h4 class="fw-bold mb-3 mt-5"><?php ee('Fonts') ?></h4>
@@ -392,13 +316,24 @@
                     </div>
                     <h4 class="fw-bold mb-3 mt-5"><?php ee('Buttons') ?></h4>
                     <div class="card rounded-4 card-body shadow-sm">
+                        <div class="form-group mb-4">
+                            <div class="d-flex align-items-center text-black">
+                                <div>
+                                    <label class="form-check-label fw-bold" for="frost"><?php ee('Frosted Glass Effect') ?></label>
+                                    <p class="form-text mb-0 mt-1"><?php ee('Apply a frosted glass blur effect to buttons and cards using the button color') ?></p>
+                                </div>
+                                <div class="form-check form-switch ms-auto">
+                                    <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="frost" name="frost" value="1" <?php echo isset($bio->data->style->frost) && $bio->data->style->frost ? 'checked' : '' ?>>
+                                </div>
+                            </div>
+                        </div>
                         <h5 class="fw-bold"><?php ee('Button Color') ?></h5>
                         <div class="form-group mb-4">
-                            <input type="text" name="buttoncolor" id="buttoncolor" value="<?php echo $bio->data->style->buttoncolor ?? '' ?>">
+                            <input type="text" name="buttoncolor" id="buttoncolor" value="<?php echo $bio->data->style->buttoncolor ?? '' ?>" data-trigger="color">
                         </div>
                         <h5 class="fw-bold"><?php ee('Button Text Color') ?></h5>
                         <div class="form-group mb-4">
-                            <input type="text" name="buttontextcolor" id="buttontextcolor" value="<?php echo $bio->data->style->buttontextcolor ?? '' ?>">
+                            <input type="text" name="buttontextcolor" id="buttontextcolor" value="<?php echo $bio->data->style->buttontextcolor ?? '' ?>" data-trigger="color">
                         </div>
                         <h5 class="fw-bold"><?php ee('Button Style') ?></h5>
                         <div class="form-group mb-4">
@@ -452,94 +387,131 @@
                     <div class="card rounded-4 card-body shadow-sm">
                         <div class="form-group">
                             <div class="form-group">
-                                <div class="d-flex">
+                                <div class="d-flex align-items-center">
                                     <div>
                                         <label class="form-check-label fw-bold" for="avatarenabled"><?php ee('Display Avatar') ?></label>
-                                        <p class="form-text"><?php ee('Display or hide your avatar from your Bio page') ?></p>
+                                        <p class="form-text mb-0 mt-1"><?php ee('Display or hide your avatar from your Bio page') ?></p>
                                     </div>
                                     <div class="form-check form-switch ms-auto">
                                         <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="avatarenabled" name="avatarenabled" value="1" data-toggle="togglefield" data-toggle-for="avatarstyle" <?php echo $bio->data->avatarenabled ? 'checked' : ''?>>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group mb-3 <?php echo !$bio->data->avatarenabled ? 'd-none' : ''?>">
+                            <div class="form-group mt-2 <?php echo !$bio->data->avatarenabled ? 'd-none' : ''?>">
                                 <label class="form-label fw-bold" for="avatarstyle"><?php ee('Avatar Style') ?></label>
                                 <select name="avatarstyle" class="form-select rounded p-2" id="avatarstyle">
                                     <option value="rounded"<?php echo !isset($bio->data->avatarstyle) || $bio->data->avatarstyle == 'rounded' ? ' selected' : '' ?>><?php ee('Rounded') ?></option>
                                     <option value="rectangular" <?php echo isset($bio->data->avatarstyle) && $bio->data->avatarstyle == 'rectangular' ? ' selected' : '' ?>><?php ee('Rectangular') ?></option>
                                 </select>
                             </div>
-                            <?php if(user()->verified): ?>
-                                <div class="form-group">
-                                    <div class="d-flex">
-                                        <div>
-                                            <label class="form-check-label fw-bold" for="verified"><?php ee('Verified Badge') ?></label>
-                                            <p class="form-text"><?php ee('Display the verified badge on this Bio Page') ?></p>
-                                        </div>
-                                        <div class="form-check form-switch ms-auto">
-                                            <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="verified" name="verified" value="1" <?php echo isset($bio->data->settings->verified) && $bio->data->settings->verified ? 'checked' : '' ?>>
-                                        </div>
+                        </div>
+                    </div>
+                    <div class="card rounded-4 card-body shadow-sm">
+                        <?php if(user()->verified): ?>
+                            <div class="form-group">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <label class="form-check-label fw-bold" for="verified"><?php ee('Verified Badge') ?></label>
+                                        <p class="form-text mb-0 mt-1"><?php ee('Display the verified badge on this Bio Page') ?></p>
+                                    </div>
+                                    <div class="form-check form-switch ms-auto">
+                                        <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="verified" name="verified" value="1" <?php echo isset($bio->data->settings->verified) && $bio->data->settings->verified ? 'checked' : '' ?>>
                                     </div>
                                 </div>
-                            <?php endif ?>                        
+                            </div>
+                        <?php endif ?>
+                    </div>
+                    <div class="card rounded-4 card-body shadow-sm">
+                        <div class="form-group">
                             <div class="d-flex">
                                 <div>
                                     <label class="form-check-label fw-bold" for="sensitive"><?php ee('Sensitive Content') ?></label>
-                                    <p class="form-text"><?php ee('Sensitive content warns users before showing them the Bio Page') ?></p>
+                                    <p class="form-text mb-0 mt-1"><?php ee('Sensitive content warns users before showing them the Bio Page') ?></p>
                                 </div>
                                 <div class="form-check form-switch ms-auto">
                                     <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="sensitive" name="sensitive" value="1" <?php echo isset($bio->data->settings->sensitive) && $bio->data->settings->sensitive ? 'checked' : '' ?>>
                                 </div>
                             </div>
+                        </div> 
+                    </div>
+                    <div class="card rounded-4 card-body shadow-sm">
+                        <div class="form-group">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <label class="form-check-label fw-bold" for="agerestriction"><?php ee('Age Restriction') ?></label>
+                                    <p class="form-text mb-0 mt-1"><?php ee('Require users to verify their age before accessing the Bio Page') ?></p>
+                                </div>
+                                <div class="form-check form-switch ms-auto">
+                                    <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" data-bs-toggle="collapse" data-bs-target="#agerestrictionSettings" id="agerestriction" name="agerestriction" value="1" <?php echo isset($bio->data->settings->agerestriction) && $bio->data->settings->agerestriction ? 'checked' : '' ?>>
+                                </div>
+                            </div>
                         </div>
+                        <div class="collapse mt-3 <?php echo isset($bio->data->settings->agerestriction) && $bio->data->settings->agerestriction ? 'show' : '' ?>" id="agerestrictionSettings">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold" for="minimumage"><?php ee('Minimum Age') ?></label>
+                                <input type="number" class="form-control p-2" id="minimumage" name="minimumage" min="13" max="100" value="<?php echo isset($bio->data->settings->minimumage) ? (int)$bio->data->settings->minimumage : '18' ?>" placeholder="18">
+                                <p class="form-text mb-0"><?php ee('Minimum age required to access this page') ?></p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold" for="ageredirect"><?php ee('Redirect URL for Minors') ?></label>
+                                <input type="url" class="form-control p-2" id="ageredirect" name="ageredirect" value="<?php echo isset($bio->data->settings->ageredirect) ? htmlspecialchars($bio->data->settings->ageredirect) : '' ?>" placeholder="https://example.com">
+                                <p class="form-text mb-0"><?php ee('URL to redirect users who are under the minimum age') ?></p>
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="card rounded-4 card-body shadow-sm">
                         <div class="form-group">
                             <div class="d-flex">
                                 <div>
                                     <label class="form-check-label fw-bold" for="cookie"><?php ee('Cookie Popup') ?></label>
-                                    <p class="form-text"><?php ee('Cookie popup allows users to review cookie collection terms') ?></p>
+                                    <p class="form-text mb-0 mt-1"><?php ee('Cookie popup allows users to review cookie collection terms') ?></p>
                                 </div>
                                 <div class="form-check form-switch ms-auto">
                                     <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="cookie" name="cookie" value="1" <?php echo isset($bio->data->settings->cookie) && $bio->data->settings->cookie ? 'checked' : '' ?>>
                                 </div>
                             </div>
                         </div>
+                    </div> 
+                    <div class="card rounded-4 card-body shadow-sm">
                         <div class="form-group">
                             <div class="d-flex">
                                 <div>
                                     <label class="form-check-label fw-bold" for="share"><?php ee('Share Icon') ?></label>
-                                    <p class="form-text"><?php ee('Share icon allows users to quickly share the Bio Page') ?></p>
+                                    <p class="form-text mb-0 mt-1"><?php ee('Share icon allows users to quickly share the Bio Page') ?></p>
                                 </div>
                                 <div class="form-check form-switch ms-auto">
                                     <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="share" name="share" value="1" <?php echo isset($bio->data->settings->share) && $bio->data->settings->share ? 'checked' : '' ?>>
                                 </div>
                             </div>
                         </div>
+                    </div> 
+                    <div class="card rounded-4 card-body shadow-sm">
                         <div class="form-group">
                             <div class="d-flex <?php echo !user()->has('poweredby') ? 'text-muted' : '' ?>" <?php echo !user()->has('poweredby') ? 'data-bs-toggle="tooltip" title="'.e('Please choose a premium package to unlock this feature').'"' : '' ?>>
                                 <div>
                                     <label class="form-check-label fw-bold" for="branding"><?php ee('Remove Branding') ?></label>
-                                    <p class="form-text"><?php ee('Remove our branding from your Bio Page.') ?></p>
+                                    <p class="form-text mb-0 mt-1"><?php ee('Remove our branding from your Bio Page.') ?></p>
                                 </div>
                                 <div class="form-check form-switch ms-auto">
                                     <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="branding" name="branding" value="1" <?php echo isset($bio->data->settings->branding) && $bio->data->settings->branding ? 'checked' : '' ?> <?php echo !user()->has('poweredby') ? 'disabled' : '' ?>>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="pass" class="form-label fw-bold"><?php ee('Password Protection') ?></label>
-                            <p class="form-text mt-0"><?php ee('By adding a password, you can restrict the access') ?></p>
-                            <div class="input-group">
-                                <div class="input-group-text bg-white"><i data-feather="lock"></i></div>
-                                <input type="text" class="form-control border-start-0 ps-0 p-2" name="pass" id="pass" value="<?php echo $url->pass ?>" placeholder="<?php echo e("Type your password here")?>" autocomplete="off">
-                            </div>
+                    </div> 
+                    <div class="card rounded-4 card-body shadow-sm">
+                        <label for="pass" class="form-label fw-bold"><?php ee('Password Protection') ?></label>
+                        <p class="form-text mt-0"><?php ee('By adding a password, you can restrict the access') ?></p>
+                        <div class="form-group">                            
+                            <input type="text" class="form-control p-2" name="pass" id="pass" value="<?php echo $url->pass ?>" placeholder="<?php echo e("Type your password here")?>" autocomplete="off">
                         </div>
+                    </div> 
+                    <div class="card rounded-4 card-body shadow-sm">
                         <?php if(\Core\Auth::user()->has("pixels") !== false):?>
-                        <div id="pixels" class="mt-4">
+                        <div id="pixels">
                             <label class="form-label fw-bold"><?php echo e("Targeting Pixels")?></label>
                             <p class="form-text mt-0"><?php echo e('Add your targeting pixels below from the list. Please make sure to enable them in the pixels settings.')?></p>
                             <div class="input-group input-select rounded">
-                                <span class="input-group-text bg-white"><i data-feather="filter"></i></span>
-                                <select name="pixels[]" data-placeholder="Your Pixels" multiple data-toggle="select">
+                                <select name="pixels[]" data-placeholder="Your Pixels" multiple data-toggle="select" placeholder="<?php echo e("Your Pixels")?>">
                                     <?php foreach(\Core\Auth::user()->pixels() as $type => $pixels): ?>
                                         <optgroup label="<?php echo ucwords($type) ?>">
                                         <?php foreach($pixels as $pixel): ?>
@@ -596,8 +568,8 @@
             </div>
         </div>
         <div class="col-md-5 d-flex justify-content-center">
-            <div class="card rounded-5 border border-5 border-rounded border-dark card-preview ms-0 ms-lg-4 w-100">
-                <iframe src="<?php echo route('bio.preview', $bio->id) ?>" width="100%" height="100%"></iframe>
+            <div class="card rounded-5 border-0 card-rounded card-preview ms-0 ms-lg-4 w-100">
+                <iframe src="<?php echo route('bio.preview', $bio->id) ?>" width="100%" height="100%" class="js-simplebar"></iframe>
             </div>
         </div>
     </div>

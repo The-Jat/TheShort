@@ -35,7 +35,7 @@ class Role extends Model {
      * Check if role has permission
      *
      * @author GemPixel <https://gempixel.com> 
-     * @version 7.6.6
+     * @version 7.8.3
      * @param string $permission
      * @return boolean
      */
@@ -53,7 +53,7 @@ class Role extends Model {
      * @return array
      */
     public static function getAvailablePermissions(){
-        return [
+        $permissions = [
             'users' => [
                 'name' => e('Users'),
                 'permissions' => [
@@ -164,6 +164,14 @@ class Role extends Model {
                 ]
             ]
         ];
+
+		if($extended = \Core\Plugin::dispatch('rolepermissions.extend')){
+			foreach($extended as $fn){
+				$permissions = array_merge($permissions, $fn);
+			}
+		}
+
+		return $permissions;
     }
 
     /**

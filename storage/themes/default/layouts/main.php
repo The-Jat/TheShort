@@ -116,8 +116,8 @@
                 'height': '1em'
             })
         </script>
-        <script src="<?php echo assets('frontend/js/app.min.js') ?>?v=1.2"></script>
-        <script src="<?php echo assets('server.min.js') ?>?v=1.2"></script>
+        <script src="<?php echo assets('frontend/js/app.min.js') ?>?v=1.1"></script>
+        <script src="<?php echo assets('server.min.js') ?>?v=1.1"></script>
         <?php echo html_entity_decode(config('customfooter')) ?>
         <?php if(!empty(config('analytic'))): ?>
 			<script<?php echo \Helpers\App::cookieConsent('analytics') ?>async src='https://www.googletagmanager.com/gtag/js?id=<?php echo config('analytic') ?>'></script>

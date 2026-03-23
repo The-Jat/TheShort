@@ -35,9 +35,6 @@ class Coupons {
      * @version 6.0
      */
     public function __construct(){
-        if(!\Helpers\App::possible()){
-            return Helper::redirect()->to(route('admin.settings.config', ['payments']))->with('danger', 'Please enter your extended purchase code to unlock coupons.');
-        }
     }
     /**
      * Coupons

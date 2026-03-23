@@ -192,11 +192,9 @@
                             </div>
                         </div>
                     </div>
-                    <?php if(\Helpers\App::isExtended()): ?>
                     <div class="d-flex w-100 mt-3">
                         <a href="#redeemvoucher" class="text-dark ms-auto" data-bs-toggle="modal"><i class="fa fa-ticket-alt me-2"></i> <?php ee('Redeem Voucher') ?></a>
                     </div>
-                    <?php endif ?>
                     <div class="card border-0 shadow-sm mt-4 p-4">
                         <?php ee('By subscribing to this plan, you agree to our Terms & Conditions. Subscription is charged in {c}. If you have any questions, please contact us.', null, ['c' => config('currency')]) ?>
                     </div>
@@ -205,27 +203,25 @@
         </form>
     </div>
 </section>
-<?php if(\Helpers\App::isExtended()): ?>
-    <div class="modal fade" id="redeemvoucher" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <form action="<?php echo route('checkout.redeem') ?>" method="post">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold"><?php ee('Redeem Voucher') ?></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="redeemvoucher" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form action="<?php echo route('checkout.redeem') ?>" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><?php ee('Redeem Voucher') ?></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <?php echo csrf() ?>
+                    <div class="form-group mb-4">
+                        <label class="form-label fw-bold label"><?php ee('Voucher') ?></label>
+                        <input type="text" class="form-control p-2" id="input-voucher" name="code" placeholder="e.g. A1A1-A1A1">
                     </div>
-                    <div class="modal-body">
-                        <?php echo csrf() ?>
-                        <div class="form-group mb-4">
-                            <label class="form-label fw-bold label"><?php ee('Voucher') ?></label>
-                            <input type="text" class="form-control p-2" id="input-voucher" name="code" placeholder="e.g. A1A1-A1A1">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary"><?php ee('Redeem') ?></button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary"><?php ee('Redeem') ?></button>
+                </div>
+            </form>
         </div>
     </div>
-<?php endif ?>
+</div>

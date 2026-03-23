@@ -5,7 +5,7 @@
                 <?php if(config('logo')): ?>
                     <img alt="<?php echo config('title') ?>" src="<?php echo uploads(config('logo')) ?>" id="navbar-logo">
                 <?php else: ?>
-                    <h1 class="h5 mt-2 text-white"><?php echo config('title') ?></h1>
+                    <h1 class="h5 mt-2 text-white"><?php echo config('sitename') ?></h1>
                 <?php endif ?>
             </a>    
         </div>

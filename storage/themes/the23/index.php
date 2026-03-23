@@ -3,7 +3,7 @@
 		<?php echo message() ?>
 		<div class="row g-lg-5 py-10">
 			<div class="col-lg-7 text-center text-lg-start">
-				<?php if($count->users): ?>
+				<?php if(isset($count->users) && $count->users): ?>
 					<span class="bg-primary py-2 px-3 rounded-pill text-muted fw-bold">
 						<?php if($count->users > 100): ?>
 							<?php _ee('Trusted by {n} worldwide', ['n' => '<strong class="gradient-primary clip-text fw-bolder">'.$count->users.' '.e('customers').'</strong>']) ?>
@@ -115,7 +115,7 @@
 									<svg class="rounded" viewBox="0 0 2000 1400" xmlns="http://www.w3.org/2000/svg"><path d="M0 1383.803c21-9.972 63-30.067 105-49.86s63-36.615 105-49.107c42-12.492 63 17.422 105-13.354 42-30.777 63-125.032 105-140.528 42-15.495 63 88.592 105 63.05 42-25.543 63-144.923 105-190.761 42-45.838 63-56.416 105-38.43 42 17.987 63 142.285 105 128.363 42-13.92 63-148.434 105-197.97 42-49.534 63-51.791 105-49.705 42 2.086 63 83.56 105 60.136 42-23.425 63-127.997 105-177.258 42-49.262 63-62.948 105-69.05 42-6.102 63 90.824 105 38.54s63-274.834 105-299.962c42-25.13 63 170.32 105 174.318 42 3.999 63-66.754 105-154.324 42-87.57 63-207.459 105-283.526 42-76.068 84-77.45 105-96.811L2000 1400H0Z" fill="rgba(var(--bs-primary-rgb), 1)"/><path d="M0 1383.803c21-9.972 63-30.067 105-49.86s63-36.615 105-49.107c42-12.492 63 17.422 105-13.354 42-30.777 63-125.032 105-140.528 42-15.495 63 88.592 105 63.05 42-25.543 63-144.923 105-190.761 42-45.838 63-56.416 105-38.43 42 17.987 63 142.285 105 128.363 42-13.92 63-148.434 105-197.97 42-49.534 63-51.791 105-49.705 42 2.086 63 83.56 105 60.136 42-23.425 63-127.997 105-177.258 42-49.262 63-62.948 105-69.05 42-6.102 63 90.824 105 38.54s63-274.834 105-299.962c42-25.13 63 170.32 105 174.318 42 3.999 63-66.754 105-154.324 42-87.57 63-207.459 105-283.526 42-76.068 84-77.45 105-96.811" fill="none" stroke="var(--bs-primary)" stroke-width="4"/><g fill="var(--bs-primary)" opacity="0.2"><circle cx="1575" cy="397.907" r="30"/></g><g fill="var(--bs-primary)"><circle cx="105" cy="1333.943" r="8"/><circle cx="210" cy="1284.836" r="8"/><circle cx="315" cy="1271.482" r="8"/><circle cx="420" cy="1130.954" r="8"/><circle cx="525" cy="1194.003" r="8"/><circle cx="630" cy="1003.243" r="8"/><circle cx="735" cy="964.814" r="8"/><circle cx="840" cy="1093.176" r="8"/><circle cx="945" cy="895.207" r="8"/><circle cx="1050" cy="845.501" r="8"/><circle cx="1155" cy="905.637" r="8"/><circle cx="1260" cy="728.379" r="8"/><circle cx="1365" cy="659.329" r="8"/><circle cx="1470" cy="697.869" r="8"/><circle cx="1575" cy="397.907" r="8"/><circle cx="1680" cy="572.225" r="8"/><circle cx="1785" cy="417.901" r="8"/><circle cx="1890" cy="134.375" r="8"/><text x="1480" y="300" class="fw-bold display-2"><?php echo round(mt_rand() / mt_getrandmax() * 2, 2) ?>K</text></g></svg>
 								</div>
 							</div>
-							<div class="card border-0 shadow-lg mb-3 position-absolute top-0 start-0 me-5 animate-float outer-left">
+							<div class="card liquid-blur border-0 shadow-lg mb-3 position-absolute top-0 start-0 me-5 animate-float outer-left">
 								<div class="card-body">
 									<div class="position-relative">
 										<div class="border-0 d-block rounded p-1 d-inline-block gradient-primary text-white position-absolute top-0 start-100 translate-middle ms-3">
@@ -125,7 +125,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="card border-0 shadow-lg mb-3 position-absolute top-50 end-0 mt-5 me-4 animate-float outer-right">
+							<div class="card liquid-blur border-0 shadow-lg mb-3 position-absolute top-50 end-0 mt-5 me-4 animate-float outer-right">
 								<div class="position-relative p-2">
 									<span class="shadow-0 rounded p-2 px-3 d-inline-block gradient-primary text-white position-absolute top-0 start-50 translate-middle">
 										<i class="fa fa-mobile"></i>
@@ -133,7 +133,7 @@
 									<h5 class="mb-0 mt-3 mx-3 fw-bold"><?php ee('Bio Pages') ?></h5>
 								</div>
 							</div>
-							<div class="card border-0 shadow-lg mb-3 position-absolute top-100 start-0 ms-5 animate-float outer-left">
+							<div class="card liquid-blur border-0 shadow-lg mb-3 position-absolute top-100 start-0 ms-5 animate-float outer-left">
 								<div class="card-body">
 									<div class="d-flex align-items-center">
 										<span class="shadow-0 rounded p-2 px-3 d-inline-block gradient-primary text-white me-2">
@@ -304,7 +304,7 @@
 				<div class="p-4 p-md-5 rounded-3 shadow-sm position-relative h-100 gradient-primary">
 					<h6 class="fw-bold text-white mb-2"><?php ee('Turn long links into short links') ?></h6>
 					<h5 class="fw-bold text-white border rounded p-3"><span data-toggle="typed" data-list="<i class='fa fa-times-circle'></i> https://longurl.com/page/article-name,<i class='fa fa-check-circle'></i> <?php echo str_replace('www.', '', url('short')) ?>"></span></h5>
-					<div class="position-absolute position-sm-relative card mt-10 top-0 ms-0 ms-md-5 start-0 d-block p-5 rounded shadow w-100 opacity-90 border-0">
+					<div class="position-absolute position-sm-relative card liquid-blur mt-10 top-0 ms-0 ms-md-5 start-0 d-block p-5 rounded shadow w-100 opacity-90 border-0">
 						<h5 class="fw-bold"><?php ee('Where are most of your users located?') ?></h5>
 						<div class="mt-4">
 						<div class="mt-3">
@@ -696,7 +696,7 @@
 	</div>
 </section>
 <?php if($testimonials = (array) config('testimonials')): ?>
-	<section class="bg-primary border-top border-bottom">
+	<section class="bg-primary">
 		<div class="container py-8">
 			<div class="row my-5 justify-content-center text-center">
 				<div class="col-lg-8 col-md-10">

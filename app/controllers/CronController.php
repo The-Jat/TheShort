@@ -39,7 +39,7 @@ class Cron {
 
         if($token != md5('user'.AuthToken)) return null;
 
-        if(!\Helpers\App::possible() || !config('pro')) return null;
+        if(!config('pro')) return null;
 
         $i = 0;
         foreach(User::where('admin', 0)->where('pro', '1')->limit(500)->findMany() as $user){

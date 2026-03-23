@@ -239,6 +239,36 @@ trait Links {
             }
 		}
 
+        // Advanced targeting rules (Country AND Device AND Language)
+        $advancedRules = [];
+        if($request->advanced_country && $request->advanced_device && $request->advanced_language && $request->advanced_target && 
+           $user && $user->has('geo') && $user->has('device') && $user->has('language')){
+            foreach ($request->advanced_country as $i => $country) {
+                if(!empty($country) && isset($request->advanced_device[$i]) && isset($request->advanced_language[$i]) && isset($request->advanced_target[$i]) && 
+                   !empty($request->advanced_device[$i]) && !empty($request->advanced_language[$i]) && !empty($request->advanced_target[$i])){
+                    
+                    if(
+                        !$this->validate($request->advanced_target[$i]) ||
+                        !$this->safe($request->advanced_target[$i]) ||
+                        $this->phish($request->advanced_target[$i]) ||
+                        $this->virus($request->advanced_target[$i]) ||
+                        $this->domainBlacklisted($request->advanced_target[$i]) ||
+                        $this->wordBlacklisted($request->advanced_target[$i])
+                    ) continue;
+                    
+                    $advancedRules[] = [
+                        'country' => strtolower(clean($country)),
+                        'device' => strtolower(clean($request->advanced_device[$i])),
+                        'language' => strtolower(clean($request->advanced_language[$i])),
+                        'target' => Helper::clean($request->advanced_target[$i], 3)
+                    ];
+                }
+            }
+            if(!empty($advancedRules) && count($advancedRules) > 0){
+                $options['advanced'] = $advancedRules;
+            }
+        }
+
         $rotators = [];
         $totalpercent = 0;
         if($request->abtesting && $user && $user->has('abtesting')){
@@ -284,7 +314,14 @@ trait Links {
         // Generate formatted list of parameters
         $parameters = null;
 
-		if($request->paramname && $user && $user->has('parameters')){
+		if($request->paramtemplate_id && $user && $user->has('parametertemplates')){
+			$template = DB::paramtemplates()->where('userid', $user->rID())->where('id', (int)$request->paramtemplate_id)->first();
+			if($template){
+				$params = \User\ParamTemplates::templateToParameters($template->data);
+				$parameters = $params ? json_encode($params) : null;
+			}
+		}
+		if($parameters === null && $request->paramname && $user && $user->has('parameters')){
 			foreach ($request->paramname as $i => $param) {
 				if(!empty($param) && $request->paramvalue[$i]){
 					$parameters[clean($param)] = clean($request->paramvalue[$i]);
@@ -383,7 +420,7 @@ trait Links {
         }
 
         if($image = $request->metaimage){
-            if(!$image->mimematch || !in_array($image->ext, ['jpg', 'png'])) throw new \Exception(e('Banner must be either a PNG or a JPEG (Max 500kb).'));
+            if(!$image->mimematch || !in_array($image->ext, ['jpg', 'jpeg', 'png'])) throw new \Exception(e('Banner must be either a PNG or a JPEG (Max 500kb).'));
 
             if($image->sizekb >= 500) throw new \Exception(e('Banner must be either a PNG or a JPEG (Max 500kb).'));
 
@@ -691,6 +728,40 @@ trait Links {
 
         $options['languages'] = $languages;
 
+        // Advanced targeting rules (Country AND Device AND Language)
+        $advancedRules = [];
+        if($request->advanced_country && $request->advanced_device && $request->advanced_language && $request->advanced_target && 
+           $user && $user->has('geo') && $user->has('device') && $user->has('language')){
+            foreach ($request->advanced_country as $i => $country) {
+                if(!empty($country) && isset($request->advanced_device[$i]) && isset($request->advanced_language[$i]) && isset($request->advanced_target[$i]) && 
+                   !empty($request->advanced_device[$i]) && !empty($request->advanced_language[$i]) && !empty($request->advanced_target[$i])){
+                    
+                    if(
+                        !$this->validate($request->advanced_target[$i]) ||
+                        !$this->safe($request->advanced_target[$i]) ||
+                        $this->phish($request->advanced_target[$i]) ||
+                        $this->virus($request->advanced_target[$i]) ||
+                        $this->domainBlacklisted($request->advanced_target[$i]) ||
+                        $this->wordBlacklisted($request->advanced_target[$i])
+                    ) continue;
+                    
+                    $advancedRules[] = [
+                        'country' => strtolower(clean($country)),
+                        'device' => strtolower(clean($request->advanced_device[$i])),
+                        'language' => strtolower(clean($request->advanced_language[$i])),
+                        'target' => Helper::clean($request->advanced_target[$i], 3)
+                    ];
+                }
+            }
+            if(!empty($advancedRules) && count($advancedRules) > 0){
+                $options['advanced'] = $advancedRules;
+            } else {
+                unset($options['advanced']);
+            }
+        } else {
+            unset($options['advanced']);
+        }
+
         $rotators = [];
         $totalpercent = 0;
         if($request->abtesting && $user && $user->has('abtesting')){
@@ -732,10 +803,17 @@ trait Links {
             $options['deeplink']['apple'] = clean($request->deeplink['apple']);
         }
 
-        // Generate formatted list of parameters
+        // Generate formatted list of parameters (template overrides manual params)
         $parameters = null;
 
-		if($request->paramname && $user && $user->has('parameters')){
+		if($request->paramtemplate_id && $user && $user->has('parametertemplates')){
+			$template = DB::paramtemplates()->where('userid', $user->rID())->where('id', (int)$request->paramtemplate_id)->first();
+			if($template){
+				$params = \User\ParamTemplates::templateToParameters($template->data);
+				$parameters = $params ? json_encode($params) : null;
+			}
+		}
+		if($parameters === null && $request->paramname && $user && $user->has('parameters')){
 			foreach ($request->paramname as $i => $param) {
 				if(!empty($param) && $request->paramvalue[$i]){
 					$parameters[clean($param)] = clean($request->paramvalue[$i]);
@@ -767,7 +845,7 @@ trait Links {
         }
 
         if($image = $request->metaimage){
-            if(!$image->mimematch || !in_array($image->ext, ['jpg', 'png'])) throw new \Exception(e('Banner must be either a PNG or a JPEG (Max 500kb).'));
+            if(!$image->mimematch || !in_array($image->ext, ['jpg', 'jpeg', 'png'])) throw new \Exception(e('Banner must be either a PNG or a JPEG (Max 500kb).'));
 
             if($image->sizekb >= 500) throw new \Exception(e('Banner must be either a PNG or a JPEG (Max 500kb).'));
 
@@ -864,6 +942,9 @@ trait Links {
             }
 
 			$plan = DB::plans()->where('id', $user->planid)->first();
+            
+            \Core\Plugin::dispatch('link.update.stats.limitedreached', [$user, $plan->numclicks, $count]);
+
 			if($plan && $plan->numclicks > 0 && $count >= $plan->numclicks) return false;
 		}
 
@@ -1233,7 +1314,7 @@ trait Links {
             }
 
             if($isteam = $user->team()){
-                if($team = \Models\User::first($isteam->id)){
+                if($team = \Models\User::where('id', $isteam->id)->first()){
                     if($team->refresh()->has('domain') &&  DB::domains()->where('userid', $team->id)->whereRaw("(domain = ? OR domain = ?)", ["http://".$host,"https://".$host])->first()){
                         return true;
                     }

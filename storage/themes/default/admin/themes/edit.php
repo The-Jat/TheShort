@@ -33,11 +33,32 @@
                         <div class="col-md-6">
                             <div class="form-group mb-4">
                                 <label for="description" class="form-label fw-bold"><?php ee('Restriction') ?></label>
-                                <select name="paidonly" class="form-select p-2">
+                                <select name="paidonly" id="paidonly" class="form-select p-2">
                                     <option value="0" <?php echo !$theme->paidonly ? 'selected' : '' ?>><?php ee('Everyone') ?></option>
                                     <option value="1" <?php echo $theme->paidonly ? 'selected' : '' ?>><?php ee('Premium Users Only') ?></option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                    <div id="plan-access-section" class="mb-4 rounded p-3 border <?php echo $theme->paidonly == 1 ? '' : 'd-none' ?>">
+                        <h4 class="mb-4 fw-bold"><?php ee('Plan Access') ?></h4>
+                        <div class="form-group mb-3">
+                            <p class="form-text"><?php ee('Select which plans can use this theme. Leave all unchecked to make it available to all plans.') ?></p>
+                        </div>
+                        <div class="row">
+                            <?php foreach($plans as $plan): ?>
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="planids[]" value="<?php echo $plan->id ?>" id="plan_<?php echo $plan->id ?>" <?php echo in_array($plan->id, $theme->planids ?? []) ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="plan_<?php echo $plan->id ?>">
+                                            <?php echo $plan->name ?>
+                                            <?php if($plan->free): ?>
+                                                <span class="badge bg-info ms-2"><?php ee('Free') ?></span>
+                                            <?php endif ?>
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php endforeach ?>
                         </div>
                     </div>
                     <div class="p-3 rounded border mb-3">
@@ -93,19 +114,19 @@
                         <div id="css" class="bgblock <?php echo (isset($theme->data->bgtype) && $theme->data->bgtype == 'css' ? '' : 'd-none')  ?>">
                             <div class="form-group mb-3">
                                 <label for="customcss" class="form-label fw-bold d-block mb-2"><?php ee('Custom CSS') ?></label>
-                                <textarea class="form-control" name="customcss" rows="15" placeholder="e.g. background-color: red;"><?php echo $theme->data->customcss ?? '' ?></textarea>
-                                <p class="form-text"><?php ee('Do not enter any element name or class name i.e. enter code between { __CODE__ } only. Simply enter your properties and styling. The CSS will automatically be assigned to the body. Also do not create any CSS for other parts of the Bio Page.') ?></p>
+                                <textarea class="form-control" name="customcss" id="customcss" rows="15" placeholder="e.g. body { background: red; }"><?php echo $theme->data->customcss ?? '' ?></textarea>
+                                <p class="form-text"><?php ee('Enter full CSS code with selectors. This CSS will be applied to the bio page. You need to assign the CSS to the <strong>body</strong> element. e.g. body { background: red; }') ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="p-3 rounded border">
                         <div class="form-group mb-4">
                             <label class="form-label fw-bold d-block"><?php ee('Button Color') ?></label>
-                            <input type="text" name="buttoncolor" id="buttoncolor" value="<?php echo $theme->data->buttoncolor ?? '' ?>">
+                            <input type="text" name="buttoncolor" id="buttoncolor" value="<?php echo $theme->data->buttoncolor ?? '' ?>" data-trigger="color">
                         </div>
                         <div class="form-group mb-4">
                             <label class="form-label fw-bold d-block"><?php ee('Button Text Color') ?></label>
-                            <input type="text" name="buttontextcolor" id="buttontextcolor" value="<?php echo $theme->data->buttontextcolor ?? '' ?>">
+                            <input type="text" name="buttontextcolor" id="buttontextcolor" value="<?php echo $theme->data->buttontextcolor ?? '' ?>" data-trigger="color">
                         </div>
                         <div class="form-group mb-4">
                             <label for="description" class="form-label fw-bold"><?php ee('Button Type') ?></label>
@@ -128,6 +149,29 @@
                             <label for="description" class="form-label fw-bold d-block"><?php ee('Shadow Color') ?></label>
                             <input type="text" name="shadowcolor" id="shadowcolor" data-trigger="color" value="<?php echo $theme->data->shadowcolor ?? '' ?>" data-default="<?php echo $theme->data->shadowcolor ?? '' ?>">
                         </div>
+                        <div class="form-group mb-4">
+                            <label for="font" class="form-label fw-bold d-block"><?php ee('Font') ?></label>
+                            <select name="font" id="font" class="form-select p-2">
+                                <option value=""><?php ee('Default') ?></option>
+                                <?php foreach(['Arial', 'Helvetica_Neue', 'Courier_New', 'Times_New_Roman', 'Comic_Sans_MS', 'Verdana', 'Impact', 'Tahoma'] as $font): ?>
+                                    <option value="<?php echo str_replace('_', '+', $font) ?>" <?php echo isset($theme->data->font) && $theme->data->font == str_replace('_', '+', $font) ? 'selected' : '' ?>><?php echo str_replace('_', ' ', $font) ?></option>
+                                <?php endforeach ?>
+                                <?php foreach(\Helpers\App::fonts() as $font): ?>
+                                    <option value="<?php echo str_replace('_', '+', $font) ?>" <?php echo isset($theme->data->font) && $theme->data->font == str_replace('_', '+', $font) ? 'selected' : '' ?>><?php echo str_replace(['_', '+'], ' ', $font) ?></option>
+                                <?php endforeach ?>
+                            </select>
+                        </div>
+                        <div class="form-group mb-4">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <label class="form-check-label fw-bold" for="frost"><?php ee('Frosted Glass Effect') ?></label>
+                                    <p class="form-text mb-0 mt-1"><?php ee('Apply a frosted glass blur effect to buttons and cards using the button color') ?></p>
+                                </div>
+                                <div class="form-check form-switch ms-auto">
+                                    <input class="form-check-input form-check-input-lg" type="checkbox" data-binary="true" id="frost" name="frost" value="1" <?php echo isset($theme->data->frost) && $theme->data->frost ? 'checked' : '' ?>>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-success mt-3"><?php ee('Save Theme') ?></button>
                 </div>
@@ -135,8 +179,8 @@
         </form>
     </div>
     <div class="col-md-4">
-        <div id="preview">
-            <div class="card rounded-4 border border-5 border-rounded border-dark card-preview position-relative p-5">
+        <div id="preview" class="position-sticky top-0">
+            <div class="card shadow-lg card-preview p-5">
                 <div class="text-center mt-5">
                     <img src="<?php echo user()->avatar() ?>" class="rounded-circle mb-3 border mb-3" width="120" height="120">
                     <h3><?php echo config('title') ?></h3>

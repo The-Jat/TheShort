@@ -217,6 +217,13 @@ final class View extends Gem {
     }
 
     echo '<link rel="canonical" href="'.self::url().'">'."\n";
+    foreach (\Core\Localization::listInfo() as $lang) {
+      echo '<link rel="alternate" hreflang="'.htmlspecialchars($lang['code'], ENT_QUOTES, 'UTF-8').'" href="'.htmlspecialchars(\Core\Localization::localUrl($lang), ENT_QUOTES, 'UTF-8').'">'."\n\t";
+    }
+    $defaultLang = appConfig('app.language');
+    if ($defaultLang && \Core\Localization::exists($defaultLang)) {
+      echo '<link rel="alternate" hreflang="x-default" href="'.htmlspecialchars(\Core\Localization::localUrl(['code' => $defaultLang]), ENT_QUOTES, 'UTF-8').'">'."\n\t";
+    }
     echo self::$customMeta;
   }
   /**

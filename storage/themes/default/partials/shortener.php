@@ -117,6 +117,9 @@
                 <?php if(\Core\Auth::user()->has("deeplink") !== false && config("devicetarget") && \Core\Auth::user()->has("device") !== false):?>
                     <li><a class="dropdown-item" data-bs-toggle="collapse" data-bs-target="#deeplink,#device"><i data-feather="git-branch"></i> <?php ee('Deep Linking') ?></a></li>
                 <?php endif ?>
+                <?php if(config("geotarget") && \Core\Auth::user()->has("geo") !== false && config("devicetarget") && \Core\Auth::user()->has("device") !== false && \Core\Auth::user()->has('language') !== false):?>
+                    <li><a class="dropdown-item" data-bs-toggle="collapse" data-bs-target="#advanced"><i data-feather="target"></i> <?php ee('Advanced Targeting') ?></a></li>
+                <?php endif ?>
                 <?php if(config("geotarget") && \Core\Auth::user()->has("geo") !== false):?>
                     <li><a class="dropdown-item" data-bs-toggle="collapse" data-bs-target="#geo"><i data-feather="map-pin"></i> <?php ee('Geo Targeting') ?></a></li>
                 <?php endif ?>
@@ -147,7 +150,7 @@
                     <div class="form-group mt-3 d-flex align-items-center">
                         <div class="me-3">
                             <label for="metaimage" role="button">
-                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAQAAACRI2S5AAAAEklEQVR42mP8/58BL2AcVQAGAHscEfhX5bYNAAAAAElFTkSuQmCC" width="200" class="rounded-3 border shadow-sm" id="metaimage-preview">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9InRyYW5zcGFyZW50Ii8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoODAsIDMwKSBzY2FsZSgwLjEpIj48cGF0aCBkPSJNMzQ0LjA1OCwyMDcuNTA2Yy0xNi41NjgsMC0zMCwxMy40MzItMzAsMzB2NzYuNjA5aC0yNTR2LTc2LjYwOWMwLTE2LjU2OC0xMy40MzItMzAtMzAtMzBjLTE2LjU2OCwwLTMwLDEzLjQzMi0zMCwzMHYxMDYuNjA5YzAsMTYuNTY4LDEzLjQzMiwzMCwzMCwzMGgzMTRjMTYuNTY4LDAsMzAtMTMuNDMyLDMwLTMwVjIzNy41MDZDMzc0LjA1OCwyMjAuOTM4LDM2MC42MjYsMjA3LjUwNiwzNDQuMDU4LDIwNy41MDZ6Ii8+PHBhdGggZD0iTTEyMy41NywxMzUuOTE1bDMzLjQ4OC0zMy40ODh2MTExLjc3NWMwLDE2LjU2OCwxMy40MzIsMzAsMzAsMzBjMTYuNTY4LDAsMzAtMTMuNDMyLDMwLTMwVjEwMi40MjZsMzMuNDg4LDMzLjQ4OGM1Ljg1Nyw1Ljg1OCwxMy41MzUsOC43ODcsMjEuMjEzLDguNzg3YzcuNjc4LDAsMTUuMzU1LTIuOTI5LDIxLjIxMy04Ljc4N2MxMS43MTYtMTEuNzE2LDExLjcxNi0zMC43MSwwLTQyLjQyNkwyMDguMjcxLDguNzg4Yy0xMS43MTUtMTEuNzE3LTMwLjcxMS0xMS43MTctNDIuNDI2LDBMODEuMTQ0LDkzLjQ4OWMtMTEuNzE2LDExLjcxNi0xMS43MTYsMzAuNzEsMCw0Mi40MjZDMTAyLjg1OSwxNDcuNjMxLDEyMS44NTUsMTQ3LjYzMSwxMjMuNTcsMTM1LjkxNXoiLz48L2c+PC9zdmc+" alt="Banner Preview" class="img-fluid rounded rounded-3 border shadow-sm" width="200" id="metaimage-preview">
                             </label>
                         </div>
                         <div>
@@ -173,6 +176,49 @@
                 </div>
             </div>
         </div>
+        <?php if(config("geotarget") && \Core\Auth::user()->has("geo") !== false && config("devicetarget") && \Core\Auth::user()->has("device") !== false && \Core\Auth::user()->has('language') !== false):?>
+            <div class="collapse mt-4 border p-3 rounded-3" id="advanced">
+                <div class="d-flex">
+                    <h4><i class="me-2" data-feather="target"></i> <span class="align-middle"><?php echo e("Advanced Targeting")?></span></h4>
+                    <div class="ms-auto">
+                        <a href="#" class="btn btn-sm btn-primary rounded-3" data-trigger="addmore" data-for="advanced"><i class="fa fa-plus me-1"></i> <?php echo e("Add")?></a>
+                    </div>
+                </div>
+                <p class="form-text"><?php echo e('Set conditional redirects based on multiple criteria. All conditions (Country, Device, and Language) must match for the redirect to occur.')?></p>
+                <div class="row" data-toggle="addable" data-label="advanced" data-states="<?php echo route('server.states') ?>">
+                    <div class="col-sm-4 mt-3">
+                        <div class="input-group input-select">
+                            <span class="input-group-text bg-white"><i data-feather="map-pin"></i></span>
+                            <select name="advanced_country[]" class="form-control border-start-0 ps-0" data-trigger="getStates" data-toggle="select">
+                                <?php echo \Core\Helper::Country('United States', true) ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mt-3">
+                        <div class="input-group input-select">
+                            <span class="input-group-text bg-white"><i data-feather="smartphone"></i></span>
+                            <select name="advanced_device[]" class="form-select border-start-0 ps-0" data-toggle="select">
+                                <?php echo \Core\Helper::devices() ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mt-3">
+                        <div class="input-group input-select">
+                            <span class="input-group-text bg-white"><i data-feather="globe"></i></span>
+                            <select name="advanced_language[]" class="form-select border-start-0 ps-0" data-toggle="select">
+                                <?php echo \Helpers\App::languagelist('en') ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i data-feather="link"></i></span>
+                            <input type="text" name="advanced_target[]" class="form-control border-start-0 ps-0 p-2" placeholder="<?php echo e("Type the url to redirect user to.")?>">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif ?>
         <?php if(config("geotarget") && \Core\Auth::user()->has("geo") !== false):?>
             <div class="collapse mt-4 border p-3 rounded-3" id="geo">
                 <div class="d-flex">
@@ -382,6 +428,21 @@
                         <a href="#" class="btn btn-sm btn-primary rounded-3" data-trigger="addmore" data-for="parameters"><i class="fa fa-plus me-1"></i> <?php echo e("Add")?></a>
                     </div>
                 </div>
+                <?php if (\Core\Auth::user()->has("parametertemplates") !== false): ?>
+                    <?php $paramtemplates = \Core\DB::paramtemplates()->where('userid', \Core\Auth::user()->rID())->orderByDesc('id')->findMany(); ?>
+                    <?php if ($paramtemplates): ?>
+                    <div class="mb-3 input-select">
+                        <label for="paramtemplate_id" class="form-label fw-bold small"><?php ee('Use parameter template') ?></label>
+                        <select name="paramtemplate_id" id="paramtemplate_id" class="form-select rounded-3 w-100 p-2" data-toggle="select">
+                            <option value=""><?php ee('No template') ?></option>
+                            <?php foreach ($paramtemplates as $pt): ?>
+                                <option value="<?php echo $pt->id ?>"><?php echo e($pt->name) ?></option>
+                            <?php endforeach ?>
+                        </select>
+                        <p class="form-text small mb-0"><?php ee('Selecting a template overrides any parameters entered below.') ?></p>
+                    </div>
+                    <?php endif ?>
+                <?php endif ?>
                 <p class="form-text">
                     <?php echo e("You can add custom parameters like UTM to the link above using this tool. Choose the parameter name and then assign a value. These will be added during redirection.")?>
                 </p>

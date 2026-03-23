@@ -52,7 +52,7 @@
                     <div class="form-group mb-4 border rounded p-2">
 					    <label for="safe_browsing" class="form-label fw-bold"><?php ee('Google Web Risk') ?></label>
 					    <input type="text" class="form-control p-2" name="safe_browsing" id="safe_browsing" value="<?php echo config('safe_browsing') ?>">
-					    <p class="form-text mb-0"><?php ee('You can get your API key for free from <a href="https://cloud.google.com/web-risk/" target="_blank">Google</a>. Google has changed to Web Risk API for commercial usage.') ?> <?php ee('You can also use <a href="'.route('admin.plugins.single', ['safebrowsing']).'" target="_blank">Google Safe Browsing</a> instead.') ?></p>
+					    <p class="form-text mb-0"><?php ee('You can get your API key for free from <a href="https://cloud.google.com/web-risk/" target="_blank">Google</a>. Google has changed to Web Risk API for commercial usage.') ?></p>
                     </div>
                     <div class="form-group d-flex border rounded p-2 mb-3 align-items-center">
                         <div>

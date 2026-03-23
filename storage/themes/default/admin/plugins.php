@@ -9,23 +9,9 @@
     <h1 class="h3 mb-0 fw-bold"><?php ee('Plugins') ?></h1>
     <div class="ms-auto">
         <a href="#" data-bs-toggle="modal" data-trigger="modalopen" data-bs-target="#uploadModal" class="btn btn-primary rounded-3 px-5 py-2 rounded-3 shadow-sm"><?php ee('Upload Plugin') ?></a>
-        <a href="<?php echo route('admin.plugins.dir') ?>" class="btn btn-dark rounded-3 px-3 py-2"><?php ee('Marketplace') ?></a>
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
-      <form action="<?php echo route('admin.plugins.dir') ?>" method="get" class="card rounded-4 card-body shadow-sm">
-          <h6 class="fw-bold"><?php ee('Search for Plugins') ?></h6>
-          <div class="d-flex mt-3">
-            <div class="input-group border rounded-pill">
-                <input type="text" class="form-control p-3 border-0 rounded-pill" name="q" value="<?php echo request()->q ?>" placeholder="Search for plugins" aria-label="Search">
-                <button class="btn" type="submit">
-                  <i class="align-middle" data-feather="search"></i>
-                </button>
-            </div>
-          </div>
-      </form>
-    </div>
     <div class="col-md-12">        
         <div class="card rounded-4 shadow-sm">
             <div class="table-responsive">
@@ -45,9 +31,6 @@
                                     <?php echo $plugin->name ?> (v<?php echo $plugin->version ?>)
                                     <?php if($plugin->enabled): ?>
                                         <span class="badge bg-success text-white"><?php ee('Active') ?></span>
-                                    <?php endif ?>
-                                    <?php if($plugin->update): ?>
-                                      <span class="badge bg-primary text-white"><?php ee('Update Available') ?></span><a class="d-block mt-2 fw-bold" data-load href="<?php echo route('admin.plugins.dir', ['install' => $plugin->id]) ?>"><?php ee('Update to {x}', null, ['x' => $plugin->update]) ?></a>
                                     <?php endif ?>
                                 </td>
                                 <td><a href="<?php echo $plugin->link ?>" target="_blank"><?php echo $plugin->author ?></a></td>

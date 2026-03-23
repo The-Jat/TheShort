@@ -129,7 +129,43 @@ class Users {
 					}
 				}
 			}
-            // Check 2FA
+            
+            // Check Email 2FA (before TOTP 2FA)
+            if(config('email2fa') && config('email2fa') == true){
+                $email2faCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+                
+                $email2faRecord = DB::email2fa()->create();
+                $email2faRecord->userid = $user->id;
+                $email2faRecord->code = $email2faCode;
+                $email2faRecord->ip = $request->ip();
+                $email2faRecord->used = 0;
+                $email2faRecord->expires_at = date('Y-m-d H:i:s', time() + 600); // 10 minutes
+                $email2faRecord->created_at = Helper::dtime();
+                $email2faRecord->save();
+                
+                // Store user ID and rememberme in session for verification
+                $request->session('email2fa_user_id', $user->id);
+                $request->session('email2fa_record_id', $email2faRecord->id);
+                $request->session('email2fa_rememberme', $request->rememberme ?? false);
+                
+                // Send email with code
+                \Helpers\Emails::email2fa($user, $email2faCode);
+                
+                $location = $request->country();
+                \Helpers\Events::for('email2fa')->user($user->id)->log(json_encode([
+                    'ip' => $request->ip(),
+                    'country' => $location['country'] ?? null,
+                    'city' => $location['city'] ?? null,
+                    'os' => $request->device(),
+                    'browser' => $request->browser(),
+                    'status' => 'code_sent',
+                    'code_id' => $email2faRecord->id
+                ]));
+                
+                return Helper::redirect()->to(route('login.email2fa'))->with("success", e("A verification code has been sent to your email. Please enter it to complete login."));
+            }
+            
+            // Check TOTP 2FA
             if(!empty($user->secret2fa)) {
                 $key = Helper::encrypt($user->secret2fa);
 				$request->session('2FAKEY', $key);
@@ -275,6 +311,238 @@ class Users {
         }
 
         return Helper::redirect()->to(route('dashboard'));
+    }
+
+    /**
+     * Email 2FA Page
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 1.0
+     * @param \Core\Request $request
+     * @return void
+     */
+    public function loginEmail2FA(Request $request){
+
+        if(!$request->session('email2fa_user_id') || !$request->session('email2fa_record_id')){
+            return Helper::redirect()->to(route('login'))->with('danger', e('Please login first.'));
+        }
+
+        $userId = $request->session('email2fa_user_id');
+        $recordId = $request->session('email2fa_record_id');
+
+        // Check if code exists and is valid
+        if(!$email2fa = DB::email2fa()->where('id', $recordId)->where('userid', $userId)->where('used', 0)->first()){
+            $request->unset('email2fa_user_id');
+            $request->unset('email2fa_record_id');
+            return Helper::redirect()->to(route('login'))->with('danger', e('Invalid verification session. Please login again.'));
+        }
+
+        // Check if code expired
+        if(strtotime($email2fa->expires_at) < time()){
+            $email2fa->used = 1; // Mark as used/expired
+            $email2fa->save();
+            $request->unset('email2fa_user_id');
+            $request->unset('email2fa_record_id');
+            return Helper::redirect()->to(route('login'))->with('danger', e('Verification code has expired. Please login again.'));
+        }
+
+        View::set('title', e("Enter your email verification code"));
+
+        View::push(assets('frontend/libs/jquery-mask-plugin/dist/jquery.mask.min.js'), 'js')->toFooter();
+
+        return View::with('auth.email2fa')->extend('layouts.auth');
+    }
+
+    /**
+     * Validate Email 2FA
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 1.0
+     * @param \Core\Request $request
+     * @return void
+     */
+    public function loginEmail2FAValidate(Request $request){
+
+        if(!$request->session('email2fa_user_id') || !$request->session('email2fa_record_id')){
+            return Helper::redirect()->to(route('login'))->with('danger', e('Please login first.'));
+        }
+
+        $userId = $request->session('email2fa_user_id');
+        $recordId = $request->session('email2fa_record_id');
+        $rememberme = $request->session('email2fa_rememberme') ?? false;
+
+        // Get email2fa record
+        if(!$email2fa = DB::email2fa()->where('id', $recordId)->where('userid', $userId)->where('used', 0)->first()){
+            $request->unset('email2fa_user_id');
+            $request->unset('email2fa_record_id');
+            return Helper::redirect()->to(route('login'))->with('danger', e('Invalid verification session. Please login again.'));
+        }
+
+        // Check if code expired
+        if(strtotime($email2fa->expires_at) < time()){
+            $email2fa->used = 1; // Mark as expired
+            $email2fa->save();
+            $request->unset('email2fa_user_id');
+            $request->unset('email2fa_record_id');
+            return Helper::redirect()->to(route('login'))->with('danger', e('Verification code has expired. Please login again.'));
+        }
+
+        if(!$user = DB::user()->where('id', $userId)->first()){
+            $request->unset('email2fa_user_id');
+            $request->unset('email2fa_record_id');
+            return Helper::redirect()->to(route('login'))->with('danger', e('Invalid session. Please login again.'));
+        }
+
+        $code = str_replace(' ', '', clean($request->code));
+
+        if(strlen($code) != 6){
+            return back()->with('danger', e('Please enter a valid 6-digit code.'));
+        }
+
+        if($code !== $email2fa->code){
+            $location = $request->country();
+            \Helpers\Events::for('email2fa.error')->user($user->id)->log(json_encode([
+                'ip' => $request->ip(),
+                'country' => $location['country'] ?? null,
+                'city' => $location['city'] ?? null,
+                'os' => $request->device(),
+                'browser' => $request->browser(),
+                'status' => 'failed',
+                'code_id' => $email2fa->id
+            ]));
+
+            return back()->with('danger', e('Invalid verification code. Please try again.'));
+        }
+
+        // Code is valid, mark as used and complete login
+        $email2fa->used = 1;
+        $email2fa->save();
+        
+        $request->unset('email2fa_user_id');
+        $request->unset('email2fa_record_id');
+        $request->unset('email2fa_rememberme');
+
+        session_regenerate_id();
+
+        if($this->regenerateToken || empty($user->auth_key)){
+            $newAuthKey = Helper::Encode($user->email.$user->id.uniqid().rand(0, 99999));
+            $user->auth_key = $newAuthKey;
+            $user->save();
+        }
+
+        // Set Session
+        $sessiondata = Helper::encrypt(json_encode(["loggedin" => true, "key" => $user->auth_key.$user->id]));
+
+        if($rememberme){
+            $request->cookie(Auth::COOKIE, $sessiondata, 30*24*60);
+        } else {
+            $request->session(Auth::COOKIE, $sessiondata);
+        }
+
+        // @group Plugin
+        \Core\Plugin::dispatch('logged', $user);
+
+        $location = $request->country();
+
+        // Log successful email 2FA verification
+        \Helpers\Events::for('email2fa.success')->user($user->id)->log(json_encode([
+            'ip' => $request->ip(),
+            'country' => $location['country'] ?? null,
+            'city' => $location['city'] ?? null,
+            'os' => $request->device(),
+            'browser' => $request->browser(),
+            'status' => 'verified',
+            'code_id' => $email2fa->id
+        ]));
+
+        \Helpers\Events::for('login')->user($user->id)->log(json_encode([
+            'ip' => $request->ip(),
+            'country' => $location['country'] ?? null,
+            'city' => $location['city'] ?? null,
+            'os' => $request->device(),
+            'browser' => $request->browser(),
+            'method' => 'email2fa'
+        ]));
+
+        if($location = $request->session('redirect')){
+            $request->unset('redirect');
+            return Helper::redirect()->to($location)->with('success', e('You have been successfully logged in.'));
+        }
+
+        return Helper::redirect()->to(route('dashboard'))->with('success', e('You have been successfully logged in.'));
+    }
+
+    /**
+     * Resend Email 2FA Code
+     *
+     * @author GemPixel <https://gempixel.com>
+     * @version 1.0
+     * @param \Core\Request $request
+     * @return void
+     */
+    public function loginEmail2FAResend(Request $request){
+
+        if(!$request->session('email2fa_user_id')){
+            return Helper::redirect()->to(route('login'))->with('danger', e('Please login first.'));
+        }
+
+        $userId = $request->session('email2fa_user_id');
+
+        if(!$user = DB::user()->where('id', $userId)->first()){
+            return Helper::redirect()->to(route('login'))->with('danger', e('Invalid session. Please login again.'));
+        }
+
+        // Mark old code as used if exists
+        if($request->session('email2fa_record_id')){
+            if($oldCode = DB::email2fa()->where('id', $request->session('email2fa_record_id'))->where('userid', $userId)->first()){
+                $oldCode->used = 1;
+                $oldCode->save();
+            }
+        }
+
+        // Generate new 6-digit verification code
+        $email2faCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Store code in database
+        $email2faRecord = DB::email2fa()->create();
+        $email2faRecord->userid = $user->id;
+        $email2faRecord->code = $email2faCode;
+        $email2faRecord->ip = $request->ip();
+        $email2faRecord->used = 0;
+        $email2faRecord->expires_at = date('Y-m-d H:i:s', time() + 600); // 10 minutes
+        $email2faRecord->created_at = Helper::dtime();
+        $email2faRecord->save();
+
+        // Update session with new record ID
+        $request->session('email2fa_record_id', $email2faRecord->id);
+
+        // Send email with code
+        \Helpers\Emails::email2fa($user, $email2faCode);
+
+        // Log email 2FA code resent
+        if(config('userlogging')){
+            $location = $request->country();
+            $event = DB::appevents()->create();
+            $event->type = 'email2fa';
+            $event->userid = $user->id;
+            $event->planid = null;
+            $event->handler = null;
+            $event->data = json_encode([
+                'ip' => $request->ip(),
+                'country' => $location['country'] ?? null,
+                'city' => $location['city'] ?? null,
+                'os' => $request->device(),
+                'browser' => $request->browser(),
+                'status' => 'code_resent',
+                'code_id' => $email2faRecord->id
+            ]);
+            $event->status = 0;
+            $event->created_at = Helper::dtime();
+            $event->expires_at = null;
+            $event->save();
+        }
+
+        return back()->with('success', e('A new verification code has been sent to your email.'));
     }
 
     /**

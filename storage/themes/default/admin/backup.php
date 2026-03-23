@@ -90,12 +90,10 @@
                         <input class="form-check-input" type="checkbox" value="1" name="stats" checked>
                         <span class="form-check-label">stats</span>
                     </label><br>
-                    <?php if(\Helpers\App::possible()): ?>
-                        <label class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" value="1" name="subscription" checked>
-                            <span class="form-check-label">subscription</span>
-                        </label><br>
-                    <?php endif ?>
+                    <label class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" value="1" name="subscription" checked>
+                        <span class="form-check-label">subscription</span>
+                    </label><br>
                     <label class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" value="1" name="url" checked>
                         <span class="form-check-label">url</span>

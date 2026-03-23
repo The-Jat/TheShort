@@ -328,8 +328,6 @@ class User extends Model {
 	 * @return boolean
 	 */
 	public function hasPortal(){
-		
-		if(!\Helpers\App::possible()) return false;
 
 		if(!$subscription = \Core\DB::subscription()->where('userid', $this->id)->where('status', 'Active')->first()) return false;
 		

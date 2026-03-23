@@ -38,6 +38,10 @@
                             <span class="fw-bold"><?php ee("Bio Pages") ?></span>
                             <strong><?php echo (isset($plan["permission"]->bio) && $plan["permission"]->bio->enabled) ? ($plan["permission"]->bio->count == '0' ? '<i class="fa fa-infinity gradient-primary clip-text"></i>' : $plan["permission"]->bio->count) : '<i class="fa fa-times text-danger"></i>' ?></strong>
                         </li>
+                        <li class="mb-3 d-flex justify-content-between">
+                            <span class="fw-bold"><?php ee("Data Retention") ?></span>
+                            <strong><?php echo $plan["retention"] == "0" ? '<i class="fa fa-infinity gradient-primary clip-text"></i>' : $plan["retention"].' '.e('days') ?></strong>
+                        </li>
                         <?php echo $plan["permission"]->custom  ? '<li class="mb-3 d-flex justify-content-between fw-bold">'.$plan["permission"]->custom.'<span class="float-end"><i class="fa fa-check text-success"></i></span></li>' : '' ?>
                     </ul>                            
                     <?php if($plan['planurl'] == "#"):?>

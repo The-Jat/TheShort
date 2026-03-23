@@ -298,6 +298,8 @@ class QR {
 
         if(strlen($data['body']) > 3500) throw new \Exception(e('Text is too long.'));
 
+        $data['body'] = urlencode($data['body']);
+
         return 'https://api.whatsapp.com/send?'.(is_array($data) ? "phone={$data['phone']}&text={$data['body']}": 'phone='.$data);
     }
     /**

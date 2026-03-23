@@ -13,24 +13,16 @@
                 </div>                        
             </div> 
         </form>  
-        <?php if(\Helpers\App::possible()): ?>
-            <?php foreach($processors as $name => $processor): ?>
-                <form method="post" action="<?php echo route('admin.settings.save') ?>" enctype="multipart/form-data">
-                    <?php echo csrf() ?>
-                    <div class="card rounded-4 shadow-sm">
-                        <div class="card-body">
-                            <?php echo call_user_func($processor['settings']) ?>
-                            <button type="submit" class="btn btn-primary rounded-3 px-5 py-2 rounded-3 shadow-sm"><?php ee('Save Settings') ?></button>
-                        </div>                        
-                    </div>
-                </form>
-            <?php endforeach ?>
-        <?php else: ?>
-            <div class="card rounded-4 shadow-sm">
-                <div class="card-body">
-                    <?php view('admin.partials.extended') ?>
+        <?php foreach($processors as $name => $processor): ?>
+            <form method="post" action="<?php echo route('admin.settings.save') ?>" enctype="multipart/form-data">
+                <?php echo csrf() ?>
+                <div class="card rounded-4 shadow-sm">
+                    <div class="card-body">
+                        <?php echo call_user_func($processor['settings']) ?>
+                        <button type="submit" class="btn btn-primary rounded-3 px-5 py-2 rounded-3 shadow-sm"><?php ee('Save Settings') ?></button>
+                    </div>                        
                 </div>
-            </div>
-        <?php endif ?>
+            </form>
+        <?php endforeach ?>
     </div>
 </div>

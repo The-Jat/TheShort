@@ -28,10 +28,26 @@
                     </div>
                     <div class="col-md-4">
                         <?php \Helpers\App::ads('blogsidebar') ?>
-                        <h5 class="fw-bolder mb-3"><?php ee('Popular Posts') ?></h5>
-                        <?php foreach($popular as $post): ?>
-                            <a href="<?php echo route('blog.post', [$post->slug]) ?>" class="mb-2 d-block" title="<?php echo $post->title ?>"><?php echo $post->title ?></a>
-                        <?php endforeach ?>
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="fw-bolder mb-3"><?php ee('Popular Posts') ?></h5>
+                                <?php foreach($popular as $post): ?>
+                                    <a href="<?php echo route('blog.post', [$post->slug]) ?>" class="mb-4 d-flex align-items-center relative" title="<?php echo $post->title ?>">
+                                        <?php if($post->image): ?>
+                                            <img src="<?php echo uploads($post->image, 'blog') ?>" class="img-fluid rounded w-25 me-3" alt="<?php echo $post->title ?>">
+                                        <?php else: ?>
+                                            <div class="relative w-25 py-3 bg-dark rounded flex-grow d-flex align-items-center justify-content-center me-3">
+                                                <i class="fa fa-file-alt text-white fs-4"></i>
+                                            </div>
+                                        <?php endif ?>
+                                        <div>
+                                            <h6 class="fw-bold mb-0 d-block"><?php echo $post->title ?></h6>
+                                            <span class="text-muted small"><?php echo \Core\Helper::timeAgo($post->date) ?></span>
+                                        </div>
+                                    </a>
+                                <?php endforeach ?>
+                            </div>
+                        </div>
                         <?php plug('blogsidebar') ?>
                     </div>
                 <?php endif ?>

@@ -29,6 +29,7 @@ use Helpers\Payments\Paddle;
 use Helpers\Payments\PayStack;
 use Helpers\Payments\PaypalApi;
 use Helpers\Payments\PaddleBilling;
+use Helpers\Payments\Polar;
 
 trait Payments {
 

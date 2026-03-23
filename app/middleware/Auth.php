@@ -42,7 +42,10 @@ final class Auth {
 	 * @return  [type] [description]
 	 */
 	public function handle() {
+
 		if(\Core\Auth::check() === false) {
+			$request = new Request();
+			$request->session('redirect', clean($request->uri()));			
 			Helper::redirect($this->redirecto)->with("danger", e($this->message));
 			exit;
 		}

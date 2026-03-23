@@ -23,11 +23,11 @@
                 <div class="text-muted mb-2"><?php echo $user->pro && $plan ? $plan->name : 'Free user' ?></div>
 
                 <div>
-                    <a class="btn btn-primary btn-sm" href="<?php echo route('admin.email', ['email'=> $user->email]) ?>"><span data-feather="message-square"></span> <?php echo e('Send Email') ?></a>
+                    <a class="rounded btn btn-primary btn-sm" href="<?php echo route('admin.email', ['email'=> $user->email]) ?>"><span data-feather="message-square"></span> <?php echo e('Send Email') ?></a>
                     <?php if(!$user->verified): ?>                    
-                    <a class="btn btn-success btn-sm" href="<?php echo route('admin.users.verify', [$user->id, \Core\Helper::nonce('verify-'.$user->id)]) ?>"><i data-feather="check-circle"></i> <?php ee('Verify User') ?></a>
+                    <a class="rounded btn btn-success btn-sm" href="<?php echo route('admin.users.verify', [$user->id, \Core\Helper::nonce('verify-'.$user->id)]) ?>"><i data-feather="check-circle"></i> <?php ee('Verify User') ?></a>
                     <?php endif ?>
-                    <a class="btn btn-primary btn-sm" href="<?php echo route('admin.users.edit', [$user->id]) ?>"><span data-feather="edit"></span></a>                    
+                    <a class="rounded btn btn-primary btn-sm" href="<?php echo route('admin.users.edit', [$user->id]) ?>"><span data-feather="edit"></span></a>                    
                 </div>
             </div>            
         </div>
@@ -42,6 +42,27 @@
                     <a class="list-group-item list-group-item-action rounded border-0" href="<?php echo route('admin.domains', ['userid' => $user->id]) ?>"><?php ee('Domains') ?></a>
                 </div>
             </div>
+            <?php if(isset($stats)): ?>
+            <div class="card-body border-top pt-3">
+                <h6 class="fw-bold mb-3 small text-uppercase text-muted"><?php ee('Usage') ?></h6>
+                <?php foreach($features as $key => $label): if(!isset($stats[$key]) || (isset($stats[$key]['enabled']) && !$stats[$key]['enabled'])) continue;
+                    $used = $stats[$key]['used'];
+                    $limit = $stats[$key]['limit'];
+                    $limitLabel = $limit == 0 ? e('Unlimited') : $limit;
+                    $pct = $limit > 0 ? min(100, round($used * 100 / $limit)) : 0;
+                ?>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span><?php echo $label ?></span>
+                        <span class="text-muted"><?php echo $used ?> / <?php echo $limitLabel ?></span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 4px;">
+                        <div class="progress-bar rounded-pill" role="progressbar" style="width: <?php echo $pct ?>%;" aria-valuenow="<?php echo $used ?>" aria-valuemin="0" aria-valuemax="<?php echo $limit ?: 100 ?>"></div>
+                    </div>
+                </div>
+                <?php endforeach ?>
+            </div>
+            <?php endif ?>
         </div>
     </div>
 

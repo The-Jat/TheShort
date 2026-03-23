@@ -67,6 +67,22 @@ final class Emails {
                 ]);
 
             }
+            else if(isset(config('smtp')->provider) && config('smtp')->provider =='resend'){
+
+                $mailer = Email::factory('resend', [
+                    'key' => config('smtp')->resendapi
+                ]);
+
+            }
+            else if(isset(config('smtp')->provider) && config('smtp')->provider =='ses'){
+
+                $mailer = Email::factory('ses', [
+                    'access_key' => config('smtp')->sesaccesskey,
+                    'secret_key' => config('smtp')->sessecretkey,
+                    'region' => config('smtp')->sesregion ?? 'us-east-1'
+                ]);
+
+            }
             else if(isset(config('smtp')->host)){
                 $mailer = Email::factory('smtp', [
                     'username' => config('smtp')->user,
@@ -541,6 +557,45 @@ final class Emails {
         $mailer->to($user->email)
                 ->send([
                     'subject' => '['.config("sitename").'] '.e('A new login has been made from a new device'),
+                    'message' => function($template, $data) use ($message) {
+                        if(config('logo')){
+                            $title = '<img align="center" alt="'.config('sitename').'" border="0" class="center autowidth" src="'.uploads(config('logo')).'" style="text-decoration: none; -ms-interpolation-mode: bicubic; border: 0; height: auto; width: 100%; max-width: 166px; display: block;" title="'.config('sitename').'" width="166"/>';
+                        } else {
+                            $title = '<h3>'.config('sitename').'</h3>';
+                        }
+                        return Email::parse($template, ['content' => $message, 'brand' => '<a href="'.config('url').'">'.$title.'</a>']);
+                    }
+                ]);
+    }
+    /**
+     * Send Email 2FA Code
+     *
+     * @author GemPixel <https://gempixel.com> 
+     * @version 1.0
+     * @param Models\User $user
+     * @param string $code
+     * @return void
+     */
+    public static function email2fa($user, $code){
+        
+        $mailer = self::setup();
+
+        if(file_exists(LOCALE.'/'.Localization::locale().'/email.php')){
+            $sample = include(LOCALE.'/'.Localization::locale().'/email.php');
+        }else {
+            $sample = include(LOCALE.'/email.php');
+        }
+
+        $strings = $sample['data'] ?? [];
+
+        $message = '<p><strong>'.e('Your login verification code is:').'</strong></p>
+                   <p style="font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; padding: 20px; background: #f5f5f5; border-radius: 5px; margin: 20px 0;">'.$code.'</p>
+                   <p>'.e('This code will expire in 10 minutes. If you did not attempt to login, please ignore this email.').'</p>
+                   <p>'.e('For security reasons, never share this code with anyone.').'</p>';
+
+        $mailer->to($user->email)
+                ->send([
+                    'subject' => '['.config("sitename").'] '.e('Your Login Verification Code'),
                     'message' => function($template, $data) use ($message) {
                         if(config('logo')){
                             $title = '<img align="center" alt="'.config('sitename').'" border="0" class="center autowidth" src="'.uploads(config('logo')).'" style="text-decoration: none; -ms-interpolation-mode: bicubic; border: 0; height: auto; width: 100%; max-width: 166px; display: block;" title="'.config('sitename').'" width="166"/>';

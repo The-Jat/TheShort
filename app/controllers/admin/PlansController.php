@@ -364,8 +364,6 @@ class Plans {
         }
         \Gem::addMiddleware('DemoProtect');
 
-        if(!\Helpers\App::possible()) stop(404);
-
         foreach(DB::plans()->where('free', 0)->findMany() as $plan){
             
             $plan->data = json_decode($plan->data);

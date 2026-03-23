@@ -116,7 +116,7 @@
 <?php endif ?>
 <?php if(user()->teamPermission('bio.create')): ?>
 <div class="modal fade" id="createModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  	<div class="modal-dialog modal-dialog-centered">
+  	<div class="modal-dialog modal-dialog-centered modal-lg">
 		<div class="modal-content">
 	  		<form action="<?php echo route('bio.save') ?>" method="post" data-trigger="server-form">
 				<?php echo csrf() ?>
@@ -155,6 +155,49 @@
 						</div>
 						<?php endif ?>
 					</div>
+					<?php if(!empty($templates)): ?>
+					<div class="form-group my-3">
+						<label class="form-label fw-bolder"><?php ee('Use Template') ?> <span class="text-muted"><?php ee('(optional)') ?></span></label>
+						<p class="form-text mt-0"><?php ee('Select a template to start with a pre-designed bio page.') ?></p>
+						<div class="row g-2 mb-2">
+							<div class="col-12">
+								<input class="form-check-input d-none" type="radio" name="templateid" id="template_none" value="" checked>
+								<label class="template-option rounded p-3 cursor-pointer d-block mb-0" for="template_none" style="transition: all 0.2s ease-in-out;">
+									<div class="d-flex align-items-center">
+										<div class="me-3">
+											<div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border: 2px solid #e9ecef;">
+												<i class="fa fa-file text-primary" style="font-size: 20px;"></i>
+											</div>
+										</div>
+										<div class="flex-grow-1">
+											<strong class="d-block mb-1 fs-5"><?php ee('Start from scratch') ?></strong>
+											<small class="text-muted d-block"><?php ee('Create a bio page from scratch') ?></small>
+										</div>
+									</div>
+								</label>
+							</div>
+							<?php foreach($templates as $template): ?>
+							<div class="col-md-4 col-6">
+								<input class="form-check-input d-none" type="radio" name="templateid" id="template_<?php echo $template->id ?>" value="<?php echo $template->id ?>">
+								<label class="template-option rounded cursor-pointer d-block mb-0 relative overflow-hidden" for="template_<?php echo $template->id ?>" style="transition: all 0.2s ease-in-out; ">
+									<?php if($template->preview): ?>
+										<img src="<?php echo uploads($template->preview, 'images') ?>" alt="<?php echo htmlspecialchars($template->name) ?>" class="d-block w-100 rounded" style="max-height: 350px; object-fit: cover; border: 1px solid #e9ecef;">
+									<?php endif ?>
+									<div class="position-absolute bottom-0 start-0 w-100 liquid-blur p-3">
+										<strong class="d-block mb-1" style="font-size: 16px; color: #212529;"><?php echo htmlspecialchars($template->name) ?></strong>
+										<?php if($template->description): ?>
+											<small class="text-muted d-block" style="font-size: 13px; line-height: 1.4;"><?php echo htmlspecialchars($template->description) ?></small>
+										<?php endif ?>
+									</div>
+								</label>
+							</div>
+							<?php endforeach ?>
+						</div>
+					</div>
+					<style>
+					
+					</style>
+					<?php endif ?>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-white border px-3 py-2 rounded-3 shadow-sm" data-bs-close data-bs-dismiss="modal"><?php ee('Cancel') ?></button>

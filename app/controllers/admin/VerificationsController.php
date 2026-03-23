@@ -107,7 +107,15 @@ class Verifications {
             $verification->save();
 
             if($request->deletefile){
-                \Helpers\App::delete(appConfig('app.storage')['files']['path'].'/'.$verification->file);
+                // Check old directory first (backward compatibility), then new directory
+                $oldPath = appConfig('app.storage')['files']['path'].'/'.$verification->file;
+                $newPath = STORAGE.'/verifications/'.$verification->file;
+                
+                if(file_exists($oldPath)){
+                    \Helpers\App::delete($oldPath);
+                } elseif(file_exists($newPath)){
+                    \Helpers\App::delete($newPath);
+                }
             }
 
             $mailer->to($user->email)
@@ -134,7 +142,15 @@ class Verifications {
             $verification->save();
 
             if($request->deletefile){
-                \Helpers\App::delete(appConfig('app.storage')['files']['path'].'/'.$verification->file);
+                // Check old directory first (backward compatibility), then new directory
+                $oldPath = appConfig('app.storage')['files']['path'].'/'.$verification->file;
+                $newPath = STORAGE.'/verifications/'.$verification->file;
+                
+                if(file_exists($oldPath)){
+                    \Helpers\App::delete($oldPath);
+                } elseif(file_exists($newPath)){
+                    \Helpers\App::delete($newPath);
+                }
             }
 
             $mailer->to($user->email)

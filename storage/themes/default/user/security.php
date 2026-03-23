@@ -17,6 +17,18 @@
                                 <td>
                                     <?php if($event->type == '2fa'): ?>
                                         <span class="badge bg-danger text-white"><?php ee('Failed') ?> 2FA</span>
+                                    <?php elseif($event->type == 'email2fa'): ?>
+                                        <span class="badge bg-info text-white"><?php ee('Email 2FA') ?></span>
+                                    <?php elseif($event->type == 'email2fa.error'): ?>
+                                        <span class="badge bg-danger text-white"><?php ee('Failed') ?> <?php ee('Email 2FA') ?></span>
+                                    <?php elseif($event->type == 'login'): ?>
+                                        <span class="badge bg-success text-white"><?php ee('Login') ?></span>
+                                    <?php elseif($event->type == 'password'): ?>
+                                        <span class="badge bg-success text-white"><?php ee('Password') ?></span>
+                                    <?php elseif($event->type == 'email2fa.success'): ?>
+                                        <span class="badge bg-success text-white"><?php ee('Email 2FA') ?> <?php ee('Verified') ?></span>
+                                    <?php elseif($event->type == '2fa'): ?>
+                                        <span class="badge bg-success text-white"><?php ee('2FA') ?></span>
                                     <?php else: ?>
                                         <span class="badge bg-success text-white"><?php echo e($event->type) ?></span>
                                     <?php endif ?>
@@ -123,7 +135,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-white border px-3 py-2 rounded-3 shadow-sm" data-bs-close data-bs-dismiss="modal"><?php ee('Cancel') ?></button>
-            <button type="submit" class="btn btn-success"><?php ee('Activate') ?></button>
+            <button type="submit" class="btn btn-success px-3 py-2 rounded-3 shadow-sm"><?php ee('Activate') ?></button>
         </div>
       </form>
     </div>
@@ -149,7 +161,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-white border px-3 py-2 rounded-3 shadow-sm" data-bs-close data-bs-dismiss="modal"><?php ee('Cancel') ?></button>
-            <button type="submit" class="btn btn-danger"><?php ee('Logout') ?></button>
+            <button type="submit" class="btn btn-danger px-3 py-2 rounded-3 shadow-sm"><?php ee('Logout') ?></button>
         </div>
       </form>
     </div>

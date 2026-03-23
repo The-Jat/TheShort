@@ -10,7 +10,7 @@
         <link href="<?php echo assets('backend/css/app.css') ?>?v=1.2" rel="stylesheet">
         <link href="<?php echo assets('frontend/libs/select2/dist/css/select2.min.css') ?>" rel="stylesheet">
         <link rel="stylesheet" href="<?php echo assets('frontend/libs/fontawesome/all.min.css') ?>">
-        <link href="<?php echo assets('backend/css/style.min.css') ?>?v=1.6" rel="stylesheet">
+        <link href="<?php echo assets('backend/css/style.min.css') ?>?v=1.1" rel="stylesheet">
         <?php if(config('font')): ?>            
             <link href="https://fonts.googleapis.com/css2?family=<?php echo str_replace(' ', '+', config('font')) ?>:wght@300;400;600&display=swap" rel="stylesheet">
             <style>body{font-family:'<?php echo config('font') ?>' !important}</style>
@@ -140,8 +140,8 @@
                     "content" => e("Note that this action is permanent. Once you click proceed, you <strong>may not undo</strong> this. Click anywhere outside this modal or click <a href='#close' class='close-modal'>close</a> to close this.")
                 ]]) ?>
         </script> 
-        <script src="<?php echo assets('custom.min.js') ?>?v=1.6"></script>
-        <script src="<?php echo assets('server.min.js') ?>?v=1.4"></script>
+        <script src="<?php echo assets('custom.min.js') ?>?v=1.1"></script>
+        <script src="<?php echo assets('server.min.js') ?>?v=1.1"></script>
         <?php echo html_entity_decode(config('customfooter')) ?>
     </body>
 </html>

@@ -103,6 +103,8 @@ class BioThemes {
             'buttonstyle' => null,
             'shadow' => null,
             'shadowcolor' => null,
+            'font' => null,
+            'frost' => null,
         ];
         $theme->data = json_encode($data);
 
@@ -132,11 +134,23 @@ class BioThemes {
         
         $theme->data = json_decode($theme->data);        
 
+        $theme->planids = json_decode($theme->planids, true);
+
+        $plans = DB::plans()->where('status', 1)->orderByDesc('id')->findMany();
+
+        \Helpers\CDN::load('codeeditor');
+        
+        View::push(config('url').'/static/fonts/index.css')->toHeader();
+
         View::push('
-                <style>.btn-transparent { background: transparent !important; } #preview .btn {border: 2px solid transparent}</style>
+                <style>.main{overflow: initial !important;}#preview{top: 10px !important;}.btn-transparent { background: transparent !important; } #preview .btn {border: 2px solid transparent} #preview .card {border-radius: 25px !important;}</style>
                 <script>
 
                     $("#preview .card h3, #preview .card p").attr("style", "color: '.($theme->data->textcolor ?? '#000').' !important");
+
+                    '.((isset($theme->data->font) && !empty($theme->data->font)) ? 
+                        '$("#preview .card, #preview .card *").css("font-family", "'.str_replace('+', ' ', $theme->data->font).'");'
+                    :'').'
 
                     $("#preview .card .btn").attr("style", "border-color: '.($theme->data->buttoncolor ?? '#000').';background: '.($theme->data->buttoncolor ?? '#000').';color: '.($theme->data->buttontextcolor ?? '#fff').'");
 
@@ -152,8 +166,8 @@ class BioThemes {
                         '$("#preview .card").attr("style", "background-image: url('.uploads($theme->data->bgimage, 'profile').');background-size: cover;");'
                     :'').'
 
-                    '.($theme->data->bgtype == 'css' ? 
-                        '$("#preview .card").attr("style", "'.preg_replace("/[\n\r\t]/", "", $theme->data->customcss).'");'
+                    '.($theme->data->bgtype == 'css' && isset($theme->data->customcss) && !empty($theme->data->customcss) ? 
+                        'if($("#preview-custom-css").length) $("#preview-custom-css").remove(); var cssText = '.json_encode(str_replace(["\r\n", "\r", "\n"], [' ', ' ', ' '], $theme->data->customcss), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE).'; $("<style>").attr("id", "preview-custom-css").text(cssText.replace(/body/g, \'.card-preview\')).appendTo("head");'
                     :'').'
 
                     '.($theme->data->buttonstyle == 'rectangle' ? 
@@ -178,6 +192,20 @@ class BioThemes {
 
                     '.($theme->data->shadow == 'hard' ? 
                         '$("#preview .card .btn").css("box-shadow","5px 5px 0px 1px '.$theme->data->shadowcolor.'");'
+                    :'').'
+
+                    '.((isset($theme->data->frost) && $theme->data->frost) ? 
+                        '(function(){
+                            let buttonColor = "'.($theme->data->buttoncolor ?? '#000000').'";
+                            let rgb = buttonColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+                            if(rgb){
+                                let rgba = "rgba("+parseInt(rgb[1], 16)+","+parseInt(rgb[2], 16)+","+parseInt(rgb[3], 16)+",0.6)";
+                                let borderRgba = "rgba("+parseInt(rgb[1], 16)+","+parseInt(rgb[2], 16)+","+parseInt(rgb[3], 16)+",0.8)";
+                                $("#preview .card .btn").css("background", rgba).css("backdrop-filter", "blur(5px)").css("-webkit-backdrop-filter", "blur(5px)").css("borderColor", borderRgba);
+                            } else {
+                                $("#preview .card .btn").css("background", buttonColor).css("backdrop-filter", "blur(5px)").css("-webkit-backdrop-filter", "blur(5px)").css("borderColor", buttonColor);
+                            }
+                        })();'
                     :'').'
 
                     $("select[name=bgtype]").change(function() {
@@ -278,8 +306,28 @@ class BioThemes {
                         color: "'.($theme->data->buttoncolor ?? '#000000').'",
                         showInput: true,
                         preferredFormat: "hex",
-                        move: function (color) { $("#preview .card .btn").css("background", color.toHexString()).css("borderColor", color.toHexString()); $(this).val(color.toHexString()); },
-                        hide: function (color) { $("#preview .card .btn").css("background", color.toHexString()).css("borderColor", color.toHexString()); $(this).val(color.toHexString()); }
+                        move: function (color) { 
+                            if($("#frost").is(":checked")){
+                                let rgb = color.toRgb();
+                                let rgba = "rgba("+rgb.r+","+rgb.g+","+rgb.b+",0.6)";
+                                let borderRgba = "rgba("+rgb.r+","+rgb.g+","+rgb.b+",0.8)";
+                                $("#preview .card .btn").css("background", rgba).css("backdrop-filter", "blur(5px)").css("-webkit-backdrop-filter", "blur(5px)").css("borderColor", borderRgba);
+                            } else {
+                                $("#preview .card .btn").css("background", color.toHexString()).css("borderColor", color.toHexString()).css("backdrop-filter", "none").css("-webkit-backdrop-filter", "none");
+                            }
+                            $(this).val(color.toHexString()); 
+                        },
+                        hide: function (color) { 
+                            if($("#frost").is(":checked")){
+                                let rgb = color.toRgb();
+                                let rgba = "rgba("+rgb.r+","+rgb.g+","+rgb.b+",0.6)";
+                                let borderRgba = "rgba("+rgb.r+","+rgb.g+","+rgb.b+",0.8)";
+                                $("#preview .card .btn").css("background", rgba).css("backdrop-filter", "blur(5px)").css("-webkit-backdrop-filter", "blur(5px)").css("borderColor", borderRgba);
+                            } else {
+                                $("#preview .card .btn").css("background", color.toHexString()).css("borderColor", color.toHexString()).css("backdrop-filter", "none").css("-webkit-backdrop-filter", "none");
+                            }
+                            $(this).val(color.toHexString()); 
+                        }
                     });
                     $("input[name=buttontextcolor]").spectrum({
                         color: "'.($theme->data->buttontextcolor ?? '#ffffff').'",
@@ -355,11 +403,51 @@ class BioThemes {
                     });
 
                     $("textarea[name=customcss]").keyup(function(){
-                        $("#preview .card").attr("style", $(this).val());
+                        var css = $(this).val().replace(/body/g, \'.card-preview\');
+                        $(".card-preview").removeAttr("style");
+                        if($("#preview-custom-css").length){
+                            $("#preview-custom-css").text(css);
+                        } else {
+                            $("<style>").attr("id", "preview-custom-css").text(css).appendTo("head");
+                        }
+                    });
+
+                    $("#font").change(function(){
+                        let font = $(this).val();
+                        if(font){
+                            $("#preview .card, #preview .card *").css("font-family", font.replace(/\+/g, " "));
+                        } else {
+                            $("#preview .card, #preview .card *").css("font-family", "");
+                        }
+                    });
+
+                    $("#frost").change(function(){
+                        if($(this).is(":checked")){
+                            let buttonColor = $("input[name=buttoncolor]").val() || "#000000";
+                            let rgb = buttonColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+                            if(rgb){
+                                let rgba = "rgba("+parseInt(rgb[1], 16)+","+parseInt(rgb[2], 16)+","+parseInt(rgb[3], 16)+",0.6)";
+                                let borderRgba = "rgba("+parseInt(rgb[1], 16)+","+parseInt(rgb[2], 16)+","+parseInt(rgb[3], 16)+",0.8)";
+                                $("#preview .card .btn").css("background", rgba).css("backdrop-filter", "blur(5px)").css("-webkit-backdrop-filter", "blur(5px)").css("borderColor", borderRgba);
+                            } else {
+                                $("#preview .card .btn").css("background", buttonColor).css("backdrop-filter", "blur(5px)").css("-webkit-backdrop-filter", "blur(5px)").css("borderColor", buttonColor);
+                            }
+                        } else {
+                            let buttonColor = $("input[name=buttoncolor]").val() || "#000000";
+                            $("#preview .card .btn").css("background", buttonColor).css("borderColor", buttonColor).css("backdrop-filter", "none").css("-webkit-backdrop-filter", "none");
+                        }
+                    });
+
+                    $("#paidonly").on("change", function() {
+                        if($(this).val() == "1") {
+                            $("#plan-access-section").removeClass("d-none");
+                        } else {
+                            $("#plan-access-section").addClass("d-none");
+                        }
                     });
             </script>', 'custom')->tofooter();
         
-        return View::with('admin.themes.edit', compact('theme'))->extend('admin.layouts.main');
+        return View::with('admin.themes.edit', compact('theme', 'plans'))->extend('admin.layouts.main');
     }
     /**
      * Update Domain
@@ -385,6 +473,7 @@ class BioThemes {
         $theme->name = Helper::clean($request->name, 3, true);
         $theme->description = Helper::clean($request->description, 3, true);
         $theme->paidonly = $request->paidonly ?? 0;
+        $theme->planids = json_encode($request->planids ?? []);
         $theme->status = $request->status ?? 0;
         
         $data = json_decode($theme->data, true);
@@ -414,7 +503,7 @@ class BioThemes {
         }
 
         if($request->bgtype == 'css'){
-            $data['customcss'] = Helper::clean($request->customcss, 3, true);
+            $data['customcss'] = Helper::clean($request->customcss, 3);
         }
 
         if($request->textcolor){
@@ -436,6 +525,12 @@ class BioThemes {
         if($request->shadowcolor){
             $data['shadowcolor'] = Helper::clean($request->shadowcolor, 3, true);
         }
+        if($request->font){
+            $data['font'] = Helper::clean($request->font, 3, true);
+        } else {
+            $data['font'] = null;
+        }
+        $data['frost'] = $request->frost == '1' ? 1 : 0;
 
         $theme->data = json_encode($data);
 

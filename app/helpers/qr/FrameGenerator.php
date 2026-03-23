@@ -145,7 +145,7 @@ final class FrameGenerator{
      * @param string $font
      * @return $qr
      */
-    private static function popup(string $qr, int $size, $frameColor = "#000000", string $text = null, string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){    
+    private static function popup(string $qr, int $size, $frameColor = "#000000", ?string $text = null, ?string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){    
         
         $qr = self::prepare($qr);
 
@@ -193,7 +193,7 @@ final class FrameGenerator{
      * @param string $font
      * @return void
      */
-    private static function camera(string $qr, int $size, $frameColor = "#000000", string $text = null, string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){    
+    private static function camera(string $qr, int $size, $frameColor = "#000000", ?string $text = null, ?string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){    
         
         $qr = self::prepare($qr);
 
@@ -240,7 +240,7 @@ final class FrameGenerator{
      * @param string $font
      * @return void
      */
-    private static function phone(string $qr, int $size, $frameColor = "#000000", string $text = null, string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){    
+    private static function phone(string $qr, int $size, $frameColor = "#000000", ?string $text = null, ?string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){    
         $qr = self::prepare($qr);
 
         $width = $size;
@@ -284,7 +284,7 @@ final class FrameGenerator{
      * @param string $font
      * @return void
      */
-    private static function arrow(string $qr, int $size, $frameColor = "#000000", string $text = null, string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){  
+    private static function arrow(string $qr, int $size, $frameColor = "#000000", ?string $text = null, ?string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){  
 
         $qr = self::prepare($qr);
         
@@ -319,7 +319,7 @@ final class FrameGenerator{
      * @param string $font
      * @return void
      */
-    private static function labeled(string $qr, int $size, $frameColor = "#000000", string $text = null, string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){  
+    private static function labeled(string $qr, int $size, $frameColor = "#000000", ?string $text = null, ?string $textColor = null, $bgColor = "#ffffff", $font = "Arial"){  
 
         $qr = self::prepare($qr);
         

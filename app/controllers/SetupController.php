@@ -7,13 +7,13 @@
  *  or modification of this framework is not allowed before prior consent from
  *  GemPixel. If you find that this framework is packaged in a software not distributed
  *  by GemPixel or authorized parties, you must not use this software and contact GemPixel
- *  at https://brendigo.com//contact to inform them of this misuse.
+ *  at https://gempixel.com/contact to inform them of this misuse.
  * =======================================================================================
  *
  * @package GemPixel\Premium-URL-Shortener
- * @author GemPixel (https://brendigo.com/)
- * @license https://brendigo.com//licenses
- * @link https://brendigo.com/
+ * @author GemPixel (https://gempixel.com)
+ * @license https://gempixel.com/licenses
+ * @link https://gempixel.com
  */
 
 use Core\Request;
@@ -25,14 +25,14 @@ class Setup {
     /**
      * Current version
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      */
-    private $version = '7.7';
+    private $version = '7.8.4';
 
     /**
      * Error
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * 
      * 
@@ -43,7 +43,7 @@ class Setup {
     /**
      * Check if install is required
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @return void
      */
@@ -58,7 +58,7 @@ class Setup {
     /**
      * Upgrade
      *
-     * @author GemPixel <https://brendigo.com/>f
+     * @author GemPixel <https://gempixel.com>f
      * @version 6.0
      * @return void
      */
@@ -78,12 +78,12 @@ class Setup {
     /**
      * Step 1
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @param Request $request
      * @return void
      */
-    private function step(Request $request){
+    public function step(Request $request){
 
         $this->header($request);
 
@@ -93,11 +93,11 @@ class Setup {
             <div class="content">
                 <p>
                 PHP Version<br>
-                <small>Recommended PHP 8.2</small>
+                <small>Minimum PHP 8.2</small>
                 '.$this->verify('version').'
                 </p>
-                <span class="info '.(!$this->error ? 'hide': '').'">
-                    It is very important to have at least PHP Version 7.4. It is highly recommended that you use 8.0 or newer for best performance.
+                <span class="info text-red '.(!$this->error ? 'hide': '').'">
+                    It is very important to have at least PHP Version 8.2.
                 </span>
             </div>
             <div class="content">
@@ -153,66 +153,22 @@ class Setup {
                     <li>
                         <strong>ImageMagick</strong> '.$this->verify('imagick').'
                         <p class="info '.(!$this->warning ? 'hide': '').'">
-                            ImageMagick library is not required and you can proceed with the installation. This extension is needed for server-side QR code processing. You can still generate QR codes without this extension but QR codes will be converted to other formats using the browser instead of the server. If you are installing it, please make sure to install Imagick version 7.1 and the RSVG delegate as these are required. You can find more info on our <a href="https://brendigo.com//solutions/how-to-install-latest-imagemagick-imagick-on-ubuntu" target="_blank">guide</a>.
+                            ImageMagick library is not required and you can proceed with the installation. This extension is needed for server-side QR code processing. You can still generate QR codes without this extension but QR codes will be converted to other formats using the browser instead of the server. If you are installing it, please make sure to install Imagick version 7.1 and the RSVG delegate as these are required. You can find more info on our <a href="https://gempixel.com/solutions/how-to-install-latest-imagemagick-imagick-on-ubuntu" target="_blank">guide</a>.
                         </p>
                     </li>
                 </ul>
             </div>';
-            if(!$this->error) echo '<p><a href="validate" class="button"><span>Proceed</span> <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/></svg></a></p>';
-        $this->footer();
-    }
-    /**
-     * Validate
-     *
-     * @author GemPixel <https://brendigo.com/>
-     * @version 6.0
-     * @return void
-     */
-    public function stepvalidate($request){
-
-        define('DEBUG', 1);
-    
-        if($request->isPost()){
-    
-            if(!$request->code || strlen($request->code) < 1){
-                return back()->with('danger', 'Please enter a valid purchase code');
-            }
-    
-            $code = trim($request->code);
-    
-            $request->session('code', $code);
-    
-            return Helper::redirect()->to('database')->with('success', 'Your purchase code has been successfully validated');
-        }
-    
-        $this->header($request);
-    
-        echo '<h2>Verification</h2>
-        '.message().'
-        <p>
-            Please enter your Envato purchase code. To learn how to find your Envato purchase code, please visit <a href="#" target="_blank">#</a>
-        </p>
-        <form method="post" action="" class="form" autocomplete="off">
-            <div class="group">
-                <label>Envato Purchase Code</label>
-                <input type="text" name="code" class="input" placeholder="e.g. 10101010-10aa-0101-0101-a1b010a01b10">
-            </div>
-            <button type="submit" class="button"><span>Proceed</span> <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/></svg></button>
-        </form>';
+            if(!$this->error) echo '<p><a href="database" class="button"><span>Proceed</span> <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/></svg></a></p>';
         $this->footer();
     }
     /**
      * Dump Database
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @return void
      */
     public function stepdatabase(Request $request){
-
-        if(!$request->session('code')){
-            return Helper::redirect()->to('validate')->with('danger', 'Please enter a valid purchase code');
-        }
 
         if($request->isPost()){
 
@@ -291,16 +247,12 @@ class Setup {
     /**
      * Setup user
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @param \Core\Request $request
      * @return void
      */
     public function stepuser(Request $request){
-
-        if(!$request->session('code')){
-            return Helper::redirect()->to('validate')->with('danger', 'Please enter a valid purchase code');
-        }
 
         if($request->isPost()){
 
@@ -331,7 +283,6 @@ class Setup {
                     DB::Connect();
 
                     DB::settings()->where('config', 'url')->update(['var' => $request->url]);
-                    DB::settings()->where('config', 'purchasecode')->update(['var' => $request->session('code')]);
 
                     $user = DB::user()->create();
 
@@ -395,15 +346,11 @@ class Setup {
     /**
      * Final Step
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @return void
      */
     private function stepfinal($request){
-
-        if(!$request->session('code')){
-            return Helper::redirect()->to('validate')->with('danger', 'Please enter a valid purchase code');
-        }
 
         rename(ROOT."/config.sample.php", ROOT."/config.php");
 
@@ -424,7 +371,7 @@ class Setup {
     /**
      * Verify
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @param [type] $module
      * @return void
@@ -515,7 +462,7 @@ class Setup {
     /**
      * Generate Config File
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @param [type] $request
      * @return void
@@ -541,19 +488,37 @@ class Setup {
     /**
      * Dump Database
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @return void
      */
     private function dump($request){
 
-        include(ROOT."/config.sample.php");
+        include(ROOT."/config.php");
 
         DB::Connect();
 
         \Core\Support\ORM::configure('id_column_overrides', array(
 			DBprefix.'settings'  => 'config'
 		));        
+
+        DB::schema('subscription', function($table) {
+            $table->charset("utf8mb4");
+            $table->increment('id');
+            $table->string('tid', 191)->index();
+            $table->bigint('userid')->index();
+            $table->string('plan', 191);
+            $table->bigint('planid')->index();
+            $table->string('status', 191);
+            $table->double('amount', '10,2');
+            $table->timestamp('date');
+            $table->timestamp('expiry', null);
+            $table->timestamp('lastpayment', null);
+            $table->text('data');
+            $table->string('uniqueid', 191)->index();
+            $table->bigint('coupon', null);
+            $table->bigint('customerid', null);
+        });
 
         DB::schema('oauth_clients', function($table) {
             $table->charset("utf8mb4");
@@ -760,6 +725,15 @@ class Setup {
             $table->timestamp('created_at');
         });
 
+        DB::schema('paramtemplates', function($table){
+            $table->charset("utf8mb4");
+            $table->increment('id');
+            $table->bigint('userid')->index();
+            $table->string('name');
+            $table->text('data');
+            $table->timestamp('created_at');
+        });
+
         DB::schema('plans', function($table){
             $table->charset("utf8mb4");
             $table->increment('id');
@@ -898,7 +872,7 @@ class Setup {
             $table->int("status", null, '0');
         });
 
-        $settings = ['url' => '','title' => '','sitename' => '', 'description' => '','api' => '1','user' => '1','sharing' => '1','geotarget' => '1','adult' => '1','maintenance' => '0','keywords' => '','theme' => 'the23','apikey' => '','ads' => '1','captcha' => '0','ad728' => '','ad468' => '','ad300' => '','frame' => '0','facebook' => '','twitter' => '','email' => '','fb_connect' => '0','analytic' => '','private' => '0','facebook_app_id' => '','facebook_secret' => '','twitter_key' => '','twitter_secret' => '','safe_browsing' => '','captcha_public' => '','captcha_private' => '','tw_connect' => '0','multiple_domains' => '0','domain_names' => '','tracking' => '1','update_notification' => '1','default_lang' => '','user_activate' => '0','domain_blacklist' => '','keyword_blacklist' => '','user_history' => '0','show_media' => '0','paypal_email' => '','logo' => '','timer' => '','smtp' => '','style' => '','font' => '','currency' => 'USD','gl_connect' => '0','require_registration' => '0','phish_api' => '','aliases' => '','pro' => '0','google_cid' => '','google_cs' => '','public_dir' => '0','devicetarget' => '1','homepage_stats' => '1','home_redir' => '','detectadblock' => '0','timezone' => '','freeurls' => '10','allowdelete' => '1','serverip' => '','favicon' => '','advanced' => '0','purchasecode' => '','alias_length' => '5','theme_config' => '{"homeheader":"","homedescription":"","homestyle":"dark"}','schemes' => 'https,ftp,http','blog' => '1','root_domain' => '1','slackclientid' => '','slacksecretid' => '','slackcommand' => '','slacksigningsecret' => '','contact' => '1','report' => '1','customheader' => '','customfooter' => '','saleszapier' => '','pppublic' => '','ppprivate' => '','manualapproval' => '0','version' => $this->version,'faqcategories' => '{}','invoice' => '{"header":"","footer":""}','virustotal' => '{"key":"","limit":"2"}','affiliate' => '{"enabled":"0","rate":"30","payout":"10","terms":"terms of affiliate","freq":"once","type":"percent"}','paypal' => '{"enabled":"0","email":""}','testimonials' => '[]', 'cookieconsent' => '{"enabled":"0","message":"", "link":""}', 'plugins' => '{}', 'sociallinks' => '{"instagram":"","linkedin":""}', 'deepl' => '{"enabled":"0","key":"", "limit":""}', 'verification' => '0', 'gravatar' => 1, 'helpcenter' => '1', 'cdn' => json_encode(['enabled' => false, 'provider' => null, 'key' => null, 'secret' => null, 'region' => null, 'bucket' => null, 'url' => null]), 'customplan' => 1, "system_registration" => 1, 'altlogo' => '', 'publicqr' => false, 'qrlogo' => '', 'userlogging' => '0', 'bio' => json_encode(['blocked' => []]), 'verifylink' => '0', 'sizes' => json_encode(['avatar' => 500,'bio' => ['avatar' => 500,'background' => 1024,'image' => 500,'link' => 500,'banner' => 1024],'splash' => ['avatar' => 500,'banner' => 1024,],'qrfile' => 2048,'qrcsv' => 1024]), 'extensions' => json_encode(['avatar' => implode(',', ['jpg', 'png', 'jpeg']),'bio' => ['avatar' => implode(',', ['jpg', 'png', 'jpeg']),'background' => implode(',',['jpg', 'png', 'jpeg']),'image' => implode(',',['jpg', 'png', 'jpeg']),'link' => implode(',',['jpg', 'png', 'jpeg', 'gif']), 'banner' => implode(',', ['jpg', 'png', 'jpeg'])],'splash' => ['avatar' => implode(',',['jpg', 'png', 'jpeg', 'gif']),'banner' => implode(',',['jpg', 'png', 'jpeg'])]]), 'imagemagick' => class_exists('Imagick', false)];
+        $settings = ['url' => '','title' => '','sitename' => '', 'description' => '','api' => '1','user' => '1','sharing' => '1','geotarget' => '1','adult' => '1','maintenance' => '0','keywords' => '','theme' => 'the23','apikey' => '','ads' => '1','captcha' => '0','ad728' => '','ad468' => '','ad300' => '','frame' => '0','facebook' => '','twitter' => '','email' => '','fb_connect' => '0','analytic' => '','private' => '0','facebook_app_id' => '','facebook_secret' => '','twitter_key' => '','twitter_secret' => '','safe_browsing' => '','captcha_public' => '','captcha_private' => '','tw_connect' => '0','multiple_domains' => '0','domain_names' => '','tracking' => '1','update_notification' => '1','default_lang' => '','user_activate' => '0','domain_blacklist' => '','keyword_blacklist' => '','user_history' => '0','show_media' => '0','paypal_email' => '','logo' => '','timer' => '','smtp' => '','style' => '','font' => '','currency' => 'USD','gl_connect' => '0','require_registration' => '0','phish_api' => '','aliases' => '','pro' => '0','google_cid' => '','google_cs' => '','public_dir' => '0','devicetarget' => '1','homepage_stats' => '1','home_redir' => '','detectadblock' => '0','timezone' => '','freeurls' => '10','allowdelete' => '1','serverip' => '','favicon' => '','advanced' => '0','alias_length' => '5','theme_config' => '{"homeheader":"","homedescription":"","homestyle":"dark"}','schemes' => 'https,ftp,http','blog' => '1','root_domain' => '1','slackclientid' => '','slacksecretid' => '','slackcommand' => '','slacksigningsecret' => '','contact' => '1','report' => '1','customheader' => '','customfooter' => '','saleszapier' => '','pppublic' => '','ppprivate' => '','manualapproval' => '0','version' => $this->version,'faqcategories' => '{}','invoice' => '{"header":"","footer":""}','virustotal' => '{"key":"","limit":"2"}','affiliate' => '{"enabled":"0","rate":"30","payout":"10","terms":"terms of affiliate","freq":"once","type":"percent"}','paypal' => '{"enabled":"0","email":""}','testimonials' => '[]', 'cookieconsent' => '{"enabled":"0","message":"", "link":""}', 'plugins' => '{}', 'sociallinks' => '{"instagram":"","linkedin":""}', 'deepl' => '{"enabled":"0","key":"", "limit":""}', 'verification' => '0', 'gravatar' => 1, 'helpcenter' => '1', 'cdn' => json_encode(['enabled' => false, 'provider' => null, 'key' => null, 'secret' => null, 'region' => null, 'bucket' => null, 'url' => null]), 'customplan' => 1, "system_registration" => 1, 'altlogo' => '', 'publicqr' => false, 'qrlogo' => '', 'userlogging' => '0', 'bio' => json_encode(['blocked' => []]), 'verifylink' => '0', 'sizes' => json_encode(['avatar' => 500,'bio' => ['avatar' => 500,'background' => 1024,'image' => 500,'link' => 500,'banner' => 1024],'splash' => ['avatar' => 500,'banner' => 1024,],'qrfile' => 2048,'qrcsv' => 1024]), 'extensions' => json_encode(['avatar' => implode(',', ['jpg', 'png', 'jpeg']),'bio' => ['avatar' => implode(',', ['jpg', 'png', 'jpeg']),'background' => implode(',',['jpg', 'png', 'jpeg']),'image' => implode(',',['jpg', 'png', 'jpeg']),'link' => implode(',',['jpg', 'png', 'jpeg', 'gif']), 'banner' => implode(',', ['jpg', 'png', 'jpeg'])],'splash' => ['avatar' => implode(',',['jpg', 'png', 'jpeg', 'gif']),'banner' => implode(',',['jpg', 'png', 'jpeg'])]]), 'imagemagick' => class_exists('Imagick', false), 'email2fa' => false];
 
         foreach($settings as $config => $var){
             $query = DB::settings()->create();
@@ -933,6 +907,19 @@ class Setup {
             $table->string('os')->index();
         });
 
+        DB::schema('biotemplates', function($table) {
+            $table->charset("utf8mb4");
+            $table->increment('id');
+            $table->bigint('profileid')->index();
+            $table->string('name', 191);
+            $table->text('description');
+            $table->text('data');
+            $table->text('planids');
+            $table->string('preview', 191);
+            $table->int('status', null, '1');
+            $table->timestamp('created_at');
+        });
+
         DB::schema('themes', function($table){
             $table->charset("utf8mb4");
             $table->increment('id');
@@ -940,9 +927,145 @@ class Setup {
             $table->string("description", 191, null)->index();
             $table->text("data");
             $table->int("paidonly", null, '0');
+            $table->text('planids');
             $table->int("status", null, '0');
             $table->timestamp('created_at');
         });
+
+        $themes = [
+            [                
+                'name' => 'Notepad',
+                'description' => 'A modern theme on a notebook style background',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"body {\\r\\n   background-color: #fdfdfe !important;\\r\\n   opacity: 1 !important;\\r\\n   background-size: 20px 20px !important;\\r\\n   background-image:  repeating-linear-gradient(0deg, #e0e0e0, #e0e0e0 1px, #fdfdfe 1px, #fdfdfe) !important;\\r\\n}","textcolor":"#000000","buttoncolor":"#ffa500","buttontextcolor":"#ffffff","buttonstyle":"rectangular","shadow":"none","shadowcolor":"#bb7900","frost":0}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Animated Gradient',
+                'description' => 'An smooth animated theme with frosted buttons',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"body {\\r\\n\\tbackground: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);\\r\\n\\tbackground-size: 400% 400%;\\r\\n\\tanimation: gradient 15s ease infinite;\\r\\n}\\r\\n@keyframes gradient {\\r\\n\\t0% {\\r\\n\\t\\tbackground-position: 0% 50%;\\r\\n\\t}\\r\\n\\t50% {\\r\\n\\t\\tbackground-position: 100% 50%;\\r\\n\\t}\\r\\n\\t100% {\\r\\n\\t\\tbackground-position: 0% 50%;\\r\\n\\t}\\r\\n}","textcolor":"#ffffff","buttoncolor":"#ffffff","buttontextcolor":"#000000","buttonstyle":"rounded","shadow":"none","shadowcolor":"#ababab","frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Isometric',
+                'description' => 'A cool theme with an isometric background',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"body {\\r\\n\\t\\tbackground-color: #fdfdfe !important;\\r\\n\\t\\topacity: 1 !important;\\r\\n\\t\\tbackground-image:  linear-gradient(30deg, #e0e0e0 12%, transparent 12.5%, transparent 87%, #e0e0e0 87.5%, #e0e0e0), linear-gradient(150deg, #e0e0e0 12%, transparent 12.5%, transparent 87%, #e0e0e0 87.5%, #e0e0e0), linear-gradient(30deg, #e0e0e0 12%, transparent 12.5%, transparent 87%, #e0e0e0 87.5%, #e0e0e0), linear-gradient(150deg, #e0e0e0 12%, transparent 12.5%, transparent 87%, #e0e0e0 87.5%, #e0e0e0), linear-gradient(60deg, #e0e0e077 25%, transparent 25.5%, transparent 75%, #e0e0e077 75%, #e0e0e077), linear-gradient(60deg, #e0e0e077 25%, transparent 25.5%, transparent 75%, #e0e0e077 75%, #e0e0e077) !important;\\r\\n\\t\\tbackground-size: 20px 35px !important;\\r\\n\\t\\tbackground-position: 0 0, 0 0, 10px 18px, 10px 18px, 0 0, 10px 18px !important;\\r\\n}\\r\\n","textcolor":"#000000","buttoncolor":"#ffffff","buttontextcolor":"#000000","buttonstyle":"rounded","shadow":"soft","shadowcolor":"#c1c1c1","frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Coil',
+                'description' => 'A modern with a coil background',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"body {\\r\\n\\tbackground-color: #e9edf1 !important;\\r\\n\\tbackground-image:  url(\\"data:image\\/svg+xml,%3Csvg xmlns=\'http:\\/\\/www.w3.org\\/2000\\/svg\' version=\'1.1\' xmlns:xlink=\'http:\\/\\/www.w3.org\\/1999\\/xlink\' xmlns:svgjs=\'http:\\/\\/svgjs.dev\\/svgjs\' viewBox=\'0 0 800 800\'%3E%3Cdefs%3E%3ClinearGradient x1=\'50%25\' y1=\'0%25\' x2=\'50%25\' y2=\'100%25\' id=\'cccoil-grad\'%3E%3Cstop stop-color=\'hsl(206  75%25  49%25)\' stop-opacity=\'1\' offset=\'0%25\'%3E%3C\\/stop%3E%3Cstop stop-color=\'hsl(331  90%25  56%25)\' stop-opacity=\'1\' offset=\'100%25\'%3E%3C\\/stop%3E%3C\\/linearGradient%3E%3C\\/defs%3E%3Cg stroke=\'url(%23cccoil-grad)\' fill=\'none\' stroke-linecap=\'round\'%3E%3Ccircle r=\'363\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'1939 2281\' transform=\'rotate(360  400  400)\' opacity=\'0.05\'%3E%3C\\/circle%3E%3Ccircle r=\'346.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'1762 2177\' transform=\'rotate(343  400  400)\' opacity=\'0.10\'%3E%3C\\/circle%3E%3Ccircle r=\'330\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'1595 2073\' transform=\'rotate(326  400  400)\' opacity=\'0.14\'%3E%3C\\/circle%3E%3Ccircle r=\'313.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'1435 1970\' transform=\'rotate(309  400  400)\' opacity=\'0.19\'%3E%3C\\/circle%3E%3Ccircle r=\'297\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'1284 1866\' transform=\'rotate(291  400  400)\' opacity=\'0.23\'%3E%3C\\/circle%3E%3Ccircle r=\'280.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'1141 1762\' transform=\'rotate(274  400  400)\' opacity=\'0.28\'%3E%3C\\/circle%3E%3Ccircle r=\'264\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'1007 1659\' transform=\'rotate(257  400  400)\' opacity=\'0.32\'%3E%3C\\/circle%3E%3Ccircle r=\'247.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'881 1555\' transform=\'rotate(240  400  400)\' opacity=\'0.37\'%3E%3C\\/circle%3E%3Ccircle r=\'231\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'764 1451\' transform=\'rotate(223  400  400)\' opacity=\'0.41\'%3E%3C\\/circle%3E%3Ccircle r=\'214.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'655 1348\' transform=\'rotate(206  400  400)\' opacity=\'0.46\'%3E%3C\\/circle%3E%3Ccircle r=\'198\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'554 1244\' transform=\'rotate(189  400  400)\' opacity=\'0.50\'%3E%3C\\/circle%3E%3Ccircle r=\'181.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'462 1140\' transform=\'rotate(171  400  400)\' opacity=\'0.55\'%3E%3C\\/circle%3E%3Ccircle r=\'165\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'378 1037\' transform=\'rotate(154  400  400)\' opacity=\'0.59\'%3E%3C\\/circle%3E%3Ccircle r=\'148.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'302 933\' transform=\'rotate(137  400  400)\' opacity=\'0.64\'%3E%3C\\/circle%3E%3Ccircle r=\'132\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'235 829\' transform=\'rotate(120  400  400)\' opacity=\'0.68\'%3E%3C\\/circle%3E%3Ccircle r=\'115.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'176 726\' transform=\'rotate(103  400  400)\' opacity=\'0.73\'%3E%3C\\/circle%3E%3Ccircle r=\'99\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'126 622\' transform=\'rotate(86  400  400)\' opacity=\'0.77\'%3E%3C\\/circle%3E%3Ccircle r=\'82.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'84 518\' transform=\'rotate(69  400  400)\' opacity=\'0.82\'%3E%3C\\/circle%3E%3Ccircle r=\'66\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'50 415\' transform=\'rotate(51  400  400)\' opacity=\'0.86\'%3E%3C\\/circle%3E%3Ccircle r=\'49.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'25 311\' transform=\'rotate(34  400  400)\' opacity=\'0.91\'%3E%3C\\/circle%3E%3Ccircle r=\'33\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'8 207\' transform=\'rotate(17  400  400)\' opacity=\'0.95\'%3E%3C\\/circle%3E%3Ccircle r=\'16.5\' cx=\'400\' cy=\'400\' stroke-width=\'7\' stroke-dasharray=\'0 104\' opacity=\'1.00\'%3E%3C\\/circle%3E%3C\\/g%3E%3C\\/svg%3E\\") !important;\\r\\n}","textcolor":"#000000","buttoncolor":"#000000","buttontextcolor":"#ffffff","buttonstyle":"rounded","shadow":"none","shadowcolor":null,"frost":1,"font":"Inter"}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Cyberpunk',
+                'description' => 'A cyberpunk theme',
+                'data' => '{"bgtype":"image","singlecolor":"#7f2aeb","gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":"cyberpunk-biopage.png","customcss":null,"textcolor":"#e95fdf","buttoncolor":"#e95fdf","buttontextcolor":"#ffffff","buttonstyle":"rectangular","shadow":"hard","shadowcolor":"#000000","font":"Coda","frost":0}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1
+            ],
+            [                
+                'name' => 'Floating Bubbles',
+                'description' => '',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } } body { background: linear-gradient( to bottom, #4facfe 0%, #00f2fe 100% );  position: relative; } body::before, body::after { content: \'\'; position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; animation: float 6s ease-in-out infinite; z-index:-1} body::before { width: 200px; height: 200px; left: 20%; bottom: 20%; } body::after { width: 300px; height: 300px; right: 20%; top: 20%; animation-delay: 2s; }","textcolor":"#ffffff","buttoncolor":"#ffffff","buttontextcolor":"#0070cc","buttonstyle":"rounded","shadow":"soft","shadowcolor":"#0987cf","font":"Inter","frost":0}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Ocean Wave',
+                'description' => '',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"@keyframes wave { 0% { transform: translateX(0) translateY(0); } 50% { transform: translateX(-25%) translateY(-10px); } 100% { transform: translateX(-50%) translateY(0); } } body { background: linear-gradient( to bottom, #4facfe 0%, #00f2fe 100% ); position: relative;} body::before { content: \'\'; position: absolute; width: 100%; height: 100%; background: radial-gradient( circle, rgba(255,255,255,0.1) 10%, transparent 10%), radial-gradient( circle, rgba(255,255,255,0.1) 10%, transparent 10% ); background-size: 60px 60px; background-position: 0 0, 30px 30px; animation: wave 20s linear infinite;  z-index:-1;}","textcolor":"#ffffff","buttoncolor":"#ffffff","buttontextcolor":"#000000","buttonstyle":"rounded","shadow":"none","shadowcolor":null,"font":null,"frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Clean Gray',
+                'description' => '',
+                'data' => '{"bgtype":"single","singlecolor":"#eceef1","gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":null,"textcolor":"#000000","buttoncolor":"#ffffff","buttontextcolor":"#000000","buttonstyle":"rectangular","shadow":"none","shadowcolor":null,"font":null,"frost":0}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Floating Hearts',
+                'description' => '',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"@keyframes float-heart { 0% { transform: translateY(-50px) scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-300px) scale(1); opacity: 0; } } body { background: linear-gradient( to bottom, #FFE5EC 0%, #FFC2D1 100% ); position: relative; } body::before, body::after { content: \'\\ud83d\\udc95\'; position: absolute; bottom: 10px; font-size: 40px; animation: float-heart 8s ease-in-out infinite; } body::before { left: 30%; } body::after { right: 25%; animation-delay: 3s; }","textcolor":"#ff0045","buttoncolor":"#ffffff","buttontextcolor":"#ff0045","buttonstyle":"rounded","shadow":"soft","shadowcolor":"#fb9fb8","font":null,"frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Pulsating Starfield',
+                'description' => '',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"@keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } } body { background: radial-gradient( circle at 20% 50%, rgba(120,119,198,0.3), transparent ), radial-gradient( circle at 80% 80%, rgba(255,110,127,0.3), transparent ), radial-gradient( circle at 40% 20%, rgba(138,180,248,0.3), transparent ), #0f0c29; animation: pulse 8s ease-in-out infinite; }","textcolor":"#ffffff","buttoncolor":"#000000","buttontextcolor":"#ffffff","buttonstyle":"rectangular","shadow":"none","shadowcolor":null,"font":null,"frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Luxury Cross',
+                'description' => '',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"body{\\r\\nbackground-color: #453630;\\r\\nbackground: radial-gradient(circle, transparent 20%, #453630 20%, #453630 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #453630 20%, #453630 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#9B7E4B 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #9B7E4B 2px, #453630 2px) -1px 0;\\r\\nbackground-size: 50px 50px, 50px 50px, 25px 25px, 25px 25px;\\r\\n}","textcolor":"#ffffff","buttoncolor":"#9b7e4b","buttontextcolor":"#ffffff","buttonstyle":"rectangular","shadow":"soft","shadowcolor":"#382506","font":"Inter","frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Sunset Florida',
+                'description' => '',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"body{\\r\\nbackground-color: #C4ECF8;\\r\\nbackground-image:  repeating-radial-gradient( circle at 0 0, transparent 0, #C4ECF8 10px ), repeating-linear-gradient( #FAB79655, #FAB796 );\\r\\n}","textcolor":"#000000","buttoncolor":"#ffffff","buttontextcolor":"#000000","buttonstyle":"rounded","shadow":"soft","shadowcolor":"#c1c1c1","font":"Coda","frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Valentines',
+                'description' => '',
+                'data' => '{"bgtype":"css","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":null,"customcss":"body{\\r\\nbackground-color: #FD647C;\\r\\nbackground-image: radial-gradient( ellipse farthest-corner at 10px 10px , #F6383A, #F6383A 50%, #FD647C 50%);\\r\\nbackground-size: 10px 10px;\\r\\n}","textcolor":"#ffffff","buttoncolor":"#ff0000","buttontextcolor":"#ffffff","buttonstyle":"rectangular","shadow":"hard","shadowcolor":"#a90303","font":"Karla","frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Mother Nature',
+                'description' => '',
+                'data' => '{"bgtype":"gradient","singlecolor":null,"gradientstart":"#9aa969","gradientstop":"#3c4718","gradientangle":"135","bgimage":null,"customcss":null,"textcolor":"#ffffff","buttoncolor":"#d9e27b","buttontextcolor":"#3c4718","buttonstyle":"rounded","shadow":"soft","shadowcolor":"#242d05","font":"Roboto","frost":0}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1                
+            ],
+            [                
+                'name' => 'Fun Party',
+                'description' => 'A fun party theme',
+                'data' => '{"bgtype":"image","singlecolor":null,"gradientstart":null,"gradientstop":null,"gradientangle":null,"bgimage":"fun-party-biopage.png","customcss":null,"textcolor":"#000000","buttoncolor":"#ffffff","buttontextcolor":"#000000","buttonstyle":"rectangular","shadow":"soft","shadowcolor":"#cacaca","font":"Poppins","frost":1}',
+                'paidonly' => 0,
+                'planids' => null,
+                'status' => 1
+            ],
+        ];
+
+        foreach($themes as $themeData){
+            $theme = DB::themes()->create();
+            $theme->name = $themeData['name'];
+            $theme->description = $themeData['description'];
+            $theme->data = $themeData['data'];
+            $theme->paidonly = $themeData['paidonly'];
+            $theme->planids = $themeData['planids'];
+            $theme->status = $themeData['status'];
+            $theme->created_at = date('Y-m-d H:i:s');
+            $theme->save();
+        }
 
         DB::schema('url', function($table){
             $table->charset("utf8mb4");
@@ -1009,9 +1132,11 @@ class Setup {
             $table->text('avatar');
             $table->int('newsletter');
             $table->string('uniquetoken');
+            $table->string('mailchimpapikey', 191, null);
             $table->string('paypal');
             $table->double('pendingpayment', '10,2');
             $table->int('verified', null, '0');
+            $table->text('extra', null);
         });
 
         DB::schema('verification', function($table){
@@ -1049,12 +1174,24 @@ class Setup {
             $table->datetime('processed_at', null);
         });
 
+        DB::schema('email2fa', function($table) {
+            $table->charset("utf8mb4");
+            $table->increment('id');
+            $table->bigint('userid')->index();
+            $table->string('code', 6);
+            $table->string('ip')->index();
+            $table->int('used', null, '0')->index();
+            $table->timestamp('expires_at')->index();
+            $table->timestamp('created_at');
+            $table->multiindex('email2fa_userid_used', ['userid', 'used']);
+        });
+
         $this->importFaqs();
     }
     /**
      * Faqs
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @return void
      */
@@ -1109,7 +1246,7 @@ class Setup {
     /**
      * Header
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @return void
      */
@@ -1128,7 +1265,6 @@ class Setup {
                     <h1 class="heading">Premium URL Shortener</h1>
                     <ul class="progress">
                         <li class="'.($request->segment(1) ? 'current completed' : 'current').'">Requirements</li>
-                        <li class="'.($request->segment(1) == 'validate' ? 'current' : '').' '.(in_array($request->segment(1), ['database', 'user', 'final']) ? "current completed":"").'">Verification</li>
                         <li class="'.($request->segment(1) == 'database' ? 'current' : '').' '.(in_array($request->segment(1), ['user', 'final']) ? "current completed":"").'">Database</li>
                         <li class="'.($request->segment(1) == 'user' ? 'current' : '').' '.(in_array($request->segment(1), ['final']) ? "current completed":"").'">Admin Account</li>
                         <li class="'.($request->segment(1) == 'final' ? 'current' : '').'">Complete</li>
@@ -1138,17 +1274,17 @@ class Setup {
     /**
      * Footer
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 6.0
      * @return void
      */
     private function footer(){
                 echo '</div>
                     <div class="footer">
-                        '.date("Y").' &copy; <a href="https://brendigo.com/" target="_blank">GemPixel</a> - All Rights Reserved.
+                        '.date("Y").' &copy; <a href="https://gempixel.com" target="_blank">GemPixel</a> - All Rights Reserved.
                         <div class="float-right">
-                            <a href="https://brendigo.com//" target="_blank">Home</a>
-                            <a href="https://brendigo.com//products" target="_blank">Products</a>
+                            <a href="https://gempixel.com/" target="_blank">Home</a>
+                            <a href="https://gempixel.com/products" target="_blank">Products</a>
                             <a href="https://support.gempixel.com/" target="_blank">Support</a>
                         </div>
                     </div>
@@ -1159,7 +1295,7 @@ class Setup {
     /**
      * CSS
      *
-     * @author GemPixel <https://brendigo.com/>
+     * @author GemPixel <https://gempixel.com>
      * @version 7.4
      * @return void
      */
@@ -1189,6 +1325,9 @@ class Setup {
         a:hover {
             opacity: 0.9;
             text-decoration: none;
+        }
+        .text-red {
+            color: #ff3146;
         }
         .container{
             max-width: 860px;
@@ -1324,11 +1463,11 @@ class Setup {
         span.ok {
             float: right;
             border-radius: 3px;
-            background-color: #59d8c5;
+            background-color: #00BCD4;
             font-weight: 700;
-            background-image: -moz-linear-gradient(45deg, #59d8c5 0%, #68b835 100%);
-            background-image: -webkit-linear-gradient(45deg, #59d8c5 0%, #68b835 100%);
-            background-image: -ms-linear-gradient(45deg, #59d8c5 0%, #68b835 100%);
+            background-image: -moz-linear-gradient(45deg, #00BCD4 0%, #4CAF50 100%);
+            background-image: -webkit-linear-gradient(45deg, #00BCD4 0%, #4CAF50 100%);
+            background-image: -ms-linear-gradient(45deg, #00BCD4 0%, #4CAF50 100%);
             color: #fff;
             padding: 2px 10px;
             box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -1349,6 +1488,9 @@ class Setup {
             float: right;
             border-radius: 3px;
             background: #fb923c;
+            background-image: -moz-linear-gradient(45deg, #fb923c 0%, #ff3146 100%);
+            background-image: -webkit-linear-gradient(45deg, #fb923c 0%, #ff3146 100%);
+            background-image: -ms-linear-gradient(45deg, #fb923c 0%, #ff3146 100%);
             color: #fff;
             padding: 2px 10px;
         }

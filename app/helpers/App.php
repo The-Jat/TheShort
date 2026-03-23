@@ -132,39 +132,6 @@ final class App {
         return $languages;
     }
     /**
-     * @author GemPixel <https://gempixel.com>
-     * @version 6.0
-     * @return boolean
-     */
-    public static function isExtended(){
-
-        try{
-            DB::subscription()->first();
-            return true;
-        } catch(\Exception $e){
-            return false;
-        }
-
-        if(!config('purchasecode')) return false;
-
-        $response = \Core\Http::url("https://cdn.gempixel.com/validator/")
-                                ->with('X-Authorization', 'TOKEN '.md5(url()))
-                                ->with('X-Script', 'Premium URL Shortener')
-                                ->body(['url' => url(), 'key' => config('purchasecode')])
-                                ->post()
-                                ->getBody();
-
-        if(!$response || empty($response) || $response == "Failed"){
-            return false;
-        }elseif($response == "Wrong.Item"){
-            return false;
-        }elseif($response == "Wrong.License"){
-            return false;
-        }
-
-        return true;
-    }
-    /**
      * Ad Type
      *
      * @author GemPixel <https://gempixel.com>
@@ -274,57 +241,7 @@ final class App {
             unlink($target);
         }
     }
-    /**
-     * @author GemPixel <https://gempixel.com>
-     * @return boolean
-     */
-    public static function possible($short = false){
 
-        try{
-            DB::subscription()->first();
-            return true;
-        } catch(\Exception $e){
-            return false;
-        }
-
-        if(!config('purchasecode')) return false;
-
-        $response = \Core\Http::url("https://cdn.gempixel.com/validator/")
-                                ->with('X-Authorization', 'TOKEN '.md5(url()))
-                                ->body(['url' => url(), 'key' => config('purchasecode')])
-                                ->post()
-                                ->getBody();
-
-        if(!$response || empty($response) || $response == "Failed"){
-            return false;
-        }elseif($response == "Wrong.Item"){
-            return false;
-        }elseif($response == "Wrong.License"){
-            return false;
-        }
-    }
-
-    /**
-     * Update Notification
-     * @since 6.0
-     */
-    public static function newUpdate($version = false){
-
-        $request = \Core\Http::url("https://cdn.gempixel.com/updater/index.php?p=".md5('shortener'))->get(['timeout' => 3]);
-
-        $data = $request->bodyObject();
-
-        if(isset($data->status) && $data->status == "ok"){
-            if(config('version') < $data->current_version){
-                if($version == true){
-                    return $data->current_version;
-                }else{
-                    return "<div class='custom-alert alert-success'>This script has been updated to version {$data->current_version}. You can run the <a href='".route("admin.update")."' class='button green' style='color:#fff'><u>automatic updater</u></a> or you can download it from <a href='http://codecanyon.net/downloads' target='_blank' class='button green' style='color:#fff'><u>CodeCanyon</u></a> and manually update it.</div>";
-                }
-            }
-        }
-        return false;
-    }
     /**
      * Get Changelog
      *
@@ -505,6 +422,12 @@ final class App {
                 'category' => 'link',
                 'count' => false
             ],
+            "parametertemplates" => [
+                'name' => e('Parameter Templates'),
+                'description' => e('Create reusable UTM and custom parameter templates to assign to links.'),
+                'category' => 'link',
+                'count' => false
+            ],
             "qrlogo" => [
                 'name' => e('Custom Logo on QR'),
                 'description' => e('Upload your own logo on QR codes.'),
@@ -520,6 +443,12 @@ final class App {
             "biocss" => [
                 'name' => e('Custom CSS on Bio Page'),
                 'description' => e('Add your own CSS on Bio Pages.'),
+                'category' => 'bio',
+                'count' => false
+            ],
+            'mailchimp' => [
+                'name' => e('Mailchimp'),
+                'description' => e('Add your own Mailchimp form to your Bio Page.'),
                 'category' => 'bio',
                 'count' => false
             ],
@@ -1195,24 +1124,6 @@ final class App {
 
         return $items;
 
-    }
-    /**
-     * Get License Information
-     *
-     * @author GemPixel <https://gempixel.com>
-     * @version 6.2.1
-     * @return void
-     */
-    public static function license($code = null){
-
-        $purchasecode = $code ?? trim(config('purchasecode'));
-
-        return \Core\Http::url("https://cdn.gempixel.com/verify/?detailed=true")
-                            ->with('X-Authorization', 'TOKEN '.$purchasecode)
-                            ->with('X-Script', 'Premium URL Shortener')
-                            ->body(['url' => url(), 'key' => $purchasecode])
-                            ->post()
-                            ->bodyObject();
     }
     /**
      * Check Logged As

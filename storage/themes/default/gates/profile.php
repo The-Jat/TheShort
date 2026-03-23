@@ -16,7 +16,7 @@
                         <span class="ml-2 ms-2" data-toggle="tooltip" data-bs-toggle="tooltip" data-placement="top" data-bs-placement="top" title="<?php ee('Verified Account') ?>"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48"><polygon stroke-width="1" stroke="#fff" fill="#3899e8" points="29.50,3 33.053,8.308 39.367,8.624 39.686,14.937 44.997,18.367 42.116,23.995 45,29.62 39.692,33.053 39.376,39.367 33.063,39.686 29.633,44.997 24.005,42.116 18.38,45 14.947,39.692 8.633,39.376 8.314,33.063 3.003,29.633 5.884,24.005 3,18.38 8.308,14.947 8.624,8.633 14.937,8.314 18.367,3.003 23.995,5.884"></polygon><polygon fill="#fff" points="21.396,31.255 14.899,24.76 17.021,22.639 21.428,27.046 30.996,17.772 33.084,19.926"></polygon></svg></span>
                     <?php endif ?>
                 </h3>
-                <?php if(isset($profiledata['links']['tagline'])) echo \Helpers\BioWidgets::render('tagline', $profiledata['links']['tagline']) ?>
+                <?php if(isset($profiledata['links']['tagline'])) echo \Helpers\BioWidgets::render('tagline', $profiledata['links']['tagline'], $user) ?>
                 <?php if(!isset($profiledata['style']['socialposition']) || $profiledata['style']['socialposition'] == 'top'): ?>
                     <?php if(isset($profiledata['social'])): ?>
                         <div id="social" class="text-center my-4">
@@ -46,7 +46,7 @@
                             <span class="ml-2 ms-2" data-toggle="tooltip" data-bs-toggle="tooltip" data-placement="top" data-bs-placement="top" title="<?php ee('Verified Account') ?>"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48"><polygon fill="#42a5f5" points="29.50,3 33.053,8.308 39.367,8.624 39.686,14.937 44.997,18.367 42.116,23.995 45,29.62 39.692,33.053 39.376,39.367 33.063,39.686 29.633,44.997 24.005,42.116 18.38,45 14.947,39.692 8.633,39.376 8.314,33.063 3.003,29.633 5.884,24.005 3,18.38 8.308,14.947 8.624,8.633 14.937,8.314 18.367,3.003 23.995,5.884"></polygon><polygon fill="#fff" points="21.396,31.255 14.899,24.76 17.021,22.639 21.428,27.046 30.996,17.772 33.084,19.926"></polygon></svg></span>
                         <?php endif ?>
                     </h3>
-                    <?php if(isset($profiledata['links']['tagline'])) echo \Helpers\BioWidgets::render('tagline', $profiledata['links']['tagline']) ?>
+                    <?php if(isset($profiledata['links']['tagline'])) echo \Helpers\BioWidgets::render('tagline', $profiledata['links']['tagline'], $user) ?>
                     <?php if(!isset($profiledata['style']['socialposition']) || $profiledata['style']['socialposition'] == 'top'): ?>
                         <?php if(isset($profiledata['social'])): ?>
                             <div id="social" class="text-center my-4">
@@ -79,7 +79,7 @@
                                         <span class="ml-2 ms-2 text-center" data-bs-toggle="tooltip" data-bs-placement="top" data-toggle="tooltip" data-placement="top" title="<?php ee('Verified Account') ?>"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48"><polygon fill="#42a5f5" points="29.50,3 33.053,8.308 39.367,8.624 39.686,14.937 44.997,18.367 42.116,23.995 45,29.62 39.692,33.053 39.376,39.367 33.063,39.686 29.633,44.997 24.005,42.116 18.38,45 14.947,39.692 8.633,39.376 8.314,33.063 3.003,29.633 5.884,24.005 3,18.38 8.308,14.947 8.624,8.633 14.937,8.314 18.367,3.003 23.995,5.884"></polygon><polygon fill="#fff" points="21.396,31.255 14.899,24.76 17.021,22.639 21.428,27.046 30.996,17.772 33.084,19.926"></polygon></svg></span>
                                     <?php endif ?>
                                 </h3>
-                                <?php if(isset($profiledata['links']['tagline'])) echo \Helpers\BioWidgets::render('tagline', $profiledata['links']['tagline']) ?>
+                                <?php if(isset($profiledata['links']['tagline'])) echo \Helpers\BioWidgets::render('tagline', $profiledata['links']['tagline'], $user) ?>
                                 <?php if(!isset($profiledata['style']['socialposition']) || $profiledata['style']['socialposition'] == 'top'): ?>
                                     <?php if(isset($profiledata['social'])): ?>
                                         <div id="social" class="text-start text-left mt-4">
@@ -104,7 +104,7 @@
             <div id="content">
                 <?php foreach($profiledata['links'] as $id => $value): ?>
                     <?php if($id == 'tagline' || $id =='bio-tag') continue; ?>
-                    <?php echo \Helpers\BioWidgets::render($id, $value) ?>
+                    <?php echo \Helpers\BioWidgets::render($id, $value, $user) ?>
                 <?php endforeach ?>
             </div>
             <?php if(isset($profiledata['style']['socialposition']) && $profiledata['style']['socialposition'] == 'bottom'): ?>
@@ -128,7 +128,18 @@
             <?php endif ?>
         </a>
     </div>
-    <?php endif ?>    
+    <?php endif ?>
+    <div class="d-flex align-items-center justify-content-center small">
+    <?php foreach(\Helpers\App::pages('policy') as $page): ?>
+        <a class="nav-link" href="<?php echo route('page', [$page->seo]) ?>"><?php ee($page->name) ?></a>
+        <?php break; ?>
+    <?php endforeach ?>
+    <?php foreach(\Helpers\App::pages('terms') as $page): ?>
+        <span class="mx-2">•</span>
+        <a class="nav-link" href="<?php echo route('page', [$page->seo]) ?>"><?php ee($page->name) ?></a>
+        <?php break; ?>
+    <?php endforeach ?>
+    </div>
 </div>
 <?php if(isset($profiledata['settings']['share']) && $profiledata['settings']['share']): ?>
     <a href="#" class="share-icon" data-toggle="modal" data-bs-toggle="modal" data-target="#sharemodal" data-bs-target="#sharemodal"><span data-toggle="tooltip" data-bs-toggle="tooltip" data-bs-placement="left" data-placement="left" title="<?php ee('Share') ?>"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></span></a>
@@ -159,6 +170,17 @@
                         <a href="https://wa.me/?text=<?php echo $profile->url ?>" target="_blank" class="d-flex align-items-center text-left text-start btn text-dark text-black d-block w-100 p-3 border mb-2"><i class="mr-2 me-2 fab fa-whatsapp"></i> <span class="align-middle"><?php ee('Share on') ?> Whatsapp</span></a>
 
                         <a href="mailto:?subject=Check+out+this+BioPage&body=Check+out+this+Biopage+-+<?php echo $profile->url ?>" target="_blank" class="d-flex align-items-center text-left text-start btn text-dark text-black d-block w-100 p-3 border mb-2"><i class="mr-2 me-2 fa fa-envelope"></i> <span class="align-middle"><?php ee('Share via Email') ?></span></a>                                                
+
+                        <div id="more-share-options" class="d-none"></div>                        
+                    </div>
+                    <div class="mt-3 d-flex align-items-center">
+                        <a href="<?php echo route('report', ['url' => $profile->url]) ?>" class="text-black text-decoration-none bg-white border rounded-3 p-2 ">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            <span class="align-middle ms-2"><?php ee('Report') ?></span>
+                        </a>
+                        <a href="<?php echo route('register') ?>" class="text-black text-decoration-none bg-white border rounded-3 p-2 ms-auto d-flex align-items-center">                            
+                            <span class="align-middle me-2"><?php ee('Create your own BioPage') ?></span> <i class="fa fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>

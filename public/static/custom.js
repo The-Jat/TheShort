@@ -32,7 +32,6 @@ $(document).ready(function(){
         });
         return false;
     });
-
 	$(document).on('click', '[data-trigger=darkmode]',function(e){
 		e.preventDefault();
 			const d = new Date();
@@ -133,7 +132,7 @@ $(document).ready(function(){
 	}
 
 	// Custom Checkbox
-	$('[data-toggle=togglefield]').change(function(){
+	$(document).on('change', '[data-toggle=togglefield]', function(){
 		let $this = $(this);
 		let fields = $(this).data('toggle-for');
 		if(!fields) return false;
@@ -436,10 +435,21 @@ $(document).ready(function(){
 		$('input[name=channelids]').val('['+$(this).data('id')+']');
 	});
 
-	$('#mailprovider').change(function(){
-		let v = $(this).val();
+	$(document).on('click', '.mailprovider-block', function(e){
+		e.preventDefault();
+		let provider = $(this).data('provider');
+		
+		// Update radio button
+		$('.mailprovider-radio').prop('checked', false);
+		$('.mailprovider-radio[value="'+provider+'"]').prop('checked', true);
+		
+		// Update visual state
+		$('.mailprovider-block').removeClass('border-dark border-2');
+		$(this).addClass('border-dark border-2');
+		
+		// Show/hide mail blocks
 		$('.mailblock').addClass('d-none');
-		$('#'+v).removeClass('d-none');
+		$('#'+provider).removeClass('d-none');
 	});
 
 	$('[data-permission]').click(function(){
@@ -569,6 +579,16 @@ $(document).ready(function(){
 			lastScrollTop = scrollTop;
 		});
 	}
+	$('input[name="templateid"]').change(function(){
+		$('.template-option').removeClass('active');
+		if($(this).is(':checked')){
+			$(this).next('label.template-option').addClass('active');
+		}
+	});
+	// Set initial state
+	$('input[name="templateid"]:checked').each(function(){
+		$(this).next('label.template-option').addClass('active');
+	});
 });
 window.redirect = function(e){
 	window.location = "?"+e.data('name')+"="+e.val();

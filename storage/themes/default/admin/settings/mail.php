@@ -13,16 +13,28 @@
             <div class="card-body">
                 <form method="post" action="<?php echo route('admin.settings.save') ?>" enctype="multipart/form-data">
                     <?php echo csrf() ?>
-
-                    <div class="form-group mb-4">
-                        <label class="form-label d-block fw-bold"><?php ee('Email Provider') ?></label>
-                        <select name="smtp[provider]" id="mailprovider" class="form-select p-2">
-                            <option value="smtp" <?php echo (!isset(config('smtp')->provider) || config('smtp')->provider == 'smtp' ? 'selected' : '')  ?>><?php ee('SMTP') ?></option>
-                            <option value="mailgun" <?php echo (isset(config('smtp')->provider) && config('smtp')->provider == 'mailgun' ? 'selected' : '')  ?>>Mailgun</option>
-                            <option value="sendgrid" <?php echo (isset(config('smtp')->provider) && config('smtp')->provider == 'sendgrid' ? 'selected' : '')  ?>>Sendgrid</option>
-                            <option value="postmark" <?php echo (isset(config('smtp')->provider) && config('smtp')->provider == 'postmark' ? 'selected' : '')  ?>>Postmark</option>
-                            <option value="mailchimp" <?php echo (isset(config('smtp')->provider) && config('smtp')->provider == 'mailchimp' ? 'selected' : '')  ?>>Mailchimp (Mandrill)</option>
-                        </select>
+                    <div class="row mb-3">
+                        <?php $currentProvider = config('smtp')->provider ?? 'smtp'; ?>
+                        <div class="col-md-3 mb-2">
+                                <label class="btn border rounded text-dark px-5 py-4 w-100 h-100 text-center mailprovider-block cursor-pointer <?php echo $currentProvider == 'smtp' ? 'border-dark border-2' : '' ?>" data-provider="smtp" style="cursor: pointer;">
+                                <i class="fa fa-envelope display-3"></i>
+                                <input type="radio" name="smtp[provider]" value="smtp" class="me-2 d-none mailprovider-radio" autocomplete="off" <?php echo $currentProvider == 'smtp' ? 'checked' : '' ?>> 
+                                <h6 class="fw-bold mb-0">SMTP</h6>
+                            </label>
+                        </div>
+                        <?php 
+                            $currentProvider = config('smtp')->provider ?? 'smtp';
+                            foreach($drivers as $key => $driver): 
+                                $isSelected = $currentProvider == $key;
+                        ?>
+                            <div class="col-md-3 mb-2">
+                                <label class="btn border rounded text-dark px-5 py-4 w-100 h-100 text-center mailprovider-block cursor-pointer <?php echo $isSelected ? 'border-dark border-2' : '' ?>" data-provider="<?php echo $key ?>" style="cursor: pointer;">
+                                    <img src="<?php echo assets('images/'.$driver::$logo) ?>" alt="<?php echo $driver::$name ?>" class="img-fluid mb-2 rounded rounded" width="50">
+                                    <input type="radio" name="smtp[provider]" value="<?php echo $key ?>" class="me-2 d-none mailprovider-radio" autocomplete="off" <?php echo $isSelected ? 'checked' : '' ?>> 
+                                    <h6 class="fw-bold mb-0"><?php echo $driver::$name ?></h6>
+                                </label>
+                            </div>
+                        <?php endforeach ?>
                     </div>
 
                     <div class="form-group mb-3">
@@ -58,7 +70,28 @@
                             <input type="text" class="form-control p-2" name="smtp[mailchimpapi]" value="<?php echo config('smtp')->mailchimpapi ?? '' ?>">
                         </div>
                     </div>
-                    <div id="smtp" class="mailblock p-3 border rounded-3 <?php echo (!isset(config('smtp')->provider) || config('smtp')->provider == 'smtp' ? '' : 'd-none')  ?>">
+                    <div id="resend" class="mailblock p-3 border rounded-3 <?php echo (isset(config('smtp')->provider) && config('smtp')->provider == 'resend' ? '' : 'd-none')  ?>">
+                        <div class="form-group mb-3">
+                            <label for="smtp" class="form-label fw-bold"><?php ee('Resend API Key') ?></label>
+                            <input type="text" class="form-control p-2" name="smtp[resendapi]" value="<?php echo config('smtp')->resendapi ?? '' ?>">
+                        </div>
+                    </div>
+                    <div id="ses" class="mailblock p-3 border rounded-3 <?php echo (isset(config('smtp')->provider) && config('smtp')->provider == 'ses' ? '' : 'd-none')  ?>">
+                        <div class="form-group mb-3">
+                            <label for="smtp" class="form-label fw-bold"><?php ee('AWS Access Key ID') ?></label>
+                            <input type="text" class="form-control p-2" name="smtp[sesaccesskey]" value="<?php echo config('smtp')->sesaccesskey ?? '' ?>">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="smtp" class="form-label fw-bold"><?php ee('AWS Secret Access Key') ?></label>
+                            <input type="password" class="form-control p-2" name="smtp[sessecretkey]" value="<?php echo config('smtp')->sessecretkey ?? '' ?>">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="smtp" class="form-label fw-bold"><?php ee('AWS Region') ?></label>
+                            <input type="text" class="form-control p-2" name="smtp[sesregion]" value="<?php echo config('smtp')->sesregion ?? 'us-east-1' ?>" placeholder="e.g. us-east-1, eu-west-1">
+                            <p class="form-text"><?php ee('The AWS region where your SES service is configured (default: us-east-1)') ?></p>
+                        </div>
+                    </div>
+                    <div id="smtp" class="mailblock p-3 border rounded-3 <?php echo ((config('smtp')->provider ?? 'smtp') == 'smtp' ? '' : 'd-none')  ?>">
                         <div class="form-group mb-3">
                             <label for="smtp" class="form-label fw-bold"><?php ee('SMTP Host') ?></label>
                             <input type="text" class="form-control p-2" name="smtp[host]" value="<?php echo config('smtp')->host ?? '' ?>">

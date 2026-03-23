@@ -398,9 +398,7 @@ class Tools {
             
                     DB::appevents()->where('userid', $user->id)->deleteMany();
             
-                    if(\Helpers\App::possible()){
-                        DB::subscription()->where('userid', $user->id)->deleteMany();
-                    }
+                    DB::subscription()->where('userid', $user->id)->deleteMany();
 
                     $usercount++;
                 }
@@ -413,12 +411,12 @@ class Tools {
             $paymentcount = 1;
         }
         $subcount = 0;
-        if(\Helpers\App::possible()){
-            if($request->subscription){
-                DB::subscription()->where('status', 'Pending')->deleteMany();
-                $subcount = 1;
-            }
+
+        if($request->subscription){
+            DB::subscription()->where('status', 'Pending')->deleteMany();
+            $subcount = 1;
         }
+
 
         $statscount = 0;
         if($request->stats){

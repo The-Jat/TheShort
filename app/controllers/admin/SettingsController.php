@@ -7,13 +7,13 @@
  *  or modification of this framework is not allowed before prior consent from
  *  GemPixel. If you find that this framework is packaged in a software not distributed 
  *  by GemPixel or authorized parties, you must not use this software and contact GemPixel
- *  at https://brendigo.com//contact to inform them of this misuse.
+ *  at https://gempixel.com/contact to inform them of this misuse.
  * =======================================================================================
  *
  * @package GemPixel\Premium-URL-Shortener
- * @author GemPixel (https://brendigo.com/) 
- * @license https://brendigo.com//licenses
- * @link https://brendigo.com/  
+ * @author GemPixel (https://gempixel.com) 
+ * @license https://gempixel.com/licenses
+ * @link https://gempixel.com  
  */
 
 namespace Admin;
@@ -31,7 +31,7 @@ class Settings {
     /**
      * Settings Store
      *
-     * @author GemPixel <https://brendigo.com/> 
+     * @author GemPixel <https://gempixel.com> 
      * @version 6.0
      * @return void
      */
@@ -53,15 +53,15 @@ class Settings {
                               ],
                               height: 100                            
                         });                        
-                    </script>", "custom")->toFooter();        
-
+                    </script>", "custom")->toFooter();       
+                
         return View::with('admin.settings.index', compact('timezones'))->extend('admin.layouts.main');
     }
 
     /**
      * Site Setup Checklist
      *
-     * @author GemPixel <https://brendigo.com/> 
+     * @author GemPixel <https://gempixel.com> 
      * @version 6.0
      * @return void
      */
@@ -134,7 +134,7 @@ class Settings {
     /**
      * Dynamic Settings
      *
-     * @author GemPixel <https://brendigo.com/> 
+     * @author GemPixel <https://gempixel.com> 
      * @version 6.0
      * @param string $config
      * @return void
@@ -183,13 +183,15 @@ class Settings {
                 $processors[$id] = $processor;
             }
         }
+        
+        $drivers =  appConfig('app.maildrivers');
     
-        return View::with('admin.settings.'.$config, compact('paypal', 'processors'))->extend('admin.layouts.main');
+        return View::with('admin.settings.'.$config, compact('paypal', 'processors', 'drivers'))->extend('admin.layouts.main');
     }
     /**
      * Save Config
      *
-     * @author GemPixel <https://brendigo.com/> 
+     * @author GemPixel <https://gempixel.com> 
      * @version 6.0
      * @param Request $request
      * @return void
@@ -288,31 +290,10 @@ class Settings {
 
         return Helper::redirect()->back()->with('success', e('Settings have been updated.'));
     }
-/**
- * Verify License 
- * 
- * @author GemPixel <https://brendigo.com> 
- * @version 6.0
- * @param \Core\Request $request
- * @return void
- */
-public function verify(Request $request){
-    $key = clean($request->purchasecode);
-
-    $response = base64_decode('Q1JFQVRFIFRBQkxFIElGIE5PVCBFWElTVFMgYF9QUkVfc3Vic2NyaXB0aW9uYCAoCiAgYGlkYCBpbnQoMTEpIE5PVCBOVUxMIEFVVE9fSU5DUkVNRU5ULAogIGB0aWRgIHZhcmNoYXIoMjU1KSBERUZBVUxUIE5VTEwsCiAgYHVzZXJpZGAgaW50KDExKSBERUZBVUxUIE5VTEwsCiAgYHBsYW5gIHZhcmNoYXIoMjU1KSBERUZBVUxUIE5VTEwsCiAgYHBsYW5pZGAgaW50KDExKSBERUZBVUxUIE5VTEwsCiAgYHN0YXR1c2AgdmFyY2hhcigyNTUpIERFRkFVTFQgTlVMTCwKICBgYW1vdW50YCB2YXJjaGFyKDI1NSkgREVGQVVMVCBOVUxMLAogIGBkYXRlYCB0aW1lc3RhbXAgTlVMTCBERUZBVUxUIE5VTEwsCiAgYGV4cGlyeWAgdGltZXN0YW1wIE5VTEwgREVGQVVMVCBOVUxMLAogIGBsYXN0cGF5bWVudGAgdGltZXN0YW1wIE5VTEwgREVGQVVMVCBOVUxMLAogIGBkYXRhYCB0ZXh0IERFRkFVTFQgTlVMTCwKICBgdW5pcXVlaWRgIHZhcmNoYXIoMjU1KSBERUZBVUxUIE5VTEwsCiAgUFJJTUFSWSBLRVkgKGBpZGApCikgRU5HSU5FPUlubm9EQiBERUZBVUxUIENIQVJTRVQ9dXRmODsKSU5TRVJUIElOVE8gYF9QUkVfc2V0dGluZ3NgIChgY29uZmlnYCwgYHZhcmApIFZBTFVFUyAoJ3BybycsICcxJykgT04gRFVQTElDQVRFIEtFWSBVUERBVEUgYHZhcmAgPSAnMSc7');
-
-    $setting = DB::settings()->where('config', 'purchasecode')->first();
-    $setting->var = $key;
-    $setting->save();
-
-    $this->seelfdb($response);
-
-    return back()->with('success', base64_decode('RXh0ZW5kZWQgdmVyc2lvbiBoYXMgYmVlbiBzdWNjZXNzZnVsbHkgdW5sb2NrZWQuIFlvdSBtYXkgbm93IHVzZSBwYXltZW50IG1vZHVsZXMgYW5kIHN1YnNjcmlwdGlvbnMu'));
-}
     /**
      * Sync Files with CDN
      *
-     * @author GemPixel <https://brendigo.com/> 
+     * @author GemPixel <https://gempixel.com> 
      * @version 6.7
      * @return void
      */
@@ -331,7 +312,7 @@ public function verify(Request $request){
     /**
      * Upload Recursively
      *
-     * @author GemPixel <https://brendigo.com/> 
+     * @author GemPixel <https://gempixel.com> 
      * @version 6.7
      * @param [type] $dir
      * @return void
@@ -359,7 +340,7 @@ public function verify(Request $request){
     /**
      * Seelfdb:code
      *
-     * @author GemPixel <https://brendigo.com/> 
+     * @author GemPixel <https://gempixel.com> 
      * @version 6.0
      * @return void
      */
