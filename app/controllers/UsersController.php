@@ -62,6 +62,136 @@ class Users {
         return View::with('auth.login')->extend('layouts.auth');
     }
 
+    public function ssoRedirect(){
+        $state = md5(uniqid(rand(), true));
+
+        $request = request(); // get current request instance
+        $request->session('oauth_state', $state);
+
+        $redirectUri = urlencode(route('sso.callback'));
+
+        $authUrl = AUTH_BASE_URL . "/auth/login?" .
+            "response_type=code" .
+            "&client_id=" . AUTH_CLIENT_ID .
+            "&redirect_uri={$redirectUri}" .
+            "&state={$state}";
+
+        return Helper::redirect()->to($authUrl);
+    }
+
+    public function ssoCallback(Request $request){
+
+        // 1. Validate state (CSRF protection)
+        // Validate state
+        if (!$request->state || $request->state !== $request->session('oauth_state')) {
+            return Helper::redirect()->to(route('login'))
+                ->with('danger', e('Invalid SSO state.'));
+        }
+
+        // Remove state
+        $request->unset('oauth_state');
+
+        // 2. Check for code
+        if(!$request->code){
+            return Helper::redirect()->to(route('login'))
+                ->with('danger', e('Missing authorization code.'));
+        }
+
+        $tokenResponse = \Core\Http::url(AUTH_BASE_URL . '/auth/token')
+            ->withHeaders([
+                'Content-Type' => 'application/x-www-form-urlencoded'
+            ])
+            ->body([
+                'grant_type' => 'authorization_code',
+                'client_id' => AUTH_CLIENT_ID,
+                'client_secret' => AUTH_CLIENT_SECRET,
+                'redirect_uri' => route('sso.callback'),
+                'code' => $request->code
+            ])
+            ->post();
+
+        if(!$tokenResponse || !$tokenResponse->ok()){
+            return Helper::redirect()->to(route('login'))
+                ->with('danger', e('SSO token exchange failed.'));
+        }
+
+        $tokenData = $tokenResponse->json();
+        $accessToken = $tokenData->access_token ?? null;
+
+
+        if(!$accessToken){
+            return Helper::redirect()->to(route('login'))
+                ->with('danger', e('Invalid token response.'));
+        }
+
+        // Fetch user
+        $userResponse = \Core\Http::url('http://localhost:3000/auth/me')
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken
+            ])
+            ->get();
+
+        if(!$userResponse || !$userResponse->ok()){
+            return Helper::redirect()->to(route('login'))
+                ->with('danger', e('Failed to fetch user info.'));
+        }
+
+        $userData = $userResponse->json();
+
+        if(empty($userData->email)){
+            return Helper::redirect()->to(route('login'))
+                ->with('danger', e('Invalid user data.'));
+        }
+
+        // 5. Find or create local user
+        $user = \Models\User::where('email', $userData->email)->first();
+
+        if(!$user){
+            $email = $userData->email ?? null;
+            $username = $userData->username ?? null;
+
+            if(!$email){
+                return Helper::redirect()->to(route('login'))
+                    ->with('danger', e('Invalid user data.'));
+            }
+
+            $user = new \Models\User();
+            $user->email = $email;
+            $user->username = $username ?: explode('@', $email)[0];
+            $user->active = 1;
+            $user->auth_key = \Core\Helper::Encode($email . time());
+            $user->date = \Core\Helper::dtime();
+
+            // Assign free plan if needed
+            if($plan = \Models\Plans::where("free", "1")->where('status', 1)->orderByDesc('id')->first()){
+                $user->pro = '0';
+                $user->planid = $plan->id;
+            }
+
+            $user->save();
+        }
+
+        // 6. Store token in session
+        $_SESSION['auth_token'] = $accessToken;
+        // 7. Login user
+        \Core\Auth::loginId($user->id);
+
+        // 8. Log event
+        $location = $request->country();
+
+        \Helpers\Events::for('login')->user($user->id)->log(json_encode([
+            'ip' => $request->ip(),
+            'country' => $location['country'] ?? null, // this is fine (array)
+            'city' => $location['city'] ?? null,
+            'os' => $request->device(),
+            'browser' => $request->browser(),
+            'method' => 'sso'
+        ]));
+
+    return Helper::redirect()->to(route('dashboard'))
+        ->with('success', e('You have been successfully logged in with SSO.'));
+    }
+
     /**
      * Validate Login
      *

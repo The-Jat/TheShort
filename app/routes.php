@@ -88,6 +88,9 @@ Gem::get('/user/login/facebook', 'Users@loginWithFacebook')->middleware('CheckDo
 Gem::get('/user/login/twitter', 'Users@loginWithTwitter')->middleware('CheckDomain')->middleware('UserLogged')->name('login.twitter');
 Gem::get('/user/login/google', 'Users@loginWithGoogle')->middleware('CheckDomain')->middleware('UserLogged')->name('login.google');
 
+Gem::get('/sso/redirect', 'Users@ssoRedirect')->name('sso.redirect');
+Gem::get('/sso/callback', 'Users@ssoCallback')->name('sso.callback');
+
 Gem::group($prefix.'/user', function(){
 
     Gem::get('/login', 'Users@login')->middleware('CheckDomain')->middleware('UserLogged')->name('login');

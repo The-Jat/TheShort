@@ -89,6 +89,9 @@
                                         <button type="submit" class="btn btn-primary py-2"><?php ee('Login') ?></button>
                                     </div>
                                 </div>
+                                <a href="<?= route('sso.redirect') ?>" class="btn btn-primary w-100 mt-2">
+                                    Login with SSO
+                                </a>
                             </form>
                         </div>
                     </div>
