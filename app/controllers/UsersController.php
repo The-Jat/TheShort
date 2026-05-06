@@ -125,7 +125,7 @@ class Users {
         }
 
         // Fetch user
-        $userResponse = \Core\Http::url('http://localhost:3000/auth/me')
+        $userResponse = \Core\Http::url( AUTH_BASE_URL . '/auth/me')
             ->withHeaders([
                 'Authorization' => 'Bearer ' . $accessToken
             ])
